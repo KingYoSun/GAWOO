@@ -1,7 +1,11 @@
 {
+  "name": "gawoo",
+  "version": "1.0.0",
+  "description": "",
+  "author": "KingYoSun <nocking257838@gmail.com>",
   "private": true,
   "main": "main/index.js",
-  "productName": "ElectronTypescriptNext",
+  "productName": "GAWOO",
   "scripts": {
     "clean": "rimraf dist main renderer/out renderer/.next",
     "dev": "npm run build-electron && electron .",
