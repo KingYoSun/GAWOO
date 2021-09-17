@@ -1,4 +1,3 @@
-  
 import { createContext, useContext, useState } from 'react';
 
 import { IArticle } from '../types/general';
