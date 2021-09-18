@@ -1,9 +1,15 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import Layout from '../components/Layout'
+import AccountUtils from '../utils/account'
 
 const IndexPage = () => {
+  let accountUtils = null
+  const onAccountConnect = () => {
+    if (!!accountUtils) accountUtils.onConnect()
+  }
   useEffect(() => {
+    accountUtils = new AccountUtils();
     // add a listener to 'message' channel
     global.ipcRenderer.addListener('message', (_event, args) => {
       alert(args)
@@ -15,9 +21,9 @@ const IndexPage = () => {
   }
 
   return (
-    <Layout title="Home | Next.js + TypeScript + Electron Example">
+    <Layout>
       <h1>Hello Next.js 👋</h1>
-      <button onClick={onSayHiClick}>Set Profile</button>
+      <button onClick={onAccountConnect}>Ethereumウォレットと接続</button>
       <p>
         <Link href="/about">
           <a>About</a>

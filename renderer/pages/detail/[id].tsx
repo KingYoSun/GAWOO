@@ -17,7 +17,7 @@ type Props = {
 const InitialPropsDetail = ({ item, errors }: Props) => {
   if (errors) {
     return (
-      <Layout title={`Error | Next.js + TypeScript + Electron Example`}>
+      <Layout>
         <p>
           <span style={{ color: 'red' }}>Error:</span> {errors}
         </p>
@@ -26,9 +26,7 @@ const InitialPropsDetail = ({ item, errors }: Props) => {
   }
 
   return (
-    <Layout
-      title={`${item ? item.name : 'Detail'} | Next.js + TypeScript Example`}
-    >
+    <Layout>
       {item && <ListDetail item={item} />}
     </Layout>
   )
