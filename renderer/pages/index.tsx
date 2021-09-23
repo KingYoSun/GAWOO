@@ -1,15 +1,13 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import Layout from '../components/Layout'
-import AccountUtils from '../utils/account'
+const ConnectWallet = dynamic(() => 
+  import('../components/Button/ConnectWallet'), { ssr: false}
+)
 
 const IndexPage = () => {
-  let accountUtils = null
-  const onAccountConnect = () => {
-    if (!!accountUtils) accountUtils.onConnect()
-  }
   useEffect(() => {
-    accountUtils = new AccountUtils();
     // add a listener to 'message' channel
     global.ipcRenderer.addListener('message', (_event, args) => {
       alert(args)
@@ -23,7 +21,7 @@ const IndexPage = () => {
   return (
     <Layout>
       <h1>Hello Next.js 👋</h1>
-      <button onClick={onAccountConnect}>Ethereumウォレットと接続</button>
+      <ConnectWallet />
       <p>
         <Link href="/about">
           <a>About</a>
