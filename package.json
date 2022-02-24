@@ -32,7 +32,10 @@
     "moment": "^2.29.1",
     "rxdb": "^11.6.0",
     "rxjs": "^7.5.4",
-    "web3": "^1.7.0"
+    "web3": "^1.7.0",
+    "node-fetch": ">=2.6.7",
+    "nanoid": ">=3.1.31",
+    "ansi-regex": ">=5.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",
