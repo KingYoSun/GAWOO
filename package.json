@@ -21,6 +21,7 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.4.2",
     "@mui/material": "^5.4.3",
+    "@mui/styles": "^5.4.2",
     "@walletconnect/client": "^1.7.1",
     "@walletconnect/qrcode-modal": "^1.7.1",
     "@walletconnect/web3-provider": "^1.7.1",
@@ -30,6 +31,7 @@
     "ipfs-core": "^0.14.1",
     "key-did-resolver": "^1.4.4",
     "moment": "^2.29.1",
+    "react-hook-form": "^7.27.1",
     "rxdb": "^11.6.0",
     "rxjs": "^7.5.4",
     "web3": "^1.7.0"
