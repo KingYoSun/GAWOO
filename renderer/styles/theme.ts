@@ -1,52 +1,52 @@
-import {createTheme} from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export const lightTheme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#243354',
-      light: '#8C94AC',
-      dark: '#162036',
-      contrastText: '#FFF',
+      main: "#243354",
+      light: "#8C94AC",
+      dark: "#162036",
+      contrastText: "#FFF",
     },
     secondary: {
-      main: '#E13D4E',
-      contrastText: '#d1713d',
+      main: "#E13D4E",
+      contrastText: "#d1713d",
     },
     text: {
-      primary: '#243354',
-      secondary: '#000',
+      primary: "#243354",
+      secondary: "#000",
     },
     background: {
-      default: '#edf0f2',
-      paper: '#fff',
+      default: "#edf0f2",
+      paper: "#fff",
     },
-    divider: '#A4A6B3',
+    divider: "#A4A6B3",
   },
 });
 
 export const darkTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#243354',
-      light: '#8C94AC',
-      dark: '#162036',
-      contrastText: '#FFF',
+      main: "#243354",
+      light: "#8C94AC",
+      dark: "#162036",
+      contrastText: "#FFF",
     },
     secondary: {
-      main: '#E13D4E',
-      contrastText: '#d1713d',
+      main: "#E13D4E",
+      contrastText: "#d1713d",
     },
     text: {
-      primary: '#FFF',
-      secondary: '#edf0f2',
+      primary: "#FFF",
+      secondary: "#edf0f2",
     },
     background: {
-      default: '#162036',
-      paper: '#243354',
+      default: "#162036",
+      paper: "#243354",
     },
-    divider: '#A4A6B3',
+    divider: "#A4A6B3",
   },
 });
 

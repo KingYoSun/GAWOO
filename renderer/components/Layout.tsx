@@ -1,18 +1,17 @@
 /* eslint no-unused-vars:0 */
-/* eslint @typescript-eslint/no-unused-vars:0 */
 
-import React, {ReactNode, useEffect} from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Head from 'next/head';
+import React, { ReactNode, useEffect } from "react";
+import CssBaseline from "@mui/material/CssBaseline";
+import Head from "next/head";
 
-import AppBarWithSidebar from '../../../gawoo/renderer/components/MainLayout';
-import {ThemeContextProvider} from '../context/ThemeContext';
+import AppBarWithSidebar from "../../../gawoo/renderer/components/MainLayout";
+import { ThemeContextProvider } from "../context/ThemeContext";
 
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
-const Layout = ({children}: Props) => {
+const Layout = ({ children }: Props) => {
   return (
     <div>
       <Head>
@@ -22,9 +21,7 @@ const Layout = ({children}: Props) => {
       <ThemeContextProvider>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <AppBarWithSidebar>
-          {children}
-        </AppBarWithSidebar>
+        <AppBarWithSidebar>{children}</AppBarWithSidebar>
       </ThemeContextProvider>
     </div>
   );

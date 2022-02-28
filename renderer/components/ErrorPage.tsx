@@ -1,13 +1,13 @@
-import {Container, styled, Typography} from '@mui/material';
-import MoodBadIcon from '@mui/icons-material/MoodBad';
+import { Container, styled, Typography } from "@mui/material";
+import MoodBadIcon from "@mui/icons-material/MoodBad";
 
-const useStyles = styled(Container)(({theme}) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
+const useStyles = styled(Container)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
   marginTop: theme.spacing(30),
   flex: 1,
-  flexDirection: 'column',
+  flexDirection: "column",
 }));
 
 const ErrorPage = (): JSX.Element => {

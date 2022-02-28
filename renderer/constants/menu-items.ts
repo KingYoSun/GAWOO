@@ -1,23 +1,23 @@
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AppsIcon from '@mui/icons-material/Apps';
-import DevicesIcon from '@mui/icons-material/Devices';
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AppsIcon from "@mui/icons-material/Apps";
+import DevicesIcon from "@mui/icons-material/Devices";
 
-import {IMenuItem} from '../types/general';
-import * as ROUTES from './routes';
+import { IMenuItem } from "../types/general";
+import * as ROUTES from "./routes";
 
 export const MENU_LIST_ITEMS: IMenuItem[] = [
   {
-    name: 'Home',
+    name: "Home",
     Icon: AppsIcon,
     route: ROUTES.HOME,
   },
   {
-    name: 'DEVICES',
+    name: "DEVICES",
     Icon: DevicesIcon,
     route: ROUTES.DEVICES,
   },
   {
-    name: 'PROFILE',
+    name: "PROFILE",
     Icon: AccountBoxIcon,
     route: ROUTES.PROFILE,
   },

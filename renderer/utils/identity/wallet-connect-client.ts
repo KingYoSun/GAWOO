@@ -1,8 +1,8 @@
-import WalletConnect from '@walletconnect/client';
-import QRCodeModal from '@walletconnect/qrcode-modal';
-import WalletConnectProvider from '@walletconnect/web3-provider';
-import * as ErrorMsg from '../error-msg';
-import {INFURA_ID, WALLET_CONNECT_BRIDGE_URL} from '../../constants/identity';
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import * as ErrorMsg from "../error-msg";
+import { INFURA_ID, WALLET_CONNECT_BRIDGE_URL } from "../../constants/identity";
 
 export default class WallectConnectClient {
   connector: WalletConnect;
@@ -33,14 +33,14 @@ export default class WallectConnectClient {
     }
 
     if (!this.connector.connected) {
-      console.log('start new walletconnect session!');
+      console.log("start new walletconnect session!");
       await this.connector.createSession();
 
       console.log(`init connection!`);
       return new Promise((resolve, reject) => {
-        this.connector.on('connect', async (e, payload) => {
+        this.connector.on("connect", async (e, payload) => {
           if (e) reject(e);
-          const {accounts, chainId} = payload.params[0];
+          const { accounts, chainId } = payload.params[0];
           this.accounts = accounts;
           this.chainId = chainId;
           console.log(`connect walletconnect!`);
@@ -52,10 +52,10 @@ export default class WallectConnectClient {
   }
 
   deleteConnection() {
-    console.log('delete connection!');
-    this.connector.on('disconnect', (e) => {
+    console.log("delete connection!");
+    this.connector.on("disconnect", (e) => {
       if (e) ErrorMsg.call(e);
-      console.log('walletconnect disconnected!');
+      console.log("walletconnect disconnected!");
     });
   }
 
@@ -64,16 +64,17 @@ export default class WallectConnectClient {
       infuraId: INFURA_ID,
     });
 
-    console.log('enable walletconnect provider!');
+    console.log("enable walletconnect provider!");
     return new Promise((resolve, reject) => {
-      this.provider.enable()
-          .then(() => {
-            console.log('second call resolved!');
-            resolve(true);
-          })
-          .catch(() => {
-            reject(new Error('web3プロバイダーの設定に失敗しました'));
-          });
+      this.provider
+        .enable()
+        .then(() => {
+          console.log("second call resolved!");
+          resolve(true);
+        })
+        .catch(() => {
+          reject(new Error("web3プロバイダーの設定に失敗しました"));
+        });
     });
   }
 }

@@ -1,22 +1,22 @@
-import {Container, Grid, Box} from '@mui/material';
-import {styled} from '@mui/material/styles';
-import {useState} from 'react';
+import { Container, Grid, Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useState } from "react";
 
-import Sidebar from './Sidebar';
-import TopAppBar from './TopAppBar';
+import Sidebar from "./Sidebar";
+import TopAppBar from "./TopAppBar";
 
-const MainContent = styled('main')({
+const MainContent = styled("main")({
   flexGrow: 1,
-  height: '100vh',
-  overflow: 'auto',
+  height: "100vh",
+  overflow: "auto",
 });
 
-const MainContainer = styled(Container)(({theme}) => ({
+const MainContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(4),
   paddingBottom: theme.spacing(4),
-  minHeight: '90vh',
-  display: 'flex',
-  flexDirection: 'column',
+  minHeight: "90vh",
+  display: "flex",
+  flexDirection: "column",
 }));
 
 interface AppBarWithSidebarProps {
@@ -35,11 +35,16 @@ const AppBarWithSidebar = ({
   };
 
   return (
-    <Box sx={{display: 'flex'}}>
+    <Box sx={{ display: "flex" }}>
       <TopAppBar open={open} handleDrawerOpen={handleDrawerOpen} />
       <Sidebar open={open} handleDrawerClose={handleDrawerClose} />
       <MainContent>
-        <Box sx={{root: (theme) => ({...theme.mixins.toolbar}), marginTop: (theme) => theme.spacing(8)}} />
+        <Box
+          sx={{
+            root: (theme) => ({ ...theme.mixins.toolbar }),
+            marginTop: (theme) => theme.spacing(8),
+          }}
+        />
         <MainContainer maxWidth="md">
           <Grid container spacing={3}>
             {children}

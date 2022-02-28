@@ -1,13 +1,13 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
-import {User} from '../interfaces';
+import { User } from "../interfaces";
 
 type Props = {
-  data: User
-}
+  data: User;
+};
 
-const ListItem = ({data}: Props) => (
+const ListItem = ({ data }: Props) => (
   <Link href="/detail/[id]" as={`/detail/${data.id}`}>
     <a>
       {data.id}: {data.name}

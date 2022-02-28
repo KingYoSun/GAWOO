@@ -9,7 +9,7 @@
     "dev": "nextron",
     "build": "nextron build",
     "postinstall": "electron-builder install-app-deps",
-    "lint": "next lint"
+    "lint": "next lint ./renderer || exit 0"
   },
   "dependencies": {
     "@3id/connect": "^0.2.5",

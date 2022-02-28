@@ -1,10 +1,10 @@
-import Head from 'next/head';
+import Head from "next/head";
 
 interface CustomHeadProps {
   title: string;
 }
 
-const CustomHead = ({title}: CustomHeadProps): JSX.Element => {
+const CustomHead = ({ title }: CustomHeadProps): JSX.Element => {
   return (
     <Head>
       <title>{title}</title>
