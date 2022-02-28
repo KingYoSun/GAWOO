@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import Layout from '../components/Layout';
-import {BasicProfile} from '../../../hinan/renderer/types/general';
-import {useForm, Controller, SubmitHandler} from 'react-hook-form';
-import {TextField, Button} from '@mui/material';
-import AccountUtils from '../utils/identity/account-utils';
+import React, { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import { BasicProfile } from "../types/general";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { TextField, Button } from "@mui/material";
+import AccountUtils from "../utils/identity/account-utils";
 
 const defaultProfile: BasicProfile = {
   name: null,
@@ -27,21 +27,20 @@ const ProfilePage = () => {
     account.authenticate();
   };
 
-  const {control, handleSubmit} = useForm<BasicProfile>({
+  const { control, handleSubmit } = useForm<BasicProfile>({
     defaultValues: profile,
-    mode: 'onChange',
+    mode: "onChange",
   });
   const onSubmit: SubmitHandler<BasicProfile> = (data) => {
     account.updateProfile(data);
   };
 
   useEffect(() => {
-    (async () => {
+    async () => {
       const resProfile: BasicProfile = await account.getBasicProfile();
       setProfile(resProfile);
-    });
+    };
   }, [account]);
-
 
   return (
     <Layout>
@@ -53,13 +52,15 @@ const ProfilePage = () => {
         <label>
           ユーザー名
           <Controller
-            name='name'
+            name="name"
             control={control}
-            defaultValue=''
-            render={({field}) => <TextField {...field} />}
+            defaultValue=""
+            render={({ field }) => <TextField {...field} />}
           />
         </label>
-        <Button type='submit' variant='outlined'>プロフィールを更新</Button>
+        <Button type="submit" variant="outlined">
+          プロフィールを更新
+        </Button>
       </form>
     </Layout>
   );
