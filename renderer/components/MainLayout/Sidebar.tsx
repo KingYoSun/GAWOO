@@ -40,17 +40,8 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
     <Drawer
       variant="permanent"
       sx={{
-        root: (theme) => ({
-          [theme.breakpoints.up("sm")]: {
-            width: open ? "auto" : theme.spacing(9),
-          },
-        }),
-        paper: {
-          position: "static",
-        },
         position: "relative",
         whiteSpace: "nowrap",
-        backgroundColor: (theme) => theme.palette.primary.dark,
         width: open ? drawerWidth : "0px",
         transition: (theme) =>
           open
@@ -64,6 +55,12 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
               }),
         overflowX: open ? "visible" : "hidden",
       }}
+      PaperProps={{
+        sx: {
+          position: "static",
+          backgroundColor: (theme) => theme.palette.primary.main,
+        },
+      }}
     >
       <Box
         sx={{
@@ -73,7 +70,7 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
         }}
       >
         <Box sx={{ marginLeft: (theme) => theme.spacing(1) }}>
-          <Image src="/images/logo.png" alt="logo" width={50} height={25} />
+          <Image src="/images/logo.png" alt="logo" width={50} height={50} />
         </Box>
         <Box
           sx={{
@@ -100,7 +97,12 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
                 button
                 selected={id === selectedIndex}
                 onClick={() => setSelectedIndex(id)}
-                sx={{ backgroundColor: "#8C94AC" }}
+                sx={{
+                  backgroundColor: (theme) => theme.palette.primary.main,
+                  "&.Mui-selected": {
+                    backgroundColor: (theme) => theme.palette.primary.light,
+                  },
+                }}
               >
                 <ListItemIcon
                   sx={{
