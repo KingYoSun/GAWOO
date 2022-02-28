@@ -73,7 +73,7 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
         }}
       >
         <Box sx={{ marginLeft: (theme) => theme.spacing(1) }}>
-          <Image src="/logo.png" alt="logo" width={50} height={25} />
+          <Image src="/images/logo.png" alt="logo" width={50} height={25} />
         </Box>
         <Box
           sx={{
