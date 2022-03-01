@@ -25,6 +25,7 @@ export default class AccountUtils {
 
   async authenticate() {
     await this.web3.wcClient.initConnection().catch((e) => ErrorMsg.call(e));
+    console.log("set provider!");
     await this.web3.wcClient.setProvider().catch((e) => ErrorMsg.call(e));
     this.web3.setWeb3(this.web3.wcClient.provider);
 
@@ -85,6 +86,6 @@ export default class AccountUtils {
   }
 
   async deleteConnection() {
-    await this.web3.wcClient.deleteConnection();
+    await this.web3.wcClient.deleteConnection().catch((e) => ErrorMsg.call(e));
   }
 }

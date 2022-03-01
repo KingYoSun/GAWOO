@@ -1,7 +1,6 @@
 import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
+import QRCodeModal from "@walletconnect/legacy-modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import * as ErrorMsg from "../error-msg";
 import { INFURA_ID, WALLET_CONNECT_BRIDGE_URL } from "../../constants/identity";
 
 export default class WallectConnectClient {
@@ -53,9 +52,12 @@ export default class WallectConnectClient {
 
   deleteConnection() {
     console.log("delete connection!");
-    this.connector.on("disconnect", (e) => {
-      if (e) ErrorMsg.call(e);
-      console.log("walletconnect disconnected!");
+    return new Promise((resolve, reject) => {
+      this.connector.on("disconnect", (e) => {
+        if (e) reject(e);
+        console.log("walletconnect disconnected!");
+        resolve(true);
+      });
     });
   }
 

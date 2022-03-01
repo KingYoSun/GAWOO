@@ -1,5 +1,5 @@
 export function call(e) {
-  const errorMsg = `ウォレットの接続に失敗しました: ${e}`;
+  const errorMsg = `Error!: ${e}`;
   alert(errorMsg);
   console.log(errorMsg);
 }
