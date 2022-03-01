@@ -17,7 +17,7 @@ export default class AccountUtils {
   didProvider: DIDProvider;
 
   constructor() {
-    this.threeIdConnect = new ThreeIdConnect();
+    this.threeIdConnect = null;
     this.ceramicClient = new CeramicClient();
     this.web3 = new Web3Client();
     this.web3.setWalletConnectClient();
@@ -28,6 +28,11 @@ export default class AccountUtils {
   }
 
   async authenticate() {
+    if (typeof window === "undefined") {
+      console.log("サーバープロセスです");
+      return this;
+    }
+
     await this.web3.wcClient.initConnection().catch((e) => ErrorMsg.call(e));
     console.log("set provider!");
     await this.web3.wcClient.setProvider().catch((e) => ErrorMsg.call(e));
@@ -36,13 +41,15 @@ export default class AccountUtils {
     this.address = this.web3.wcClient.accounts[0];
     if (!this.address) {
       ErrorMsg.call(new Error("ウォレットが見つかりません"));
-      return;
+      return this;
     }
 
     const authProvider = new EthereumAuthProvider(
       this.web3.wcClient.provider,
       this.address
     );
+
+    if (!this.threeIdConnect) this.threeIdConnect = new ThreeIdConnect();
     await this.threeIdConnect
       .connect(authProvider)
       .catch((e) => ErrorMsg.call(e));
@@ -55,6 +62,7 @@ export default class AccountUtils {
     console.log("idx set DIDProvider!");
 
     await this.idx.ceramic.did.authenticate().catch((e) => ErrorMsg.call(e));
+
     console.log("authenticated!");
     return this;
   }

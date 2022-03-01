@@ -22,19 +22,19 @@ const defaultProfile: BasicProfile = {
 };
 
 const ProfilePage = () => {
-  const { account, setAccount } = useContext(AuthContext);
+  const { state, dispatch } = useContext(AuthContext);
   const [profile, setProfile] = useState(defaultProfile);
 
   const showAccount = () => {
-    console.log(account);
+    console.log(state);
   };
 
   const onGetProfile = useCallback(async () => {
-    if (!account?.isConnected()) {
+    if (!state?.isConnected()) {
       return;
     }
 
-    const resProfile: BasicProfile = await account.getBasicProfile();
+    const resProfile: BasicProfile = await state.getBasicProfile();
 
     if (!resProfile) return;
 
@@ -42,7 +42,7 @@ const ProfilePage = () => {
     for (const [key, value] of Object.entries(resProfile)) {
       setValue(key as keyof BasicProfile, value);
     }
-  }, [account]);
+  }, [state]);
 
   useEffect(() => {
     onGetProfile();
@@ -62,7 +62,7 @@ const ProfilePage = () => {
       }
     });
     console.log("post profile: ", data);
-    account.updateProfile(data);
+    state.updateProfile(data);
   };
 
   return (
