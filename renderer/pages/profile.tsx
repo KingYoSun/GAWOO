@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import Layout from "../components/Layout";
 import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
-import AccountUtils from "../utils/identity/account-utils";
-import { type } from "os";
+import * as ErrorMsg from "../utils/error-msg";
+
+import { AuthContext } from "../context/AuthContext";
 
 const defaultProfile: BasicProfile = {
   name: "",
@@ -21,26 +22,31 @@ const defaultProfile: BasicProfile = {
 };
 
 const ProfilePage = () => {
-  const [account] = useState(new AccountUtils());
+  const { account, setAccount } = useContext(AuthContext);
   const [profile, setProfile] = useState(defaultProfile);
 
-  const onAccountConnect = async () => {
-    await account.authenticate();
+  const showAccount = () => {
+    console.log(account);
   };
 
-  const onGetProfile = async () => {
+  const onGetProfile = useCallback(async () => {
+    if (!account?.isConnected()) {
+      return;
+    }
+
     const resProfile: BasicProfile = await account.getBasicProfile();
+
     if (!resProfile) return;
 
     setProfile(resProfile);
     for (const [key, value] of Object.entries(resProfile)) {
       setValue(key as keyof BasicProfile, value);
     }
-  };
+  }, [account]);
 
-  const onDeleteConnection = async () => {
-    await account.deleteConnection();
-  };
+  useEffect(() => {
+    onGetProfile();
+  }, []);
 
   const { control, handleSubmit, setValue } = useForm<BasicProfile>({
     defaultValues: profile,
@@ -63,8 +69,7 @@ const ProfilePage = () => {
     <Layout>
       <h1>プロフィール編集</h1>
       <div>
-        <Button onClick={onAccountConnect}>認証</Button>
-        <Button onClick={onDeleteConnection}>切断</Button>
+        <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onGetProfile}>プロフィール取得</Button>
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>

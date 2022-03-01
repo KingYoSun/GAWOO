@@ -3,14 +3,14 @@ import { AppProps } from "next/app";
 import dynamic from "next/dynamic";
 
 const App = ({ Component, pageProps }: AppProps) => {
-  const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
+  const AuthContextProvider = dynamic(() => import("../context/AuthContext"), {
     ssr: false,
   });
 
   return (
-    <SafeHydrate>
+    <AuthContextProvider>
       <Component {...pageProps} />
-    </SafeHydrate>
+    </AuthContextProvider>
   );
 };
 

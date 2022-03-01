@@ -23,6 +23,10 @@ export default class AccountUtils {
     this.web3.setWalletConnectClient();
   }
 
+  isConnected?() {
+    return !!this.web3.wcClient.connector.connected;
+  }
+
   async authenticate() {
     await this.web3.wcClient.initConnection().catch((e) => ErrorMsg.call(e));
     console.log("set provider!");
@@ -52,6 +56,7 @@ export default class AccountUtils {
 
     await this.idx.ceramic.did.authenticate().catch((e) => ErrorMsg.call(e));
     console.log("authenticated!");
+    return this;
   }
 
   async getBasicProfile() {
@@ -87,5 +92,7 @@ export default class AccountUtils {
 
   async deleteConnection() {
     await this.web3.wcClient.deleteConnection().catch((e) => ErrorMsg.call(e));
+    console.log("delete connection finished!");
+    return this;
   }
 }

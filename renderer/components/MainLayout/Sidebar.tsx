@@ -18,10 +18,6 @@ import { useState } from "react";
 import { MENU_LIST_ITEMS } from "../../constants/menu-items";
 import { drawerWidth } from "../../styles/theme";
 
-const SideBarLink = styled("a")({
-  textDecoration: "none",
-});
-
 interface SideBarProps {
   open: boolean;
   handleDrawerClose: () => void;
@@ -92,41 +88,39 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
         {MENU_LIST_ITEMS.map(({ route, Icon, name }, id) => (
           // eslint-disable-next-line @next/next/link-passhref
           <Link href={route} key={id}>
-            <SideBarLink>
-              <ListItem
-                button
-                selected={id === selectedIndex}
-                onClick={() => setSelectedIndex(id)}
+            <ListItem
+              button
+              selected={id === selectedIndex}
+              onClick={() => setSelectedIndex(id)}
+              sx={{
+                backgroundColor: (theme) => theme.palette.primary.main,
+                "&.Mui-selected": {
+                  backgroundColor: (theme) => theme.palette.primary.light,
+                },
+              }}
+            >
+              <ListItemIcon
                 sx={{
-                  backgroundColor: (theme) => theme.palette.primary.main,
-                  "&.Mui-selected": {
-                    backgroundColor: (theme) => theme.palette.primary.light,
-                  },
+                  color: (theme) =>
+                    id === selectedIndex
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.primary.light,
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    color: (theme) =>
-                      id === selectedIndex
-                        ? theme.palette.primary.contrastText
-                        : theme.palette.primary.light,
-                  }}
-                >
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText
-                  primary={name}
-                  primaryTypographyProps={{ variant: "subtitle1" }}
-                  sx={{
-                    color: (theme) =>
-                      id === selectedIndex
-                        ? theme.palette.primary.contrastText
-                        : theme.palette.primary.light,
-                    primary: (theme) => ({ ...theme.typography.h6 }),
-                  }}
-                />
-              </ListItem>
-            </SideBarLink>
+                <Icon />
+              </ListItemIcon>
+              <ListItemText
+                primary={name}
+                primaryTypographyProps={{ variant: "subtitle1" }}
+                sx={{
+                  color: (theme) =>
+                    id === selectedIndex
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.primary.light,
+                  primary: (theme) => ({ ...theme.typography.h6 }),
+                }}
+              />
+            </ListItem>
           </Link>
         ))}
       </List>

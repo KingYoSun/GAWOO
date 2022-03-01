@@ -53,6 +53,7 @@ export default class WallectConnectClient {
   deleteConnection() {
     console.log("delete connection!");
     return new Promise((resolve, reject) => {
+      console.log(this.connector);
       this.connector.on("disconnect", (e) => {
         if (e) reject(e);
         console.log("walletconnect disconnected!");
