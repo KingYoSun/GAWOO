@@ -7,16 +7,18 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import { MENU_LIST_ITEMS } from "../../constants/menu-items";
 import { drawerWidth } from "../../styles/theme";
+
+import { ProfileContext } from "../../context/ProfileContext";
 
 interface SideBarProps {
   open: boolean;
@@ -24,6 +26,8 @@ interface SideBarProps {
 }
 
 const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
+  const { profile, dispatchProfile } = useContext(ProfileContext);
+
   const router = useRouter();
   const initialSelection = MENU_LIST_ITEMS.findIndex(
     (el) => el.route === router.pathname
@@ -65,8 +69,28 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
           alignItems: "center",
         }}
       >
-        <Box sx={{ marginLeft: (theme) => theme.spacing(1) }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: "5px",
+            marginBottom: "5px",
+            marginLeft: (theme) => theme.spacing(1),
+          }}
+        >
           <Image src="/images/logo.png" alt="logo" width={50} height={50} />
+          <Typography
+            variant="h6"
+            component="span"
+            sx={{
+              margin: "0 5px",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              color: (theme) => theme.palette.primary.contrastText,
+            }}
+          >
+            {profile.name}
+          </Typography>
         </Box>
         <Box
           sx={{

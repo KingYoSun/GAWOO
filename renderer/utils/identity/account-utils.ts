@@ -24,7 +24,11 @@ export default class AccountUtils {
   }
 
   isConnected?() {
-    return !!this.web3.wcClient.connector.connected;
+    return (
+      !!this.web3.wcClient.connector.connected &&
+      !!this.web3.wcClient.provider &&
+      !!this.threeIdConnect
+    );
   }
 
   async authenticate() {

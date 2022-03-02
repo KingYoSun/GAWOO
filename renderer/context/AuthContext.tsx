@@ -20,11 +20,10 @@ export default function AuthContextProvider({
 }: AuthProviderProps): JSX.Element {
   const initialState = new AccountUtils();
 
-  const [state, dispatch] = useReducer(reducer, initialState);
-  console.log(state);
+  const [account, dispatchAccount] = useReducer(reducer, initialState);
 
   return (
-    <AuthContext.Provider value={{ state, dispatch }}>
+    <AuthContext.Provider value={{ account, dispatchAccount }}>
       {children}
     </AuthContext.Provider>
   );

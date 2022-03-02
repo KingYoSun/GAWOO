@@ -14,6 +14,8 @@ const MainContent = styled("main")({
 const MainContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(4),
   paddingBottom: theme.spacing(4),
+  marginRight: theme.spacing(2),
+  marginLeft: theme.spacing(2),
   minHeight: "90vh",
   display: "flex",
   flexDirection: "column",

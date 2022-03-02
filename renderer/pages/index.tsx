@@ -1,31 +1,30 @@
 import { useEffect, useContext } from "react";
 import Link from "next/link";
-import Layout from "../components/Layout";
 import { Button } from "@mui/material";
 
 import { AuthContext } from "../context/AuthContext";
 
 const IndexPage = () => {
-  const { state, dispatch } = useContext(AuthContext);
+  const { account, dispatchAccount } = useContext(AuthContext);
 
   const onAccountConnect = async () => {
-    const newAccount = await state.authenticate();
-    dispatch({
+    const newAccount = await account.authenticate();
+    dispatchAccount({
       type: "set",
       payload: newAccount,
     });
   };
 
   const onDeleteConnection = async () => {
-    const newAccount = await state.deleteConnection();
-    dispatch({
+    const newAccount = await account.deleteConnection();
+    dispatchAccount({
       type: "set",
       payload: newAccount,
     });
   };
 
   const showAccount = () => {
-    console.log(state);
+    console.log("index account: ", account);
   };
 
   useEffect(() => {
@@ -42,7 +41,7 @@ const IndexPage = () => {
   */
 
   return (
-    <Layout>
+    <>
       <h1>Hello Next.js 👋</h1>
       <p>
         <Link href="/about">
@@ -52,14 +51,11 @@ const IndexPage = () => {
       <div>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
-        <Button
-          onClick={onDeleteConnection}
-          disabled={!state.account?.isConnected()}
-        >
+        <Button onClick={onDeleteConnection} disabled={!account?.isConnected()}>
           切断
         </Button>
       </div>
-    </Layout>
+    </>
   );
 };
 

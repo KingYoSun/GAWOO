@@ -1,58 +1,42 @@
-import React, { useEffect, useState, useContext, useCallback } from "react";
-import Layout from "../components/Layout";
+import React, { useContext, useEffect } from "react";
 import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
-import * as ErrorMsg from "../utils/error-msg";
 
 import { AuthContext } from "../context/AuthContext";
-
-const defaultProfile: BasicProfile = {
-  name: "",
-  image: null,
-  description: "",
-  emoji: null,
-  background: null,
-  birthDate: null,
-  url: "",
-  gender: "",
-  homeLocation: "",
-  residenceCountry: "",
-  nationalities: [],
-};
+import { ProfileContext } from "../context/ProfileContext";
 
 const ProfilePage = () => {
-  const { state, dispatch } = useContext(AuthContext);
-  const [profile, setProfile] = useState(defaultProfile);
+  const { account, dispatchAccount } = useContext(AuthContext);
+  const { profile, dispatchProfile } = useContext(ProfileContext);
 
   const showAccount = () => {
-    console.log(state);
+    console.log("account: ", account);
+    console.log("profile: ", profile);
   };
 
-  const onGetProfile = useCallback(async () => {
-    if (!state?.isConnected()) {
-      return;
-    }
-
-    const resProfile: BasicProfile = await state.getBasicProfile();
-
-    if (!resProfile) return;
-
-    setProfile(resProfile);
-    for (const [key, value] of Object.entries(resProfile)) {
-      setValue(key as keyof BasicProfile, value);
-    }
-  }, [state]);
-
-  useEffect(() => {
-    onGetProfile();
-  }, []);
-
   const { control, handleSubmit, setValue } = useForm<BasicProfile>({
-    defaultValues: profile,
+    defaultValues: profile as BasicProfile,
     mode: "onChange",
   });
-  const onSubmit: SubmitHandler<BasicProfile> = (data) => {
+
+  useEffect(() => {
+    for (const [key, value] of Object.entries(profile)) {
+      setValue(key as keyof BasicProfile, value as any);
+    }
+  }, [profile]);
+
+  const getProfile = async () => {
+    if (!account?.isConnected()) return;
+
+    const newProfile = await account.getBasicProfile();
+    dispatchProfile({
+      type: "set",
+      payload: newProfile,
+    });
+  };
+
+  const onSubmit: SubmitHandler<BasicProfile> = async (data) => {
     Object.keys(data).forEach((key) => {
       if (
         !data[key] ||
@@ -62,15 +46,15 @@ const ProfilePage = () => {
       }
     });
     console.log("post profile: ", data);
-    state.updateProfile(data);
+    await account.updateProfile(data);
+    await getProfile();
   };
 
   return (
-    <Layout>
+    <>
       <h1>プロフィール編集</h1>
       <div>
         <Button onClick={showAccount}>アカウント確認</Button>
-        <Button onClick={onGetProfile}>プロフィール取得</Button>
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <label>
@@ -86,7 +70,7 @@ const ProfilePage = () => {
           プロフィールを更新
         </Button>
       </form>
-    </Layout>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 /* eslint no-unused-vars:0 */
 
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import Head from "next/head";
 
