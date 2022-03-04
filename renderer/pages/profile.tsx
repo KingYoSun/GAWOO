@@ -3,6 +3,9 @@ import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { Button, TextField } from "@mui/material";
 import { FlexRow } from "../components/Flex";
+import DateAdapter from "@mui/lab/AdapterMoment";
+import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
@@ -51,6 +54,26 @@ const ProfilePage = () => {
     await getProfile();
   };
 
+  const regURL = new RegExp(
+    "^(https?:\\/\\/)?" + // protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+      "(\\#[-a-z\\d_]*)?$",
+    "i"
+  );
+
+  const handleUpdateProfile = (key, value) => {
+    const newProfile = profile;
+    newProfile[key] = value;
+    dispatchProfile({
+      type: "set",
+      payload: newProfile,
+    });
+    setValue(key as keyof BasicProfile, value as any);
+  };
+
   return (
     <>
       <FlexRow justifyContent="start">
@@ -70,6 +93,76 @@ const ProfilePage = () => {
                 <TextField
                   {...field}
                   label="ユーザー名"
+                  sx={{ minWidth: "300px" }}
+                />
+              )}
+            />
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="20px">
+            <Controller
+              name="description"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="説明"
+                  multiline
+                  sx={{ minWidth: "300px" }}
+                />
+              )}
+            />
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="20px">
+            <Controller
+              name="birthDate"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <LocalizationProvider dateAdapter={DateAdapter}>
+                  <DesktopDatePicker
+                    {...field}
+                    label="誕生日"
+                    inputFormat="yyyy/MM/DD"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required={false}
+                        sx={{ minWidth: "300px" }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              )}
+            />
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="20px">
+            <Controller
+              name="url"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={!!profile.url && !regURL.test(profile.url)}
+                  label="URL"
+                  onChange={(event) =>
+                    handleUpdateProfile("url", event.target.value)
+                  }
+                  sx={{ minWidth: "300px" }}
+                />
+              )}
+            />
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="20px">
+            <Controller
+              name="homeLocation"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="現在地"
                   sx={{ minWidth: "300px" }}
                 />
               )}
