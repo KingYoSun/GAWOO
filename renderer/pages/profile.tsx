@@ -7,7 +7,7 @@ import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import jaLocale from "date-fns/locale/ja";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
@@ -21,7 +21,7 @@ const ProfilePage = () => {
     console.log("profile: ", profile);
   };
 
-  const { control, handleSubmit, setValue } = useForm<BasicProfile>({
+  const { control, register, handleSubmit, setValue } = useForm<BasicProfile>({
     defaultValues: profile as BasicProfile,
     mode: "onChange",
   });
@@ -51,6 +51,8 @@ const ProfilePage = () => {
         delete data[key];
       }
     });
+    if (!!data["birthDate"] && data["birthDate"] instanceof Date)
+      data["birthDate"] = format(data["birthDate"] as Date, "yyyy-MM-dd");
     console.log("post profile: ", data);
     await account.updateProfile(data);
     await getProfile();
@@ -119,7 +121,12 @@ const ProfilePage = () => {
             <Controller
               name="birthDate"
               control={control}
-              defaultValue={null}
+              defaultValue=""
+              rules={{
+                validate: (value) =>
+                  value == null ||
+                  (value instanceof Date && !Number.isNaN(value?.getDate())),
+              }}
               render={({ field }) => (
                 <LocalizationProvider
                   dateAdapter={DateAdapter}
