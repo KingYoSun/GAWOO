@@ -3,9 +3,10 @@ import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { Button, TextField } from "@mui/material";
 import { FlexRow } from "../components/Flex";
-import DateAdapter from "@mui/lab/AdapterMoment";
+import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import jaLocale from "date-fns/locale/ja";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
@@ -119,11 +120,15 @@ const ProfilePage = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <LocalizationProvider dateAdapter={DateAdapter}>
+                <LocalizationProvider
+                  dateAdapter={DateAdapter}
+                  locale={jaLocale}
+                >
                   <DesktopDatePicker
                     {...field}
                     label="誕生日"
-                    inputFormat="yyyy/MM/DD"
+                    inputFormat="MM/dd"
+                    views={["month", "day"]}
                     renderInput={(params) => (
                       <TextField
                         {...params}
