@@ -26,7 +26,7 @@ export type BasicProfile = {
   description?: string;
   emoji?: string;
   background?: ImageSources;
-  birthDate?: string;
+  birthDate?: string | Date;
   url?: string;
   gender?: string;
   homeLocation?: string;

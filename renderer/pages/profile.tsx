@@ -7,6 +7,7 @@ import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import jaLocale from "date-fns/locale/ja";
+import { format, parse } from "date-fns";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
@@ -118,7 +119,7 @@ const ProfilePage = () => {
             <Controller
               name="birthDate"
               control={control}
-              defaultValue=""
+              defaultValue={null}
               render={({ field }) => (
                 <LocalizationProvider
                   dateAdapter={DateAdapter}
@@ -127,14 +128,9 @@ const ProfilePage = () => {
                   <DesktopDatePicker
                     {...field}
                     label="誕生日"
-                    inputFormat="MM/dd"
-                    views={["month", "day"]}
+                    inputFormat="yyyy-MM-dd"
                     renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        required={false}
-                        sx={{ minWidth: "300px" }}
-                      />
+                      <TextField {...params} sx={{ minWidth: "300px" }} />
                     )}
                   />
                 </LocalizationProvider>
