@@ -1,7 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { TextField, Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
+import { FlexRow } from "../components/Flex";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
@@ -52,24 +53,35 @@ const ProfilePage = () => {
 
   return (
     <>
-      <h1>プロフィール編集</h1>
-      <div>
-        <Button onClick={showAccount}>アカウント確認</Button>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label>
-          ユーザー名
-          <Controller
-            name="name"
-            control={control}
-            defaultValue=""
-            render={({ field }) => <TextField {...field} />}
-          />
-        </label>
-        <Button type="submit" variant="outlined">
-          プロフィールを更新
+      <FlexRow justifyContent="start">
+        <h1>プロフィール編集</h1>
+        <Button onClick={showAccount} sx={{ marginLeft: 1 }}>
+          アカウント確認
         </Button>
-      </form>
+      </FlexRow>
+      <FlexRow justifyContent="start">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FlexRow justifyContent="start">
+            <Controller
+              name="name"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="ユーザー名"
+                  sx={{ minWidth: "300px" }}
+                />
+              )}
+            />
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="35px">
+            <Button type="submit" variant="outlined">
+              プロフィールを更新
+            </Button>
+          </FlexRow>
+        </form>
+      </FlexRow>
     </>
   );
 };
