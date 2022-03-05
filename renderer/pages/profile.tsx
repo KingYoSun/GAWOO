@@ -1,16 +1,38 @@
-import React, { useContext, useEffect } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { BasicProfile } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Box } from "@mui/material";
 import { FlexRow } from "../components/Flex";
 import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import jaLocale from "date-fns/locale/ja";
 import { format } from "date-fns";
+import ReactCrop, {
+  Crop,
+  PixelCrop,
+  makeAspectCrop,
+  centerCrop,
+} from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import { cropPreview } from "../utils/crop-preview";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+
+interface UploadAvatarInterface {
+  src: string | null;
+  crop: Crop | null;
+  completedCrop: PixelCrop | null;
+  scale: number;
+  rotate: number;
+}
 
 const ProfilePage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
@@ -21,7 +43,62 @@ const ProfilePage = () => {
     console.log("profile: ", profile);
   };
 
-  const { control, register, handleSubmit, setValue } = useForm<BasicProfile>({
+  const imgRef = useRef(null);
+  const previewCanvasRef = useRef(null);
+  const [avatar, setAvatar] = useState<UploadAvatarInterface>({
+    src: null,
+    crop: null,
+    completedCrop: null,
+    scale: 1,
+    rotate: 0,
+  });
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setAvatar({ ...avatar, crop: undefined });
+      const reader = new FileReader();
+      reader.addEventListener("load", () =>
+        setAvatar({ ...avatar, src: reader.result.toString() || "" })
+      );
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    imgRef.current = e.currentTarget;
+    const { width, height } = e.currentTarget;
+    const newCrop = centerCrop(
+      makeAspectCrop(
+        {
+          unit: "%",
+          width: 90,
+        },
+        1,
+        width,
+        height
+      ),
+      width,
+      height
+    );
+    setAvatar({
+      ...avatar,
+      crop: newCrop,
+    });
+  };
+  const updateCropPreview = useCallback(() => {
+    if (avatar.completedCrop && previewCanvasRef.current && imgRef.current) {
+      cropPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        avatar.completedCrop,
+        avatar.scale,
+        avatar.rotate
+      );
+    }
+  }, [avatar.completedCrop, avatar.scale, avatar.rotate]);
+  useEffect(() => {
+    updateCropPreview();
+  }, [updateCropPreview]);
+
+  const { control, handleSubmit, setValue } = useForm<BasicProfile>({
     defaultValues: profile as BasicProfile,
     mode: "onChange",
   });
@@ -85,6 +162,54 @@ const ProfilePage = () => {
         <Button onClick={showAccount} sx={{ marginLeft: 1 }}>
           アカウント確認
         </Button>
+      </FlexRow>
+      <FlexRow justifyContent="start">
+        <input
+          accept="image/*"
+          id="input-avatar"
+          multiple
+          type="file"
+          onChange={onSelectFile}
+          hidden
+        />
+        <label htmlFor="input-avatar">
+          <Button variant="contained" component="span">
+            アイコン画像選択
+          </Button>
+        </label>
+      </FlexRow>
+      <FlexRow justifyContent="start">
+        {Boolean(avatar.src) && (
+          <ReactCrop
+            crop={avatar.crop}
+            keepSelection
+            onChange={(_, newCrop) => setAvatar({ ...avatar, crop: newCrop })}
+            onComplete={(c) => setAvatar({ ...avatar, completedCrop: c })}
+            aspect={1}
+            circularCrop
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt="crop avatar"
+              src={avatar.src}
+              style={{
+                transform: `scale(${avatar.scale}) rotate(${avatar.rotate}deg)`,
+              }}
+              onLoad={onImageLoad}
+            />
+          </ReactCrop>
+        )}
+        <Box marginLeft={1}>
+          <canvas
+            ref={previewCanvasRef}
+            style={{
+              // Rounding is important for sharpness.
+              width: Math.floor(avatar.completedCrop?.width ?? 0),
+              height: Math.floor(avatar.completedCrop?.height ?? 0),
+              borderRadius: "50% 50%",
+            }}
+          />
+        </Box>
       </FlexRow>
       <FlexRow justifyContent="start">
         <form onSubmit={handleSubmit(onSubmit)}>
