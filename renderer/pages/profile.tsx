@@ -5,9 +5,9 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { BasicProfile } from "../types/general";
+import { BasicProfile, ImageSources } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { Button, TextField, Box } from "@mui/material";
+import { Button, TextField, Box, Avatar } from "@mui/material";
 import { FlexRow } from "../components/Flex";
 import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
@@ -22,11 +22,13 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { cropPreview } from "../utils/crop-preview";
+import { cropToUrl } from "../utils/crop-to-url";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 
 interface UploadAvatarInterface {
+  nowEdit: Boolean;
   src: string | null;
   crop: Crop | null;
   completedCrop: PixelCrop | null;
@@ -46,22 +48,29 @@ const ProfilePage = () => {
   const imgRef = useRef(null);
   const previewCanvasRef = useRef(null);
   const [avatar, setAvatar] = useState<UploadAvatarInterface>({
+    nowEdit: false,
     src: null,
     crop: null,
     completedCrop: null,
     scale: 1,
     rotate: 0,
   });
+
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setAvatar({ ...avatar, crop: undefined });
       const reader = new FileReader();
       reader.addEventListener("load", () =>
-        setAvatar({ ...avatar, src: reader.result.toString() || "" })
+        setAvatar({
+          ...avatar,
+          src: reader.result.toString() || "",
+          nowEdit: true,
+        })
       );
       reader.readAsDataURL(e.target.files[0]);
     }
   };
+
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     imgRef.current = e.currentTarget;
     const { width, height } = e.currentTarget;
@@ -83,6 +92,7 @@ const ProfilePage = () => {
       crop: newCrop,
     });
   };
+
   const updateCropPreview = useCallback(() => {
     if (avatar.completedCrop && previewCanvasRef.current && imgRef.current) {
       cropPreview(
@@ -94,6 +104,22 @@ const ProfilePage = () => {
       );
     }
   }, [avatar.completedCrop, avatar.scale, avatar.rotate]);
+
+  const SubmitAvatar = () => {
+    const url = cropToUrl(previewCanvasRef.current, avatar.completedCrop);
+    const newAvatar: ImageSources = {
+      original: {
+        src: url,
+        mimeType: "image/png",
+        width: previewCanvasRef.current.width,
+        height: previewCanvasRef.current.height,
+        size: url?.length,
+      },
+    };
+    handleUpdateProfile("image", newAvatar);
+    setAvatar({ ...avatar, nowEdit: false });
+    console.log(profile);
+  };
   useEffect(() => {
     updateCropPreview();
   }, [updateCropPreview]);
@@ -178,40 +204,60 @@ const ProfilePage = () => {
           </Button>
         </label>
       </FlexRow>
-      <FlexRow justifyContent="start">
-        {Boolean(avatar.src) && (
-          <ReactCrop
-            crop={avatar.crop}
-            keepSelection
-            onChange={(_, newCrop) => setAvatar({ ...avatar, crop: newCrop })}
-            onComplete={(c) => setAvatar({ ...avatar, completedCrop: c })}
-            aspect={1}
-            circularCrop
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt="crop avatar"
-              src={avatar.src}
-              style={{
-                transform: `scale(${avatar.scale}) rotate(${avatar.rotate}deg)`,
-              }}
-              onLoad={onImageLoad}
-            />
-          </ReactCrop>
-        )}
-        <Box marginLeft={1}>
-          <canvas
-            ref={previewCanvasRef}
-            style={{
-              // Rounding is important for sharpness.
-              width: Math.floor(avatar.completedCrop?.width ?? 0),
-              height: Math.floor(avatar.completedCrop?.height ?? 0),
-              borderRadius: "50% 50%",
-            }}
+      {!avatar.nowEdit && Boolean(profile?.image?.original.src) && (
+        <FlexRow justifyContent="start">
+          <Avatar
+            alt="my avatar"
+            src={profile.image.original.src}
+            sx={{ width: "100px", height: "100px" }}
           />
-        </Box>
-      </FlexRow>
-      <FlexRow justifyContent="start">
+        </FlexRow>
+      )}
+      {avatar.nowEdit && Boolean(avatar.src) && (
+        <FlexRow justifyContent="start">
+          <Box>
+            <FlexRow>
+              <ReactCrop
+                crop={avatar.crop}
+                keepSelection
+                onChange={(_, newCrop) =>
+                  setAvatar({ ...avatar, crop: newCrop })
+                }
+                onComplete={(c) => setAvatar({ ...avatar, completedCrop: c })}
+                aspect={1}
+                circularCrop
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt="crop avatar"
+                  src={avatar.src}
+                  style={{
+                    transform: `scale(${avatar.scale}) rotate(${avatar.rotate}deg)`,
+                  }}
+                  onLoad={onImageLoad}
+                />
+              </ReactCrop>
+              <Box marginLeft={1}>
+                <canvas
+                  ref={previewCanvasRef}
+                  style={{
+                    // Rounding is important for sharpness.
+                    width: Math.floor(avatar.completedCrop?.width ?? 0),
+                    height: Math.floor(avatar.completedCrop?.height ?? 0),
+                    borderRadius: "50% 50%",
+                  }}
+                />
+              </Box>
+            </FlexRow>
+            <FlexRow>
+              <Button variant="outlined" onClick={SubmitAvatar}>
+                確定
+              </Button>
+            </FlexRow>
+          </Box>
+        </FlexRow>
+      )}
+      <FlexRow justifyContent="start" marginTop={3}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FlexRow justifyContent="start">
             <Controller
