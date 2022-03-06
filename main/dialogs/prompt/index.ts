@@ -41,8 +41,8 @@ const showPrompt = async (options) => {
     fullscreenable: false,
     backgroundColor: getBackgroundColor(),
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
     },
     ...options.window,
   });

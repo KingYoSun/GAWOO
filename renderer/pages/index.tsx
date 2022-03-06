@@ -27,7 +27,7 @@ const IndexPage = () => {
   };
 
   const onSayHiClick = async () => {
-    const result = await global.ipcRenderer.invoke("sayMsg", "test");
+    const result = await window.electron.sayMsg("test");
     console.log(result);
   };
 

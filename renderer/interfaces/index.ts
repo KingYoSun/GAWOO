@@ -1,9 +1,11 @@
-import { IpcRenderer } from "electron";
-
 declare global {
-  namespace NodeJS {
-    interface Global {
-      ipcRenderer: IpcRenderer;
-    }
+  interface Window {
+    electron: IElectron;
   }
 }
+
+interface IElectron {
+  sayMsg: (message: string) => void;
+}
+
+export {};

@@ -1,15 +1,7 @@
-import { ipcRenderer, IpcRenderer } from "electron";
+import { ipcRenderer, IpcRenderer, contextBridge } from "electron";
 
-declare global {
-  namespace NodeJS {
-    interface Global {
-      ipcRenderer: IpcRenderer;
-    }
-  }
-}
-
-// Since we disabled nodeIntegration we can reintroduce
-// needed node functionality here
-process.once("loaded", () => {
-  global.ipcRenderer = ipcRenderer;
+contextBridge.exposeInMainWorld("electron", {
+  sayMsg: async (message: string) => {
+    return await ipcRenderer.invoke("sayMsg", "test").then((result) => result);
+  },
 });

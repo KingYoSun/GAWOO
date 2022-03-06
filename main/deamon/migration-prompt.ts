@@ -109,8 +109,8 @@ const showMigrationPrompt = (logs, error = false, done = false) => {
         fullscreenable: false,
         backgroundColor: getBackgroundColor(),
         webPreferences: {
-          nodeIntegration: true,
-          contextIsolation: false,
+          nodeIntegration: false,
+          contextIsolation: true,
         },
       });
       window.on("close", () => {
