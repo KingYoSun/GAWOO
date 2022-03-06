@@ -6,6 +6,7 @@ import {
 import Store from "electron-store";
 import path from "path";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (
   windowName: string,
   options: BrowserWindowConstructorOptions
