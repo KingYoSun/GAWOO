@@ -1,5 +1,5 @@
 import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/legacy-modal";
+import QRCodeModal from "@kingyosun/legacy-modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { INFURA_ID, WALLET_CONNECT_BRIDGE_URL } from "../../constants/identity";
 
