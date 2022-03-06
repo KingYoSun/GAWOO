@@ -77,9 +77,7 @@ app.on("window-all-closed", () => {
   app.quit();
 });
 
-// eslint-disable-next-line max-len
-// listen the channel `message` and resend the received message to the renderer process
-ipcMain.on("message", (event: IpcMainEvent, message: string) => {
+ipcMain.handle("sayMsg", (event: IpcMainEvent, message: string) => {
   console.log(message);
-  setTimeout(() => event.sender.send("message", "hi from electron"), 500);
+  return "said message";
 });

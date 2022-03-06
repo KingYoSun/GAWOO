@@ -1,6 +1,5 @@
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { Button } from "@mui/material";
-
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
 
@@ -27,18 +26,10 @@ const IndexPage = () => {
     console.log("index account: ", account);
   };
 
-  useEffect(() => {
-    // add a listener to 'message' channel
-    global.ipcRenderer.addListener("message", (_event, args) => {
-      alert(args);
-    });
-  }, []);
-
-  /*
-  const onSayHiClick = () => {
-    global.ipcRenderer.send('message', 'hi from next');
+  const onSayHiClick = async () => {
+    const result = await global.ipcRenderer.invoke("sayMsg", "test");
+    console.log(result);
   };
-  */
 
   return (
     <>
@@ -46,6 +37,7 @@ const IndexPage = () => {
         <h1>Hello GAWOO! 👋</h1>
       </FlexRow>
       <FlexRow>
+        <Button onClick={onSayHiClick}>ipcRendererテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
         <Button onClick={onDeleteConnection} disabled={!account?.isConnected()}>

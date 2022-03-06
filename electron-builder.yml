@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: com.example.gawoo
+productName: GAWOO
+copyright: Copyright © 2022 KingYoSun
 directories:
   output: dist
   buildResources: resources
