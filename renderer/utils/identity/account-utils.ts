@@ -1,23 +1,27 @@
 import Web3Client from "./web3-client";
-import { ThreeIdConnect, EthereumAuthProvider } from "@3id/connect";
+import { EthereumAuthProvider, SelfID, WebClient } from "@self.id/web";
 import CeramicClient from "./ceramic-client";
-import * as constants from "@ceramicstudio/idx-constants";
 import * as ErrorMsg from "../error-msg";
 import { BasicProfile } from "../../types/general";
-import { IDX } from "@ceramicstudio/idx";
 import { DIDProvider } from "dids";
+import { Core } from "@self.id/core";
+import { CERAMIC_NETWORK } from "../../constants/identity";
 
 export default class AccountUtils {
   web3: Web3Client;
-  threeIdConnect: ThreeIdConnect;
+  selfId: SelfID;
+  selfIdClient: WebClient;
+  selfIdCore: Core;
   address: string;
   ceramicClient: CeramicClient;
   basicProfile: BasicProfile;
-  idx: IDX;
   didProvider: DIDProvider;
 
   constructor() {
-    this.threeIdConnect = null;
+    this.selfId = null;
+    this.selfIdClient = null;
+    this.selfIdCore = null;
+
     this.ceramicClient = new CeramicClient();
     this.web3 = new Web3Client();
     this.web3.setWalletConnectClient();
@@ -25,9 +29,7 @@ export default class AccountUtils {
 
   isConnected?() {
     return (
-      !!this.web3.wcClient.connector.connected &&
-      !!this.web3.wcClient.provider &&
-      !!this.threeIdConnect
+      !!this.web3.wcClient.connector.connected && !!this.web3.wcClient.provider
     );
   }
 
@@ -53,34 +55,32 @@ export default class AccountUtils {
       this.address
     );
 
-    if (!this.threeIdConnect) this.threeIdConnect = new ThreeIdConnect();
-    await this.threeIdConnect
-      .connect(authProvider)
-      .catch((e) => ErrorMsg.call(e));
-    console.log("3ID connected!");
-
-    this.idx = this.ceramicClient.getIdx();
-    const didProvider = this.threeIdConnect.getDidProvider();
-
-    this.idx.ceramic.did.setProvider(didProvider);
-    console.log("idx set DIDProvider!");
-
-    await this.idx.ceramic.did.authenticate().catch((e) => ErrorMsg.call(e));
-
+    this.selfIdClient = new WebClient({
+      ceramic: CERAMIC_NETWORK,
+      connectNetwork: CERAMIC_NETWORK,
+    });
+    await this.selfIdClient.authenticate(authProvider);
+    const client = this.selfIdClient;
+    this.selfId = new SelfID({ client });
     console.log("authenticated!");
+
     return this;
   }
 
-  async getBasicProfile() {
-    if (!(this.idx instanceof IDX)) {
+  async getMyProfile() {
+    if (!(this.selfId instanceof SelfID)) {
       console.log("認証が必要です");
       return;
     }
     console.log("get profile!");
 
-    this.basicProfile = await this.idx
-      .get(constants.definitions.basicProfile, this.threeIdConnect.accountId)
-      .catch((e) => ErrorMsg.call(e));
+    if (!(this.selfIdCore instanceof Core)) {
+      this.selfIdCore = new Core({ ceramic: CERAMIC_NETWORK });
+    }
+
+    this.basicProfile = (await this.selfIdCore
+      .get("basicProfile", this.selfId.id)
+      .catch((e) => ErrorMsg.call(e))) as BasicProfile;
 
     console.log(`got profile!\n${JSON.stringify(this.basicProfile)}`);
 
@@ -88,18 +88,18 @@ export default class AccountUtils {
   }
 
   async updateProfile(profile: BasicProfile) {
-    if (!(this.idx instanceof IDX)) {
-      ErrorMsg.call(new Error("認証が必要です"));
+    if (!(this.selfId instanceof SelfID)) {
+      ErrorMsg.call("認証が必要です");
       return;
     }
 
     console.log("updating Profile!");
-
-    await this.idx
-      .set(constants.definitions.basicProfile, profile)
+    await this.selfId
+      .set("basicProfile", profile)
       .catch((e) => ErrorMsg.call(e));
 
     console.log("updated profile!");
+    alert("プロフィールを更新しました");
   }
 
   async deleteConnection() {

@@ -1,5 +1,4 @@
-export function call(e) {
-  const errorMsg = `Error!: ${e}`;
-  alert(errorMsg);
-  console.log(errorMsg);
+export function call(e: Error | string) {
+  alert(`Error!: ${e}`);
+  console.log("Error!: ", e);
 }

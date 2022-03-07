@@ -138,7 +138,7 @@ const ProfilePage = () => {
   const getProfile = async () => {
     if (!account?.isConnected()) return;
 
-    const newProfile = await account.getBasicProfile();
+    const newProfile = await account.getMyProfile();
     dispatchProfile({
       type: "set",
       payload: newProfile,

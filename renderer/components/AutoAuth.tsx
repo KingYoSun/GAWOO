@@ -12,7 +12,7 @@ const AutoAuth = ({ children }: Props) => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
 
   const getProfile = async () => {
-    const newProfile = await account.getBasicProfile();
+    const newProfile = await account.getMyProfile();
     dispatchProfile({
       type: "set",
       payload: newProfile,
