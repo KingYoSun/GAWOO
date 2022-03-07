@@ -8,6 +8,7 @@ import {
   ListItemText,
   Box,
   Typography,
+  Avatar,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import Image from "next/image";
@@ -78,7 +79,18 @@ const Sidebar = ({ open, handleDrawerClose }: SideBarProps): JSX.Element => {
             marginLeft: (theme) => theme.spacing(1),
           }}
         >
-          <Image src="/images/logo.png" alt="logo" width={50} height={50} />
+          <Avatar
+            src={profile.avatar || "/images/logo.png"}
+            alt="avatar"
+            sx={{
+              width: 50,
+              height: 50,
+              marginLeft: "3px",
+              marginRight: "5px;",
+              marginTop: "3px",
+              marginBottom: "3px",
+            }}
+          />
           <Typography
             variant="h6"
             component="span"

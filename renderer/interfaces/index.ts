@@ -19,6 +19,7 @@ interface IIpfs {
     successes: Array<UnixFSEntry>;
     failures: Array<string>;
   };
+  catImage: (ipfsPath: string, mimeType: string) => string;
 }
 
 export {};

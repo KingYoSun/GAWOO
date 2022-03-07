@@ -22,6 +22,7 @@ export type ImageSources = {
 
 export type BasicProfile = {
   name?: string;
+  avatar?: string;
   image?: ImageSources | number;
   description?: string;
   emoji?: string;

@@ -5,6 +5,7 @@ type ProfileProviderProps = { children: React.ReactNode };
 
 const defaultProfile: BasicProfile = {
   name: "",
+  avatar: null,
   image: null,
   description: "",
   emoji: null,

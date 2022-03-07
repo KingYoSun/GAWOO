@@ -10,6 +10,7 @@ import setupProtocolHandlers from "./protocol-handler";
 import addToIpfs from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
+import toBuffer from "it-to-buffer";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -105,5 +106,24 @@ ipcMain.handle(
 
     const res = await addToIpfs(ctx, images, "image", pin);
     return res;
+  }
+);
+
+ipcMain.handle(
+  "catImage",
+  async (event: IpcMainEvent, ipfsPath: string, mimeType: string) => {
+    if (!ctx.getIpfsd) {
+      console.log(i18n.t("ipfsNotRunningDialog.title"));
+      return i18n.t("ipfsNotRunningDialog.title");
+    }
+    const convertedIpfsPath = ipfsPath.replace("ipfs://", "/ipfs/");
+    const ipfsd = await ctx.getIpfsd();
+    const res = await ipfsd.api.cat(convertedIpfsPath);
+    const u8array = await toBuffer(res);
+    const bibnaryString = Array.from(u8array, (e) =>
+      String.fromCharCode(e)
+    ).join("");
+    const dataurl = `data:${mimeType};base64,${btoa(bibnaryString)}`;
+    return dataurl;
   }
 );

@@ -19,6 +19,21 @@ const AutoAuth = ({ children }: Props) => {
     });
   };
 
+  const fetchAvatar = async () => {
+    const avatar = await window.ipfs.catImage(
+      profile.image.original.src,
+      profile.image.original.mimeType
+    );
+    dispatchProfile({
+      type: "set",
+      payload: {
+        ...profile,
+        avatar: avatar,
+      },
+    });
+    console.log("fetched avatar!");
+  };
+
   useEffect(() => {
     if (typeof account !== "undefined" && !account?.isConnected()) {
       (async () => {
@@ -35,6 +50,15 @@ const AutoAuth = ({ children }: Props) => {
       getProfile();
     }
   }, []);
+
+  useEffect(() => {
+    if (Boolean(profile?.image?.original.src) && !Boolean(profile?.avatar)) {
+      console.log("fetch avatar!");
+      (async () => {
+        await fetchAvatar();
+      })();
+    }
+  }, [profile]);
 
   return <>{children}</>;
 };
