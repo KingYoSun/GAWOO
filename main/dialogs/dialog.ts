@@ -1,6 +1,6 @@
 import { dialog } from "electron";
 import CommonConst from "../const";
-import dock from "../dock";
+import dock from "../utils/dock";
 import i18n from "i18next";
 
 const Dialog = ({

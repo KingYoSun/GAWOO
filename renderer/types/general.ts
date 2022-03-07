@@ -22,11 +22,11 @@ export type ImageSources = {
 
 export type BasicProfile = {
   name?: string;
-  image?: ImageSources;
+  image?: ImageSources | number;
   description?: string;
   emoji?: string;
   background?: ImageSources;
-  birthDate?: string | Date;
+  birthDate?: string | Date | null;
   url?: string;
   gender?: string;
   homeLocation?: string;

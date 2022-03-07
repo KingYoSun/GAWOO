@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 import crypto from "crypto";
 import CommonConst from "../../const";
-import dock from "../../dock";
+import dock from "../../utils/dock";
 import makePage from "./template";
 import { getBackgroundColor } from "./styles";
 

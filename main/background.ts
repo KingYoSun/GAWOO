@@ -7,6 +7,16 @@ import { criticalErrorDialog } from "./dialogs";
 import setupI18n from "./i18n";
 import setupDaemon from "./deamon";
 import setupProtocolHandlers from "./protocol-handler";
+import addToIpfs from "./add-to-ipfs";
+import i18n from "i18next";
+import { Controller } from "ipfsd-ctl";
+
+export interface mainContext {
+  getIpfsd?: () => Controller | null;
+  startIpfs?: () => Promise<any>;
+  stopIpfs?: () => Promise<any>;
+  restartIpfs?: () => Promise<any>;
+}
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -24,7 +34,7 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0);
 }
 
-const ctx = {};
+const ctx: mainContext = {};
 
 app.on("will-finish-launching", () => {
   setupProtocolHandlers(ctx);
@@ -81,3 +91,19 @@ ipcMain.handle("sayMsg", (event: IpcMainEvent, message: string) => {
   console.log(message);
   return "said message";
 });
+
+ipcMain.handle(
+  "imageToIpfs",
+  async (event: IpcMainEvent, images: Array<String>, pin: Boolean) => {
+    if (!ctx.getIpfsd) {
+      console.log(i18n.t("ipfsNotRunningDialog.title"));
+      return {
+        successes: [],
+        failures: [i18n.t("ipfsNotRunningDialog.title")],
+      };
+    }
+
+    const res = await addToIpfs(ctx, images, "image", pin);
+    return res;
+  }
+);

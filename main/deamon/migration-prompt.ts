@@ -1,7 +1,7 @@
 import { BrowserWindow } from "electron";
 import i18n from "i18next";
 import crypto from "crypto";
-import dock from "../dock";
+import dock from "../utils/dock";
 import { styles, getBackgroundColor } from "../dialogs/prompt/styles";
 import { generateErrorIssueUrl } from "../dialogs/errors";
 import CommonConst from "../const";

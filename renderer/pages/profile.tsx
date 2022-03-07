@@ -13,7 +13,7 @@ import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import jaLocale from "date-fns/locale/ja";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import ReactCrop, {
   Crop,
   PixelCrop,
@@ -34,6 +34,10 @@ interface UploadAvatarInterface {
   completedCrop: PixelCrop | null;
   scale: number;
   rotate: number;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  size: number | null;
 }
 
 const ProfilePage = () => {
@@ -54,6 +58,10 @@ const ProfilePage = () => {
     completedCrop: null,
     scale: 1,
     rotate: 0,
+    mimeType: null,
+    width: null,
+    height: null,
+    size: null,
   });
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,28 +113,44 @@ const ProfilePage = () => {
     }
   }, [avatar.completedCrop, avatar.scale, avatar.rotate]);
 
-  const SubmitAvatar = () => {
-    const url = cropToUrl(previewCanvasRef.current, avatar.completedCrop);
-    const newAvatar: ImageSources = {
-      original: {
-        src: url,
-        mimeType: "image/png",
-        width: previewCanvasRef.current.width,
-        height: previewCanvasRef.current.height,
-        size: url?.length,
-      },
-    };
-    handleUpdateProfile("image", newAvatar);
-    setAvatar({ ...avatar, nowEdit: false });
+  const SubmitImageToAvatar = () => {
+    const dataUrl = cropToUrl(previewCanvasRef.current, avatar.completedCrop);
+    setAvatar({
+      ...avatar,
+      src: dataUrl,
+      mimeType: "image/png",
+      width: previewCanvasRef.current.width,
+      height: previewCanvasRef.current.height,
+      size: dataUrl?.length,
+      nowEdit: false,
+    });
+    handleUpdateProfile("image", 1); //handleSubmitを発火させるため
+
     console.log(profile);
   };
+
+  const uploadImageToIpfs = async (dataUrl) => {
+    const ipfsUrls = await window.ipfs.imageToIpfs([dataUrl], true);
+    console.log("ipfsUploaded!: ", ipfsUrls);
+    if (ipfsUrls?.failures.length > 0) {
+      console.log("image upload to ipfs failures!: ", ipfsUrls?.failures);
+      alert(`画像のアップロードに失敗しました: ${ipfsUrls?.failures[0]}`);
+    }
+    if (ipfsUrls?.successes.length === 0) {
+      return null;
+    }
+
+    console.log("uploaded image to ipfs is succeeded!");
+    return `ipfs://${ipfsUrls.successes[0].path}`;
+  };
+
   useEffect(() => {
     updateCropPreview();
   }, [updateCropPreview]);
 
   const { control, handleSubmit, setValue } = useForm<BasicProfile>({
     defaultValues: profile as BasicProfile,
-    mode: "onChange",
+    mode: "onSubmit",
   });
 
   useEffect(() => {
@@ -146,6 +170,7 @@ const ProfilePage = () => {
   };
 
   const onSubmit: SubmitHandler<BasicProfile> = async (data) => {
+    console.log("start submit profile!");
     Object.keys(data).forEach((key) => {
       if (
         !data[key] ||
@@ -156,6 +181,22 @@ const ProfilePage = () => {
     });
     if (!!data["birthDate"] && data["birthDate"] instanceof Date)
       data["birthDate"] = format(data["birthDate"] as Date, "yyyy-MM-dd");
+
+    const regIpfsObj = new RegExp("^ipfs://.+", "i");
+    if (!!avatar.src && !regIpfsObj.test(avatar.src)) {
+      const ipfsUrl = await uploadImageToIpfs(avatar.src);
+
+      const newAvatar: ImageSources = {
+        original: {
+          src: ipfsUrl,
+          mimeType: avatar.mimeType,
+          width: avatar.width,
+          height: avatar.height,
+          size: avatar.size,
+        },
+      };
+      data["image"] = newAvatar;
+    }
     console.log("post profile: ", data);
     await account.updateProfile(data);
     await getProfile();
@@ -181,6 +222,8 @@ const ProfilePage = () => {
     setValue(key as keyof BasicProfile, value as any);
   };
 
+  const onError = (errors, e) => console.log(errors, e);
+
   return (
     <>
       <FlexRow justifyContent="start">
@@ -204,11 +247,11 @@ const ProfilePage = () => {
           </Button>
         </label>
       </FlexRow>
-      {!avatar.nowEdit && Boolean(profile?.image?.original.src) && (
+      {!avatar.nowEdit && Boolean(avatar.src) && (
         <FlexRow justifyContent="start">
           <Avatar
             alt="my avatar"
-            src={profile.image.original.src}
+            src={avatar.src}
             sx={{ width: "100px", height: "100px" }}
           />
         </FlexRow>
@@ -250,7 +293,7 @@ const ProfilePage = () => {
               </Box>
             </FlexRow>
             <FlexRow>
-              <Button variant="outlined" onClick={SubmitAvatar}>
+              <Button variant="outlined" onClick={SubmitImageToAvatar}>
                 確定
               </Button>
             </FlexRow>
@@ -258,7 +301,7 @@ const ProfilePage = () => {
         </FlexRow>
       )}
       <FlexRow justifyContent="start" marginTop={3}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, onError)}>
           <FlexRow justifyContent="start">
             <Controller
               name="name"
@@ -289,31 +332,31 @@ const ProfilePage = () => {
             />
           </FlexRow>
           <FlexRow justifyContent="start" marginTop="20px">
-            <Controller
-              name="birthDate"
-              control={control}
-              defaultValue=""
-              rules={{
-                validate: (value) =>
-                  value == null ||
-                  (value instanceof Date && !Number.isNaN(value?.getDate())),
-              }}
-              render={({ field }) => (
-                <LocalizationProvider
-                  dateAdapter={DateAdapter}
-                  locale={jaLocale}
-                >
+            <LocalizationProvider dateAdapter={DateAdapter} locale={jaLocale}>
+              <Controller
+                name="birthDate"
+                control={control}
+                defaultValue=""
+                rules={{
+                  validate: (value) =>
+                    value == null ||
+                    (typeof value === "string" &&
+                      parse(value, "yyyy-MM-dd", new Date()) instanceof Date) ||
+                    (value instanceof Date && !Number.isNaN(value?.getDate())),
+                }}
+                render={({ field }) => (
                   <DesktopDatePicker
                     {...field}
                     label="誕生日"
+                    mask="____-__-__"
                     inputFormat="yyyy-MM-dd"
                     renderInput={(params) => (
                       <TextField {...params} sx={{ minWidth: "300px" }} />
                     )}
                   />
-                </LocalizationProvider>
-              )}
-            />
+                )}
+              />
+            </LocalizationProvider>
           </FlexRow>
           <FlexRow justifyContent="start" marginTop="20px">
             <Controller

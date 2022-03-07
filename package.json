@@ -36,6 +36,7 @@
     "i18next-fs-backend": "^1.1.4",
     "i18next-icu": "^2.0.3",
     "ipfs-core": "^0.14.1",
+    "ipfs-unixfs-exporter": "^7.0.6",
     "ipfsd-ctl": "^10.0.6",
     "key-did-resolver": "^1.4.4",
     "moment": "^2.29.1",

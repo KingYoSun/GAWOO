@@ -2,7 +2,7 @@ import { app, dialog } from "electron";
 import { showDialog } from "./dialogs";
 import logger from "./logger";
 import store from "./store";
-import dock from "./dock";
+import dock from "./utils/dock";
 import i18n from "i18next";
 
 const SETTINGS_KEY = "binaryPath";
