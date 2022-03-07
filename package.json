@@ -43,8 +43,6 @@
     "react-dropzone": "^12.0.4",
     "react-hook-form": "^7.27.1",
     "react-image-crop": "^10.0.0-beta.2",
-    "rxdb": "^11.6.0",
-    "rxjs": "^7.5.4",
     "web3": "^1.7.0",
     "winston": "^3.6.0"
   },
