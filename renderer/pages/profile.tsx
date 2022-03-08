@@ -27,7 +27,6 @@ import { cropToUrl } from "../utils/crop-to-url";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
-import Image from "next/image";
 
 interface CropImageInterface {
   nowEdit: Boolean;
@@ -367,11 +366,14 @@ const ProfilePage = () => {
       </FlexRow>
       {!bg.nowEdit && (Boolean(bg.src) || Boolean(profile.bgImg)) && (
         <FlexRow justifyContent="start">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             alt="my background image"
             src={bg.src ?? profile.bgImg}
-            width="400px"
-            height="100px"
+            style={{
+              width: "400px",
+              height: "100px",
+            }}
           />
         </FlexRow>
       )}
