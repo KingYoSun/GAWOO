@@ -28,22 +28,17 @@ const AppBarWithSidebar = ({
   children,
 }: AppBarWithSidebarProps): JSX.Element => {
   const [open, setOpen] = useState(false);
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleDrawerToggle = () => {
+    setOpen(!open);
   };
 
   return (
     <Box sx={{ display: "flex" }}>
-      <TopAppBar open={open} handleDrawerOpen={handleDrawerOpen} />
-      <Sidebar open={open} handleDrawerClose={handleDrawerClose} />
+      <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
       <MainContent>
         <Box
           sx={{
             root: (theme) => ({ ...theme.mixins.toolbar }),
-            marginTop: (theme) => theme.spacing(8),
           }}
         />
         <MainContainer maxWidth="md">
