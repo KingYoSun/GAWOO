@@ -14,30 +14,34 @@ import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import jaLocale from "date-fns/locale/ja";
 import { format, parse } from "date-fns";
-import ReactCrop, {
-  Crop,
-  PixelCrop,
-  makeAspectCrop,
-  centerCrop,
-} from "react-image-crop";
+import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { cropPreview } from "../utils/crop-preview";
+import {
+  cropPreview,
+  onSelectFile,
+  onImageLoad,
+  uploadImageToIpfs,
+  cancelCrop,
+} from "../utils/crop-image-utils";
 import { cropToUrl } from "../utils/crop-to-url";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+import Image from "next/image";
 
-interface UploadAvatarInterface {
+interface CropImageInterface {
   nowEdit: Boolean;
-  src: string | null;
-  crop: Crop | null;
-  completedCrop: PixelCrop | null;
+  src?: string;
+  crop?: Crop;
+  completedCrop?: PixelCrop;
   scale: number;
   rotate: number;
-  mimeType: string | null;
-  width: number | null;
-  height: number | null;
-  size: number | null;
+  mimeType?: string;
+  width?: number;
+  height?: number;
+  size?: number;
+  aspect?: number;
+  input: boolean;
 }
 
 const ProfilePage = () => {
@@ -49,9 +53,27 @@ const ProfilePage = () => {
     console.log("profile: ", profile);
   };
 
-  const imgRef = useRef(null);
-  const previewCanvasRef = useRef(null);
-  const [avatar, setAvatar] = useState<UploadAvatarInterface>({
+  const getProfile = async () => {
+    if (!account?.isConnected()) return;
+
+    const newProfile = await account.getMyProfile();
+    dispatchProfile({
+      type: "set",
+      payload: newProfile,
+    });
+  };
+
+  const handleUpdateProfile = (key, value) => {
+    const newProfile = profile;
+    newProfile[key] = value;
+    dispatchProfile({
+      type: "set",
+      payload: newProfile,
+    });
+    setValue(key as keyof BasicProfile, value as any);
+  };
+
+  const initImage = {
     nowEdit: false,
     src: null,
     crop: null,
@@ -62,65 +84,58 @@ const ProfilePage = () => {
     width: null,
     height: null,
     size: null,
-  });
-
-  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setAvatar({ ...avatar, crop: undefined });
-      const reader = new FileReader();
-      reader.addEventListener("load", () =>
-        setAvatar({
-          ...avatar,
-          src: reader.result.toString() || "",
-          nowEdit: true,
-        })
-      );
-      reader.readAsDataURL(e.target.files[0]);
-    }
+    aspect: 1,
+    input: true,
   };
 
-  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    imgRef.current = e.currentTarget;
-    const { width, height } = e.currentTarget;
-    const newCrop = centerCrop(
-      makeAspectCrop(
-        {
-          unit: "%",
-          width: 90,
-        },
-        1,
-        width,
-        height
-      ),
-      width,
-      height
-    );
-    setAvatar({
-      ...avatar,
-      crop: newCrop,
-    });
-  };
+  const imgRefAvatar = useRef(null);
+  const previewCanvasRefAvatar = useRef(null);
+  const initAvatar = JSON.parse(JSON.stringify(initImage));
+  const [avatar, setAvatar] = useState<CropImageInterface>(initAvatar);
 
-  const updateCropPreview = useCallback(() => {
-    if (avatar.completedCrop && previewCanvasRef.current && imgRef.current) {
+  const imgRefBg = useRef(null);
+  const previewCanvasRefBg = useRef(null);
+  const initBg = {
+    ...initImage,
+    aspect: 4,
+  };
+  const [bg, setBg] = useState<CropImageInterface>(initBg);
+
+  const updateAvatarCropPreview = useCallback(() => {
+    if (
+      avatar.completedCrop &&
+      previewCanvasRefAvatar.current &&
+      imgRefAvatar.current
+    ) {
       cropPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        avatar.completedCrop,
-        avatar.scale,
-        avatar.rotate
+        imgRefAvatar.current,
+        previewCanvasRefAvatar.current,
+        avatar.completedCrop
       );
     }
   }, [avatar.completedCrop, avatar.scale, avatar.rotate]);
 
+  const updateBgCropPreview = useCallback(() => {
+    if (bg.completedCrop && previewCanvasRefBg.current && imgRefBg.current) {
+      cropPreview(
+        imgRefBg.current,
+        previewCanvasRefBg.current,
+        bg.completedCrop
+      );
+    }
+  }, [bg.completedCrop, bg.scale, bg.rotate]);
+
   const SubmitImageToAvatar = () => {
-    const dataUrl = cropToUrl(previewCanvasRef.current, avatar.completedCrop);
+    const dataUrl = cropToUrl(
+      previewCanvasRefAvatar.current,
+      avatar.completedCrop
+    );
     setAvatar({
       ...avatar,
       src: dataUrl,
       mimeType: "image/png",
-      width: previewCanvasRef.current.width,
-      height: previewCanvasRef.current.height,
+      width: previewCanvasRefAvatar.current.width,
+      height: previewCanvasRefAvatar.current.height,
       size: dataUrl?.length,
       nowEdit: false,
     });
@@ -129,24 +144,29 @@ const ProfilePage = () => {
     console.log(profile);
   };
 
-  const uploadImageToIpfs = async (dataUrl) => {
-    const ipfsUrls = await window.ipfs.imageToIpfs([dataUrl], true);
-    console.log("ipfsUploaded!: ", ipfsUrls);
-    if (ipfsUrls?.failures.length > 0) {
-      console.log("image upload to ipfs failures!: ", ipfsUrls?.failures);
-      alert(`画像のアップロードに失敗しました: ${ipfsUrls?.failures[0]}`);
-    }
-    if (ipfsUrls?.successes.length === 0) {
-      return null;
-    }
+  const SubmitImageToBg = () => {
+    const dataUrl = cropToUrl(previewCanvasRefBg.current, bg.completedCrop);
+    setBg({
+      ...bg,
+      src: dataUrl,
+      mimeType: "image/png",
+      width: previewCanvasRefBg.current.width,
+      height: previewCanvasRefBg.current.height,
+      size: dataUrl?.length,
+      nowEdit: false,
+    });
+    handleUpdateProfile("background", 1); //handleSubmitを発火させるため
 
-    console.log("uploaded image to ipfs is succeeded!");
-    return `ipfs://${ipfsUrls.successes[0].path}`;
+    console.log(profile);
   };
 
   useEffect(() => {
-    updateCropPreview();
-  }, [updateCropPreview]);
+    updateAvatarCropPreview();
+  }, [updateAvatarCropPreview]);
+
+  useEffect(() => {
+    updateBgCropPreview();
+  }, [updateBgCropPreview]);
 
   const { control, handleSubmit, setValue } = useForm<BasicProfile>({
     defaultValues: profile as BasicProfile,
@@ -159,15 +179,7 @@ const ProfilePage = () => {
     }
   }, [profile]);
 
-  const getProfile = async () => {
-    if (!account?.isConnected()) return;
-
-    const newProfile = await account.getMyProfile();
-    dispatchProfile({
-      type: "set",
-      payload: newProfile,
-    });
-  };
+  const onError = (errors, e) => console.log(errors, e);
 
   const onSubmit: SubmitHandler<BasicProfile> = async (data) => {
     console.log("start submit profile!");
@@ -183,20 +195,44 @@ const ProfilePage = () => {
       data["birthDate"] = format(data["birthDate"] as Date, "yyyy-MM-dd");
 
     const regIpfsObj = new RegExp("^ipfs://.+", "i");
-    if (!!avatar.src && !regIpfsObj.test(avatar.src)) {
-      const ipfsUrl = await uploadImageToIpfs(avatar.src);
+    await Promise.all([
+      (async () => {
+        if (!!avatar.src && !regIpfsObj.test(avatar.src)) {
+          const ipfsUrl = await uploadImageToIpfs(avatar.src);
 
-      const newAvatar: ImageSources = {
-        original: {
-          src: ipfsUrl,
-          mimeType: avatar.mimeType,
-          width: avatar.width,
-          height: avatar.height,
-          size: avatar.size,
-        },
-      };
-      data["image"] = newAvatar;
-    }
+          const newAvatar: ImageSources = {
+            original: {
+              src: ipfsUrl,
+              mimeType: avatar.mimeType,
+              width: avatar.width,
+              height: avatar.height,
+              size: avatar.size,
+            },
+          };
+          data["image"] = newAvatar;
+          delete data["avatar"];
+        }
+      })(),
+
+      (async () => {
+        if (!!bg.src && !regIpfsObj.test(bg.src)) {
+          const ipfsUrl = await uploadImageToIpfs(bg.src);
+
+          const newBg: ImageSources = {
+            original: {
+              src: ipfsUrl,
+              mimeType: bg.mimeType,
+              width: bg.width,
+              height: bg.height,
+              size: bg.size,
+            },
+          };
+          data["background"] = newBg;
+          delete data["bgImg"];
+        }
+      })(),
+    ]);
+
     console.log("post profile: ", data);
     await account.updateProfile(data);
     await getProfile();
@@ -212,18 +248,6 @@ const ProfilePage = () => {
     "i"
   );
 
-  const handleUpdateProfile = (key, value) => {
-    const newProfile = profile;
-    newProfile[key] = value;
-    dispatchProfile({
-      type: "set",
-      payload: newProfile,
-    });
-    setValue(key as keyof BasicProfile, value as any);
-  };
-
-  const onError = (errors, e) => console.log(errors, e);
-
   return (
     <>
       <FlexRow justifyContent="start">
@@ -233,25 +257,27 @@ const ProfilePage = () => {
         </Button>
       </FlexRow>
       <FlexRow justifyContent="start">
-        <input
-          accept="image/*"
-          id="input-avatar"
-          multiple
-          type="file"
-          onChange={onSelectFile}
-          hidden
-        />
+        {avatar.input && (
+          <input
+            accept="image/*"
+            id="input-avatar"
+            multiple
+            type="file"
+            onChange={(e) => onSelectFile(e, avatar, setAvatar)}
+            hidden
+          />
+        )}
         <label htmlFor="input-avatar">
           <Button variant="contained" component="span">
             アイコン画像選択
           </Button>
         </label>
       </FlexRow>
-      {!avatar.nowEdit && Boolean(avatar.src) && (
+      {!avatar.nowEdit && (Boolean(avatar.src) || Boolean(profile.avatar)) && (
         <FlexRow justifyContent="start">
           <Avatar
             alt="my avatar"
-            src={avatar.src}
+            src={avatar.src ?? profile.avatar}
             sx={{ width: "100px", height: "100px" }}
           />
         </FlexRow>
@@ -276,13 +302,17 @@ const ProfilePage = () => {
                   src={avatar.src}
                   style={{
                     transform: `scale(${avatar.scale}) rotate(${avatar.rotate}deg)`,
+                    maxHeight: "250px",
+                    maxWidth: "250px",
                   }}
-                  onLoad={onImageLoad}
+                  onLoad={(e) =>
+                    onImageLoad(e, avatar, setAvatar, imgRefAvatar)
+                  }
                 />
               </ReactCrop>
               <Box marginLeft={1}>
                 <canvas
-                  ref={previewCanvasRef}
+                  ref={previewCanvasRefAvatar}
                   style={{
                     // Rounding is important for sharpness.
                     width: Math.floor(avatar.completedCrop?.width ?? 0),
@@ -295,6 +325,106 @@ const ProfilePage = () => {
             <FlexRow>
               <Button variant="outlined" onClick={SubmitImageToAvatar}>
                 確定
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  cancelCrop(
+                    initAvatar,
+                    setAvatar,
+                    imgRefAvatar,
+                    previewCanvasRefAvatar
+                  );
+                  let obj = document.getElementById(
+                    "input-avatar"
+                  ) as HTMLInputElement;
+                  obj.value = null;
+                }}
+                sx={{ marginLeft: 1 }}
+              >
+                キャンセル
+              </Button>
+            </FlexRow>
+          </Box>
+        </FlexRow>
+      )}
+      <FlexRow justifyContent="start" marginTop={3}>
+        {bg.input && (
+          <input
+            accept="image/*"
+            id="input-bg"
+            multiple
+            type="file"
+            onChange={(e) => onSelectFile(e, bg, setBg)}
+            hidden
+          />
+        )}
+        <label htmlFor="input-bg">
+          <Button variant="contained" component="span">
+            背景画像選択
+          </Button>
+        </label>
+      </FlexRow>
+      {!bg.nowEdit && (Boolean(bg.src) || Boolean(profile.bgImg)) && (
+        <FlexRow justifyContent="start">
+          <Image
+            alt="my background image"
+            src={bg.src ?? profile.bgImg}
+            width="400px"
+            height="100px"
+          />
+        </FlexRow>
+      )}
+      {bg.nowEdit && Boolean(bg.src) && (
+        <FlexRow justifyContent="start">
+          <Box>
+            <FlexRow>
+              <ReactCrop
+                crop={bg.crop}
+                keepSelection
+                onChange={(_, newCrop) => setBg({ ...bg, crop: newCrop })}
+                onComplete={(c) => setBg({ ...bg, completedCrop: c })}
+                aspect={4}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt="crop background"
+                  src={bg.src}
+                  style={{
+                    transform: `scale(${bg.scale}) rotate(${bg.rotate}deg)`,
+                    maxHeight: "400px",
+                    maxWidth: "400px",
+                  }}
+                  onLoad={(e) => onImageLoad(e, bg, setBg, imgRefBg)}
+                />
+              </ReactCrop>
+              <Box marginLeft={1}>
+                <canvas
+                  ref={previewCanvasRefBg}
+                  style={{
+                    // Rounding is important for sharpness.
+                    width: Math.floor(bg.completedCrop?.width ?? 0),
+                    height: Math.floor(bg.completedCrop?.height ?? 0),
+                  }}
+                />
+              </Box>
+            </FlexRow>
+            <FlexRow>
+              <Button variant="outlined" onClick={SubmitImageToBg}>
+                確定
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  cancelCrop(initBg, setBg, imgRefBg, previewCanvasRefBg);
+                  let obj = document.getElementById(
+                    "input-bg"
+                  ) as HTMLInputElement;
+                  obj.value = null;
+                }}
+                sx={{ marginLeft: 1 }}
+              >
+                キャンセル
               </Button>
             </FlexRow>
           </Box>

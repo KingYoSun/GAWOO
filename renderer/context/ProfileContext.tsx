@@ -24,6 +24,16 @@ function reducer(state, action) {
   switch (action?.type) {
     case "set":
       return action.payload;
+    case "setAvatar":
+      return {
+        ...state,
+        avatar: action.payload,
+      };
+    case "setBgImg":
+      return {
+        ...state,
+        bgImg: action.payload,
+      };
     default:
       return state;
   }

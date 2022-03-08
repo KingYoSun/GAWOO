@@ -19,19 +19,13 @@ const AutoAuth = ({ children }: Props) => {
     });
   };
 
-  const fetchAvatar = async () => {
-    const avatar = await window.ipfs.catImage(
-      profile.image.original.src,
-      profile.image.original.mimeType
+  const fetchImage = async (key) => {
+    const res = await window.ipfs.catImage(
+      profile[key].original.src,
+      profile[key].original.mimeType
     );
-    dispatchProfile({
-      type: "set",
-      payload: {
-        ...profile,
-        avatar: avatar,
-      },
-    });
-    console.log("fetched avatar!");
+    console.log("fetched image!");
+    return res;
   };
 
   useEffect(() => {
@@ -52,13 +46,30 @@ const AutoAuth = ({ children }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (Boolean(profile?.image?.original.src) && !Boolean(profile?.avatar)) {
+    if (Boolean(profile?.image?.original.src)) {
       console.log("fetch avatar!");
       (async () => {
-        await fetchAvatar();
+        const newAvatarImg = await fetchImage("image");
+        dispatchProfile({
+          type: "setAvatar",
+          payload: newAvatarImg,
+        });
       })();
     }
-  }, [profile]);
+  }, [profile?.image?.original.src]);
+
+  useEffect(() => {
+    if (Boolean(profile?.image?.original.src)) {
+      console.log("fetch background!");
+      (async () => {
+        const newBgImg = await fetchImage("background");
+        dispatchProfile({
+          type: "setBgImg",
+          payload: newBgImg,
+        });
+      })();
+    }
+  }, [profile?.background?.original.src]);
 
   return <>{children}</>;
 };

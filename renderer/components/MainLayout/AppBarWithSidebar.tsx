@@ -5,11 +5,12 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import TopAppBar from "./TopAppBar";
 
-const MainContent = styled("main")({
+const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   height: "100vh",
   overflow: "auto",
-});
+  marginLeft: theme.spacing(2),
+}));
 
 const MainContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(4),
