@@ -138,7 +138,6 @@ const ProfilePage = () => {
       size: dataUrl?.length,
       nowEdit: false,
     });
-    handleUpdateProfile("image", 1); //handleSubmitを発火させるため
 
     console.log(profile);
   };
@@ -154,7 +153,6 @@ const ProfilePage = () => {
       size: dataUrl?.length,
       nowEdit: false,
     });
-    handleUpdateProfile("background", 1); //handleSubmitを発火させるため
 
     console.log(profile);
   };
