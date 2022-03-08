@@ -112,7 +112,7 @@ const ProfilePage = () => {
         avatar.completedCrop
       );
     }
-  }, [avatar.completedCrop, avatar.scale, avatar.rotate]);
+  }, [avatar.completedCrop]);
 
   const updateBgCropPreview = useCallback(() => {
     if (bg.completedCrop && previewCanvasRefBg.current && imgRefBg.current) {
@@ -122,7 +122,7 @@ const ProfilePage = () => {
         bg.completedCrop
       );
     }
-  }, [bg.completedCrop, bg.scale, bg.rotate]);
+  }, [bg.completedCrop]);
 
   const SubmitImageToAvatar = () => {
     const dataUrl = cropToUrl(
@@ -174,6 +174,7 @@ const ProfilePage = () => {
     for (const [key, value] of Object.entries(profile)) {
       setValue(key as keyof BasicProfile, value as any);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const onError = (errors, e) => console.log(errors, e);

@@ -125,7 +125,12 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
           {Boolean(profile.avatar) ? (
             <Avatar src={profile.avatar} alt="avatar" sx={avatarIconStyle} />
           ) : (
-            <AccountCircleIcon sx={avatarIconStyle} />
+            <AccountCircleIcon
+              sx={{
+                ...avatarIconStyle,
+                color: (theme) => theme.palette.primary.light,
+              }}
+            />
           )}
           <Typography
             variant="h6"
@@ -144,6 +149,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
       <Divider />
       <List sx={{ padding: 0 }}>
         {MENU_LIST_ITEMS.map(({ route, Icon, name }, id) => (
+          // eslint-disable-next-line @next/next/link-passhref
           <Link href={route} key={id}>
             <ListItem
               button

@@ -56,6 +56,7 @@ const AutoAuth = ({ children }: Props) => {
         });
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.image?.original.src]);
 
   useEffect(() => {
@@ -69,6 +70,7 @@ const AutoAuth = ({ children }: Props) => {
         });
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.background?.original.src]);
 
   return <>{children}</>;
