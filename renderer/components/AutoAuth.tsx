@@ -2,6 +2,7 @@ import { ReactNode, useContext, useEffect } from "react";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+import { LoadingContext } from "../context/LoadingContext";
 
 type Props = {
   children: ReactNode;
@@ -10,13 +11,11 @@ type Props = {
 const AutoAuth = ({ children }: Props) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const { loading, dispatchLoading } = useContext(LoadingContext);
 
   const getProfile = async () => {
     const newProfile = await account.getMyProfile();
-    dispatchProfile({
-      type: "set",
-      payload: newProfile,
-    });
+    dispatchProfile({ type: "set", payload: newProfile });
   };
 
   const fetchImage = async (key) => {
@@ -29,20 +28,27 @@ const AutoAuth = ({ children }: Props) => {
   };
 
   useEffect(() => {
+    const loadingMsg = "ログイン中...";
+    dispatchLoading({ type: "add", payload: loadingMsg });
+
     if (typeof account !== "undefined" && !account?.isConnected()) {
       (async () => {
         const newAccount = await account.authenticate();
-        dispatchAccount({
-          type: "set",
-          payload: newAccount,
-        });
-        if (!profile.name) getProfile();
+        dispatchAccount({ type: "set", payload: newAccount });
+        if (!profile.name) await getProfile();
+        dispatchLoading({ type: "remove", payload: loadingMsg });
       })();
     }
 
     if (account?.isConnected() && !profile.name) {
-      getProfile();
+      (async () => {
+        await getProfile();
+        dispatchLoading({ type: "remove", payload: loadingMsg });
+      })();
     }
+
+    if (Boolean(profile.name))
+      dispatchLoading({ type: "remove", payload: loadingMsg });
   }, []);
 
   useEffect(() => {
@@ -50,10 +56,7 @@ const AutoAuth = ({ children }: Props) => {
       console.log("fetch avatar!");
       (async () => {
         const newAvatarImg = await fetchImage("image");
-        dispatchProfile({
-          type: "setAvatar",
-          payload: newAvatarImg,
-        });
+        dispatchProfile({ type: "setAvatar", payload: newAvatarImg });
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,10 +67,7 @@ const AutoAuth = ({ children }: Props) => {
       console.log("fetch background!");
       (async () => {
         const newBgImg = await fetchImage("background");
-        dispatchProfile({
-          type: "setBgImg",
-          payload: newBgImg,
-        });
+        dispatchProfile({ type: "setBgImg", payload: newBgImg });
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
