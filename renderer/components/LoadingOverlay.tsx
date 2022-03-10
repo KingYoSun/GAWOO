@@ -2,6 +2,7 @@ import { CircularProgress, Modal, Box, Typography } from "@mui/material";
 import { ReactNode, useContext, useEffect } from "react";
 
 import { LoadingContext } from "../context/LoadingContext";
+import { SetupContext } from "../context/SetupContext";
 
 type Props = {
   children: ReactNode;
@@ -9,10 +10,21 @@ type Props = {
 
 const LoadingOverlay = ({ children }: Props) => {
   const { loading, dispatchLoading } = useContext(LoadingContext);
+  const { setup, dispatchSetup } = useContext(SetupContext);
+
+  const setupMsg = "IPFSの起動中...";
 
   useEffect(() => {
-    console.log("loading!: ", loading);
-  }, [loading]);
+    window.electron.setup("setup_finished", () => {
+      console.log("setup_finished!");
+      dispatchSetup({ type: "set", payload: true });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!setup) dispatchLoading({ type: "add", payload: setupMsg });
+    if (setup) dispatchLoading({ type: "remove", payload: setupMsg });
+  }, [setup]);
 
   return (
     <>

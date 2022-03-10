@@ -24,7 +24,10 @@ const isProd: boolean = process.env.NODE_ENV === "production";
 if (isProd) {
   serve({ directory: "app" });
 } else {
-  app.setPath("userData", `${app.getPath("userData")} (development)`);
+  app.setPath(
+    "userData",
+    `${app.getPath("userData")} (${process.env.NODE_ENV})`
+  );
 }
 
 if (app.dock) app.dock.hide();
@@ -64,9 +67,6 @@ process.on("unhandledRejection", handleError);
   }
 
   try {
-    await setupI18n();
-    await setupDaemon(ctx); // ctx.getIpfsd, startIpfs, stopIpfs, restartIpfs
-
     const mainWindow = createWindow("main", {
       width: 1000,
       height: 600,
@@ -79,6 +79,13 @@ process.on("unhandledRejection", handleError);
       await mainWindow.loadURL(`http://localhost:${port}/`);
       mainWindow.webContents.openDevTools();
     }
+
+    await setupI18n();
+    await setupDaemon(ctx); // ctx.getIpfsd, startIpfs, stopIpfs, restartIpfs
+
+    mainWindow.webContents.send("setup_finished", {
+      message: "setup finished",
+    });
   } catch (e) {
     handleError(e);
   }

@@ -8,6 +8,7 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import AuthContextProvider from "../context/AuthContext";
 import ProfileContextProvider from "../context/ProfileContext";
 import LoadingContextProvider from "../context/LoadingContext";
+import SetupContextProvider from "../context/SetupContext";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
@@ -15,21 +16,23 @@ const App = ({ Component, pageProps }: AppProps) => {
   });
 
   return (
-    <AuthContextProvider>
-      <ProfileContextProvider>
-        <LoadingContextProvider>
-          <SafeHydrate>
-            <AutoAuth>
-              <LoadingOverlay>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-              </LoadingOverlay>
-            </AutoAuth>
-          </SafeHydrate>
-        </LoadingContextProvider>
-      </ProfileContextProvider>
-    </AuthContextProvider>
+    <SetupContextProvider>
+      <AuthContextProvider>
+        <ProfileContextProvider>
+          <LoadingContextProvider>
+            <SafeHydrate>
+              <AutoAuth>
+                <LoadingOverlay>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </LoadingOverlay>
+              </AutoAuth>
+            </SafeHydrate>
+          </LoadingContextProvider>
+        </ProfileContextProvider>
+      </AuthContextProvider>
+    </SetupContextProvider>
   );
 };
 

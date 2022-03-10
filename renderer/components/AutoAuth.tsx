@@ -3,6 +3,7 @@ import { ReactNode, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 import { LoadingContext } from "../context/LoadingContext";
+import { SetupContext } from "../context/SetupContext";
 
 type Props = {
   children: ReactNode;
@@ -12,6 +13,7 @@ const AutoAuth = ({ children }: Props) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const { loading, dispatchLoading } = useContext(LoadingContext);
+  const { setup, dispatchSetup } = useContext(SetupContext);
 
   const getProfile = async () => {
     const newProfile = await account.getMyProfile();
@@ -28,6 +30,8 @@ const AutoAuth = ({ children }: Props) => {
   };
 
   useEffect(() => {
+    if (!setup) return;
+
     const loadingMsg = "ログイン中...";
     dispatchLoading({ type: "add", payload: loadingMsg });
 
@@ -49,7 +53,7 @@ const AutoAuth = ({ children }: Props) => {
 
     if (Boolean(profile.name))
       dispatchLoading({ type: "remove", payload: loadingMsg });
-  }, []);
+  }, [setup]);
 
   useEffect(() => {
     if (Boolean(profile?.image?.original.src)) {

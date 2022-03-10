@@ -9,6 +9,7 @@ declare global {
 
 interface IElectron {
   sayMsg: (message: string) => void;
+  setup: (channel: string, callback: () => void) => void;
 }
 
 interface IIpfs {
