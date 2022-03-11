@@ -56,7 +56,12 @@ const LoadingOverlay = ({ children }: Props) => {
                 color: (theme) => theme.palette.primary.contrastText,
               }}
             >
-              {loading.join("\n")}
+              {loading.map((msg, i) => (
+                <span key={`loading-${i}`}>
+                  {msg}
+                  <br />
+                </span>
+              ))}
             </Typography>
           </Box>
         </Modal>

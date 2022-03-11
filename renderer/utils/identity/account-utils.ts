@@ -99,7 +99,6 @@ export default class AccountUtils {
       .catch((e) => ErrorMsg.call(e));
 
     console.log("updated profile!");
-    alert("プロフィールを更新しました");
   }
 
   async deleteConnection() {

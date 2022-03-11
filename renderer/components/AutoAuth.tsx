@@ -25,7 +25,7 @@ const AutoAuth = ({ children }: Props) => {
       profile[key].original.src,
       profile[key].original.mimeType
     );
-    console.log("fetched image!");
+    console.log(`fetched ${key}!`);
     return res;
   };
 

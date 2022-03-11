@@ -27,6 +27,7 @@ import { cropToUrl } from "../utils/crop-to-url";
 
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+import { LoadingContext } from "../context/LoadingContext";
 
 interface CropImageInterface {
   nowEdit: Boolean;
@@ -46,16 +47,37 @@ interface CropImageInterface {
 const ProfilePage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const { loading, dispatchLoading } = useContext(LoadingContext);
 
   const showAccount = () => {
     console.log("account: ", account);
     console.log("profile: ", profile);
   };
 
+  const fetchImage = async (key) => {
+    const res = await window.ipfs.catImage(
+      profile[key].original.src,
+      profile[key].original.mimeType
+    );
+    console.log(`fetched ${key}!`);
+    return res;
+  };
+
   const getProfile = async () => {
     if (!account?.isConnected()) return;
 
     const newProfile = await account.getMyProfile();
+    await Promise.all([
+      (async () => {
+        const newAvatarImg = await fetchImage("image");
+        newProfile.avatar = newAvatarImg;
+      })(),
+      (async () => {
+        const newBgImg = await fetchImage("background");
+        newProfile.bgImg = newBgImg;
+      })(),
+    ]);
+
     dispatchProfile({
       type: "set",
       payload: newProfile,
@@ -181,6 +203,8 @@ const ProfilePage = () => {
 
   const onSubmit: SubmitHandler<BasicProfile> = async (data) => {
     console.log("start submit profile!");
+    const loadingMsg = "アップロード中...";
+    dispatchLoading({ type: "add", payload: loadingMsg });
     Object.keys(data).forEach((key) => {
       if (
         !data[key] ||
@@ -208,7 +232,6 @@ const ProfilePage = () => {
             },
           };
           data["image"] = newAvatar;
-          delete data["avatar"];
         }
       })(),
 
@@ -226,14 +249,16 @@ const ProfilePage = () => {
             },
           };
           data["background"] = newBg;
-          delete data["bgImg"];
         }
       })(),
     ]);
 
+    delete data["avatar"];
+    delete data["bgImg"];
     console.log("post profile: ", data);
     await account.updateProfile(data);
     await getProfile();
+    dispatchLoading({ type: "remove", payload: loadingMsg });
   };
 
   const regURL = new RegExp(
@@ -457,6 +482,7 @@ const ProfilePage = () => {
                   {...field}
                   label="説明"
                   multiline
+                  minRows={3}
                   sx={{ minWidth: "300px" }}
                 />
               )}
