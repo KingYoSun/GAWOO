@@ -11,6 +11,7 @@ import addToIpfs from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
+import { PrismaClient } from "@prisma/client";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -40,6 +41,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const ctx: mainContext = {};
+const prisma = new PrismaClient();
 
 app.on("will-finish-launching", () => {
   setupProtocolHandlers(ctx);
@@ -64,6 +66,7 @@ process.on("unhandledRejection", handleError);
     await app.whenReady();
   } catch (e) {
     dialog.showErrorBox("Electron could not start", e.stack);
+    await prisma.$disconnect();
     app.exit(1);
   }
 
