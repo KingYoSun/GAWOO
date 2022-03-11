@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import { Button } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
@@ -31,6 +31,10 @@ const IndexPage = () => {
     console.log(result);
   };
 
+  const logoutBtnDisabled = useCallback(() => {
+    return !account?.isConnected();
+  }, [account]);
+
   return (
     <>
       <FlexRow>
@@ -40,7 +44,7 @@ const IndexPage = () => {
         <Button onClick={onSayHiClick}>ipcRendererテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
-        <Button onClick={onDeleteConnection} disabled={!account?.isConnected()}>
+        <Button onClick={onDeleteConnection} disabled={logoutBtnDisabled()}>
           切断
         </Button>
       </FlexRow>

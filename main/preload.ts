@@ -4,8 +4,11 @@ contextBridge.exposeInMainWorld("electron", {
   sayMsg: async (message: string) => {
     return await ipcRenderer.invoke("sayMsg", message);
   },
-  setup: (channel, callback) =>
-    ipcRenderer.on(channel, (event, argv) => callback(event, argv)),
+  setup: (callback) =>
+    ipcRenderer.on("setup_finished", (event, argv) => callback(event, argv)),
+  confirmSetup: async () => {
+    return await ipcRenderer.invoke("confirm_setup");
+  },
 });
 
 contextBridge.exposeInMainWorld("ipfs", {

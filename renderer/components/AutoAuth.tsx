@@ -33,10 +33,10 @@ const AutoAuth = ({ children }: Props) => {
     if (!setup) return;
 
     const loadingMsg = "ログイン中...";
-    dispatchLoading({ type: "add", payload: loadingMsg });
 
     if (typeof account !== "undefined" && !account?.isConnected()) {
       (async () => {
+        dispatchLoading({ type: "add", payload: loadingMsg });
         const newAccount = await account.authenticate();
         dispatchAccount({ type: "set", payload: newAccount });
         if (!profile.name) await getProfile();
@@ -46,13 +46,11 @@ const AutoAuth = ({ children }: Props) => {
 
     if (account?.isConnected() && !profile.name) {
       (async () => {
+        dispatchLoading({ type: "add", payload: loadingMsg });
         await getProfile();
         dispatchLoading({ type: "remove", payload: loadingMsg });
       })();
     }
-
-    if (Boolean(profile.name))
-      dispatchLoading({ type: "remove", payload: loadingMsg });
   }, [setup]);
 
   useEffect(() => {

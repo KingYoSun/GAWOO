@@ -20,6 +20,7 @@ export interface mainContext {
 }
 
 const isProd: boolean = process.env.NODE_ENV === "production";
+let setupFinished: boolean = false;
 
 if (isProd) {
   serve({ directory: "app" });
@@ -86,6 +87,7 @@ process.on("unhandledRejection", handleError);
     mainWindow.webContents.send("setup_finished", {
       message: "setup finished",
     });
+    setupFinished = true;
   } catch (e) {
     handleError(e);
   }
@@ -98,6 +100,10 @@ app.on("window-all-closed", () => {
 ipcMain.handle("sayMsg", (event: IpcMainEvent, message: string) => {
   console.log(message);
   return "said message";
+});
+
+ipcMain.handle("confirm_setup", (event: IpcMainEvent) => {
+  return Boolean(setupFinished) ? true : false;
 });
 
 ipcMain.handle(

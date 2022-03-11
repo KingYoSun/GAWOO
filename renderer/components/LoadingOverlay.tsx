@@ -15,7 +15,13 @@ const LoadingOverlay = ({ children }: Props) => {
   const setupMsg = "IPFSの起動中...";
 
   useEffect(() => {
-    window.electron.setup("setup_finished", () => {
+    (async () => {
+      const res = await window.electron.confirmSetup();
+      console.log("setup confirmed!: ", res);
+      dispatchSetup({ type: "set", payload: res });
+    })();
+
+    window.electron.setup(() => {
       console.log("setup_finished!");
       dispatchSetup({ type: "set", payload: true });
     });
