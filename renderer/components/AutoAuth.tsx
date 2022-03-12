@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 import { LoadingContext } from "../context/LoadingContext";
 import { SetupContext } from "../context/SetupContext";
+import { type } from "os";
 
 type Props = {
   children: ReactNode;
@@ -74,6 +75,45 @@ const AutoAuth = ({ children }: Props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.background?.original.src]);
+
+  useEffect(() => {
+    if (
+      Boolean(account?.selfId?.id) &&
+      (Boolean(profile.name) || Boolean(profile?.image?.original.src))
+    ) {
+      (async () => {
+        const myUser = await window.electron.showUser(account.selfId.id);
+        if (typeof myUser === "string") {
+          console.log(myUser);
+          return;
+        }
+
+        if (myUser === null) {
+          const res = await window.electron.createUser({
+            id: 0,
+            did: account.selfId.id,
+            name: profile.name,
+            avatar: profile?.image?.original.src,
+          });
+          console.log("add user!: ", res);
+        }
+
+        if (
+          Boolean(myUser) &&
+          (myUser.name !== profile.name ||
+            myUser.avatar !== profile?.image?.original.src)
+        ) {
+          const res = await window.electron.updateUser({
+            id: myUser.id,
+            did: account?.selfId?.id,
+            name: profile.name,
+            avatar: profile?.image?.original.src,
+          });
+          console.log("update user!: ", res);
+        }
+      })();
+    }
+  }, [account?.selfId?.id, profile.name, profile?.image?.original.src]);
 
   return <>{children}</>;
 };

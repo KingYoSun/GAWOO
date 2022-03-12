@@ -6,6 +6,7 @@ import last from "it-last";
 import { globSource } from "ipfs-http-client";
 import { extname, basename } from "path";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
+import { Post } from "@prisma/client";
 
 export const addImage = async (
   { getIpfsd }: mainContext,
@@ -27,6 +28,16 @@ export const addImage = async (
     log.end();
     return e;
   }
+};
+
+const addJson = async (ipfs, post, pin) => {
+  const filename = `${post.authorName}_${post.published_at}`;
+  delete post.cid;
+  const res = await ipfs.add(JSON.stringify(post), { pin: pin });
+  const cid = res.cid;
+  await copyFileToMfs(ipfs, cid, filename);
+
+  return { cid, filename };
 };
 
 const copyFileToMfs = async (ipfs, cid, filename) => {
@@ -83,12 +94,17 @@ const getShareableCid = async (ipfs, files) => {
 
   const stat = await ipfs.files.stat(dirpath);
 
-  await ipfs.files.rm(dirpath);
+  await ipfs.files.rm(dirpath, { recursive: true });
 
   return { cid: stat.cid, filename: "" };
 };
 
-const addToIpfs = async ({ getIpfsd }: mainContext, files, pin: Boolean) => {
+const addToIpfs = async (
+  { getIpfsd }: mainContext,
+  post: Post,
+  files: Array<any>,
+  pin: Boolean
+) => {
   const ipfsd = await getIpfsd();
   if (!ipfsd) return;
 
@@ -97,16 +113,24 @@ const addToIpfs = async ({ getIpfsd }: mainContext, files, pin: Boolean) => {
 
   const log = logger.start("[add to ipfs] started");
 
-  await Promise.all(
-    files.map(async (file) => {
+  await Promise.all([
+    (async () => {
+      try {
+        const res = await addJson(ipfsd.api, post, pin);
+        successes.push(res);
+      } catch (e) {
+        failures.push(e.toString());
+      }
+    })(),
+    ...files.map(async (file) => {
       try {
         const res = await addFileOrDirectory(ipfsd.api, file, pin);
         successes.push(res);
       } catch (e) {
         failures.push(e.toString());
       }
-    })
-  );
+    }),
+  ]);
 
   if (failures.length > 0) {
     log.fail(new Error(failures.join("\n")));

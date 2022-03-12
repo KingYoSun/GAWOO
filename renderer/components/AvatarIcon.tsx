@@ -3,15 +3,23 @@ import { Box, Avatar } from "@mui/material";
 
 interface AvatarIconProps {
   src: string;
+  marginTop?: string | number;
+  marginRight?: string | number;
+  marginBottom?: string | number;
 }
 
-const AvatarIcon = ({ src }: AvatarIconProps): JSX.Element => {
+const AvatarIcon = ({
+  src,
+  marginTop,
+  marginRight,
+  marginBottom,
+}: AvatarIconProps): JSX.Element => {
   const avatarIconStyle = {
     width: 45,
     height: 45,
-    marginRight: "10px",
-    marginTop: "3px",
-    marginBottom: "3px",
+    marginRight: marginRight ?? "15px",
+    marginTop: marginTop ?? "3px",
+    marginBottom: marginBottom ?? "3px",
   };
 
   return (

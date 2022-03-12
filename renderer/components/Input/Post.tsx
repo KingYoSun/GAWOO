@@ -13,9 +13,10 @@ import { AvatarIcon } from "../AvatarIcon";
 import { AuthContext } from "../../context/AuthContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 
-interface InputPostProps {
-  target: Post;
-}
+type InputPostProps = {
+  target?: Post;
+  doReload?: () => Promise<void>;
+};
 
 const emptyPost = {
   cid: null,
@@ -24,11 +25,12 @@ const emptyPost = {
   authorDid: null,
 };
 
-const InputPost = ({ target: Post }: InputPostProps): JSX.Element => {
+const InputPost = (props: InputPostProps) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const [contentLength, setContentLength] = useState(0);
   const [width, setWidth] = useState(0);
+  const [upload, setUpload] = useState(false);
   const {
     control,
     handleSubmit,
@@ -45,6 +47,12 @@ const InputPost = ({ target: Post }: InputPostProps): JSX.Element => {
     if (Boolean(account?.selfId?.id)) setValue("authorDid", account.selfId.id);
   }, [account?.selfId?.id]);
 
+  useEffect(() => {
+    if (Boolean(profile?.image?.original.src))
+      setValue("authorAvatar", profile?.image?.original.src);
+    if (Boolean(profile?.name)) setValue("authorName", profile.name);
+  }, [profile?.name, profile?.image?.original.src]);
+
   useLayoutEffect(() => {
     const updateSize = () => {
       setWidth(parentFlexBox?.current?.clientWidth * 0.75);
@@ -55,14 +63,28 @@ const InputPost = ({ target: Post }: InputPostProps): JSX.Element => {
   }, []);
 
   const onSubmit: SubmitHandler<Post> = async (data) => {
-    data.published_at = new Date().getTime();
-    console.log("post data!: ", data);
+    setUpload(true);
+    try {
+      data.published_at = new Date().getTime();
+      console.log("post data!: ", data);
+      const res = await window.ipfs.createPost(data, [], true);
+      console.log("posted!: ", res);
+      if (res.failures.length > 0) {
+        alert("Error!: " + res.failures.join(", "));
+      }
+    } catch (e) {
+      console.log("Error!: ", e.toString());
+    } finally {
+      setValue("content", "");
+      setUpload(false);
+      props.doReload();
+    }
   };
 
   const onError = (errors, e) => console.log(errors, e);
 
   return (
-    <FlexRow width="90%" myRef={parentFlexBox}>
+    <FlexRow width="90%" flexRef={parentFlexBox}>
       <form onSubmit={handleSubmit(onSubmit, onError)}>
         <FlexRow alignItems="start">
           <AvatarIcon src={profile.avatar} />
@@ -82,6 +104,7 @@ const InputPost = ({ target: Post }: InputPostProps): JSX.Element => {
                 multiline
                 minRows={3}
                 error={Boolean(errors.content)}
+                disabled={upload}
                 onChange={(e) => {
                   setValue("content", e.target.value);
                   setContentLength(e.target.value?.length);
@@ -96,9 +119,9 @@ const InputPost = ({ target: Post }: InputPostProps): JSX.Element => {
           <Button
             type="submit"
             variant="contained"
-            disabled={!Boolean(account?.selfId?.id)}
+            disabled={!Boolean(account?.selfId?.id) || upload}
           >
-            投稿する
+            {upload ? "投稿中..." : "投稿する"}
           </Button>
         </FlexRow>
       </form>

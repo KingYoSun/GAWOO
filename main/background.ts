@@ -11,7 +11,7 @@ import addToIpfs, { addImage } from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
-import { PrismaClient } from "@prisma/client";
+import { Post, PrismaClient, User } from "@prisma/client";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -110,8 +110,8 @@ ipcMain.handle("confirm_setup", (event: IpcMainEvent) => {
 });
 
 ipcMain.handle(
-  "addToIpfs",
-  async (event: IpcMainEvent, files: Array<any>, pin: boolean) => {
+  "createPost",
+  async (event: IpcMainEvent, post: Post, files: Array<any>, pin: boolean) => {
     if (!ctx.getIpfsd) {
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {
@@ -120,10 +120,60 @@ ipcMain.handle(
       };
     }
 
-    const res = await addToIpfs(ctx, files, pin);
-    return res;
+    const res = await addToIpfs(ctx, post, files, pin);
+    post.cid = res.cid.toString();
+    if (Boolean(post.cid)) await prisma.post.create({ data: post });
+
+    return { post: post, failures: res.failures };
   }
 );
+
+ipcMain.handle(
+  "indexPosts",
+  async (event: IpcMainEvent, did: string, take: number) => {
+    try {
+      const res = await prisma.post.findMany({
+        where: { authorDid: did },
+        orderBy: { published_at: "desc" },
+        take: take,
+      });
+      return res;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+);
+
+ipcMain.handle("createUser", async (event: IpcMainEvent, user: User) => {
+  try {
+    delete user.id;
+    const res = await prisma.user.create({ data: user });
+    return res;
+  } catch (e) {
+    return e.toString();
+  }
+});
+
+ipcMain.handle("updateUser", async (event: IpcMainEvent, user: User) => {
+  try {
+    const res = await prisma.user.update({
+      where: { id: user.id },
+      data: user,
+    });
+    return res;
+  } catch (e) {
+    return e.toString();
+  }
+});
+
+ipcMain.handle("showUser", async (event: IpcMainEvent, did: string) => {
+  try {
+    const res = await prisma.user.findUnique({ where: { did: did } });
+    return res;
+  } catch (e) {
+    return e.toString();
+  }
+});
 
 ipcMain.handle(
   "imageToIpfs",

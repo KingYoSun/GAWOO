@@ -10,7 +10,7 @@ const FlexRow = ({
   maxWidth = "100%",
   marginTop = "4px",
   marginBottom = "4px",
-  myRef = null,
+  flexRef = null,
   ...props
 }: {
   children: ReactNode;
@@ -21,7 +21,7 @@ const FlexRow = ({
   maxWidth?: string | number;
   marginTop?: string | number;
   marginBottom?: string | number;
-  myRef?: MutableRefObject<any>;
+  flexRef?: MutableRefObject<any>;
 }) => {
   return (
     <Box
@@ -35,7 +35,7 @@ const FlexRow = ({
         marginBottom: marginBottom,
         flexDirection: flexDirection,
       }}
-      ref={myRef}
+      ref={flexRef}
       {...props}
     >
       {children}
