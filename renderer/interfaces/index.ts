@@ -14,13 +14,11 @@ interface IElectron {
 }
 
 interface IIpfs {
-  imageToIpfs: (
-    images: Array<string>,
-    pin: Boolean
-  ) => {
-    successes: Array<UnixFSEntry>;
-    failures: Array<string>;
-  };
+  addToIpfs: (
+    files: Array<any>,
+    pin: boolean
+  ) => { cid: string; failures: Array<string> };
+  imageToIpfs: (image: string, pin: boolean) => string | Error;
   catImage: (ipfsPath: string, mimeType: string) => string;
 }
 

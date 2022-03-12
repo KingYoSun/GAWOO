@@ -7,7 +7,7 @@ import { criticalErrorDialog } from "./dialogs";
 import setupI18n from "./i18n";
 import setupDaemon from "./deamon";
 import setupProtocolHandlers from "./protocol-handler";
-import addToIpfs from "./add-to-ipfs";
+import addToIpfs, { addImage } from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
@@ -110,17 +110,30 @@ ipcMain.handle("confirm_setup", (event: IpcMainEvent) => {
 });
 
 ipcMain.handle(
-  "imageToIpfs",
-  async (event: IpcMainEvent, images: Array<String>, pin: Boolean) => {
+  "addToIpfs",
+  async (event: IpcMainEvent, files: Array<any>, pin: boolean) => {
     if (!ctx.getIpfsd) {
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {
-        successes: [],
-        failures: [i18n.t("ipfsNotRunningDialog.title")],
+        cid: "",
+        failuers: [new Error(i18n.t("ipfsNotRunningDialog.title"))],
       };
     }
 
-    const res = await addToIpfs(ctx, images, "image", pin);
+    const res = await addToIpfs(ctx, files, pin);
+    return res;
+  }
+);
+
+ipcMain.handle(
+  "imageToIpfs",
+  async (event: IpcMainEvent, image: string, pin: boolean) => {
+    if (!ctx.getIpfsd) {
+      console.log(i18n.t("ipfsNotRunningDialog.title"));
+      return new Error(i18n.t("ipfsNotRunningDialog.title"));
+    }
+
+    const res = await addImage(ctx, image, pin);
     return res;
   }
 );

@@ -3,18 +3,16 @@ import { PixelCrop } from "react-image-crop";
 import { makeAspectCrop, centerCrop } from "react-image-crop";
 
 export async function uploadImageToIpfs(dataUrl) {
-  const ipfsUrls = await window.ipfs.imageToIpfs([dataUrl], true);
-  console.log("ipfsUploaded!: ", ipfsUrls);
-  if (ipfsUrls?.failures.length > 0) {
-    console.log("image upload to ipfs failures!: ", ipfsUrls?.failures);
-    alert(`画像のアップロードに失敗しました: ${ipfsUrls?.failures[0]}`);
+  const res = await window.ipfs.imageToIpfs(dataUrl, true);
+  if (res instanceof Error) {
+    console.log("image upload to ipfs failed!: ", res);
+    alert(`画像のアップロードに失敗しました: ${res}`);
+    return;
   }
-  if (ipfsUrls?.successes.length === 0) {
-    return null;
-  }
+  if (!res) return;
 
   console.log("uploaded image to ipfs is succeeded!");
-  return `ipfs://${ipfsUrls.successes[0].path}`;
+  return `ipfs://${res}`;
 }
 
 export function onSelectFile(

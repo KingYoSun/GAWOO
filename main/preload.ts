@@ -12,8 +12,11 @@ contextBridge.exposeInMainWorld("electron", {
 });
 
 contextBridge.exposeInMainWorld("ipfs", {
-  imageToIpfs: async (images: Array<string>, pin: Boolean) => {
-    return await ipcRenderer.invoke("imageToIpfs", images, pin);
+  addToIpfs: async (files: Array<any>, pin: boolean) => {
+    return await ipcRenderer.invoke("addToIpfs", files, pin);
+  },
+  imageToIpfs: async (image: string, pin: boolean) => {
+    return await ipcRenderer.invoke("imageToIpfs", image, pin);
   },
   catImage: async (ipfsPath: string, mimeType: string) => {
     return await ipcRenderer.invoke("catImage", ipfsPath, mimeType);
