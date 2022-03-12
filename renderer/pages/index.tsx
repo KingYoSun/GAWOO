@@ -1,7 +1,8 @@
 import { useContext, useCallback } from "react";
-import { Button } from "@mui/material";
+import { Button, Input } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
+import InputPost from "../components/Input/Post";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
@@ -47,6 +48,9 @@ const IndexPage = () => {
         <Button onClick={onDeleteConnection} disabled={logoutBtnDisabled()}>
           切断
         </Button>
+      </FlexRow>
+      <FlexRow>
+        <InputPost target={null} />
       </FlexRow>
     </>
   );

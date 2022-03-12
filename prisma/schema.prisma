@@ -11,7 +11,7 @@ model Post {
   id            Int @id @default(autoincrement())
   cid           String? @unique
   content       String?
-  published_at  String?
+  published_at  Int?
   author        User?   @relation(fields: [authorDid], references: [did])
   authorDid     String?
 }

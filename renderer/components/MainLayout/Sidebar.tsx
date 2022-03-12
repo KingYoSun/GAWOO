@@ -21,7 +21,7 @@ import { drawerWidth } from "../../styles/theme";
 import { ProfileContext } from "../../context/ProfileContext";
 import ThemeToggler from "../../components/ThemeToggler";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { AvatarIcon } from "../../components/AvatarIcon";
 
 interface SideBarProps {
   open: boolean;
@@ -54,14 +54,6 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
       duration: theme.transitions.duration.leavingScreen,
     }),
   });
-
-  const avatarIconStyle = {
-    width: 45,
-    height: 45,
-    marginRight: "10px",
-    marginTop: "3px",
-    marginBottom: "3px",
-  };
 
   return (
     <Drawer
@@ -122,16 +114,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             marginLeft: "6px",
           }}
         >
-          {Boolean(profile.avatar) ? (
-            <Avatar src={profile.avatar} alt="avatar" sx={avatarIconStyle} />
-          ) : (
-            <AccountCircleIcon
-              sx={{
-                ...avatarIconStyle,
-                color: (theme) => theme.palette.primary.light,
-              }}
-            />
-          )}
+          <AvatarIcon src={profile.avatar} />
           <Typography
             variant="h6"
             component="span"
