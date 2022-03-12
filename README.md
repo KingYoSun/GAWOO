@@ -36,3 +36,19 @@ $ yarn dev (or `npm run dev` or `pnpm run dev`)
 # production build
 $ yarn build (or `npm run build` or `pnpm run build`)
 ```
+
+### DB Migration
+
+- changing db schema
+
+```
+# update ./prisma/schema.prisma
+$ npx prisma db push
+$ npx prisma migrate dev --name ***
+```
+
+- applly change of db schema
+
+```
+$npx prisma migrate deploy --**name**
+```

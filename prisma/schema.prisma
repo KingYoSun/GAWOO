@@ -8,17 +8,30 @@ generator client {
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User?   @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  id            Int @id @default(autoincrement())
+  cid           String? @unique
+  content       String?
+  published_at  String?
+  author        User?   @relation(fields: [authorDid], references: [did])
+  authorDid     String?
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id          Int @id @default(autoincrement())
+  did         String? @unique
+  name        String?
+  avatar      String?
+
+  posts       Post[]
+  followedBy  Follow[]  @relation("follower")
+  folloing    Follow[]  @relation("following")
+}
+
+model Follow {
+  follower    User   @relation(name: "follower", fields: [followerDid], references: [did])
+  followerDid  String
+  following   User   @relation(name: "following", fields: [followingDid], references: [did])
+  followingDid String
+
+  @@id([followerDid, followingDid])
 }
