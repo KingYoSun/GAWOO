@@ -52,7 +52,6 @@ const IndexPage = () => {
 
   const getIndexPosts = async () => {
     const newPosts = await window.electron.indexPosts();
-    console.log("resPosts!: ", newPosts);
     dispatchPosts({ type: "add", payload: newPosts });
   };
 
@@ -80,10 +79,10 @@ const IndexPage = () => {
         <Box width="90%">
           <Divider />
           {posts.map((post) => (
-            <>
-              <CardPost key={post.id} post={post} />
+            <Box key={post.id}>
+              <CardPost post={post} />
               <Divider />
-            </>
+            </Box>
           ))}
         </Box>
       </FlexRow>
