@@ -46,6 +46,26 @@ const IndexPage = () => {
     console.log(result);
   };
 
+  const sendFollow = async () => {
+    window.waku.sendMessage({ selfId: account.selfId.id, purpose: "follow" });
+  };
+
+  const sendShare = async () => {
+    window.waku.sendMessage({
+      selfId: account.selfId.id,
+      purpose: "share",
+      post: {
+        id: null,
+        cid: "test_cid",
+        publishedAt: 1111111,
+        authorDid: "test did",
+        authorName: null,
+        authorAvatar: null,
+        content: "test",
+      },
+    });
+  };
+
   const logoutBtnDisabled = useCallback(() => {
     return !account?.isConnected();
   }, [account]);
@@ -66,6 +86,8 @@ const IndexPage = () => {
       </FlexRow>
       <FlexRow>
         <Button onClick={onSayHiClick}>ipcRendererテスト</Button>
+        <Button onClick={sendFollow}>Followテスト</Button>
+        <Button onClick={sendShare}>Shareテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
         <Button onClick={onDeleteConnection} disabled={logoutBtnDisabled()}>

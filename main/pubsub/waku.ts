@@ -2,7 +2,7 @@ import protons from "protons";
 import { Post } from "@prisma/client";
 import fs from "fs-extra";
 import { mainContext } from "../background";
-import { Waku, WakuMessage } from "js-waku";
+import { waku, Waku, WakuMessage } from "js-waku";
 
 export interface WakuClientProps {
   selfId: string;
@@ -46,6 +46,7 @@ export class WakuClient {
           if (!wakuMessage.payload) return;
 
           const payload = this.proto.FollowMessage.decode(wakuMessage.payload);
+          console.log("follow received!: ", payload);
           mainWindow.webContents.send("followMessage", JSON.stringify(payload));
         };
         this.client.relay.addObserver(
@@ -65,6 +66,7 @@ export class WakuClient {
           if (!wakuMessage.payload) return;
 
           const payload = this.proto.SharePost.decode(wakuMessage.payload);
+          console.log("share received!: ", payload);
           mainWindow.webContents.send("sharePost", JSON.stringify(payload));
         };
         this.client.relay.addObserver(
@@ -89,7 +91,7 @@ export class WakuClient {
   }
 
   async sendMessage(props: WakuClientProps) {
-    if (props.purpose === "share" && Boolean(props.post)) return;
+    if (props.purpose === "follow" && Boolean(props.post)) return;
 
     const topic = this.setTopic(props);
 
@@ -103,6 +105,7 @@ export class WakuClient {
     }
 
     if (props.purpose === "share") {
+      delete props.post.id;
       payload = this.proto.SharePost.encode({
         ...props.post,
         authorDid: props.selfId,
