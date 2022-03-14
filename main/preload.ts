@@ -1,14 +1,15 @@
 import { Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
+import { WakuClientProps } from "./pubsub/waku";
 
 contextBridge.exposeInMainWorld("electron", {
   sayMsg: async (message: string) => {
     return await ipcRenderer.invoke("sayMsg", message);
   },
   setup: (callback) =>
-    ipcRenderer.on("setup_finished", (event, argv) => callback(event, argv)),
+    ipcRenderer.on("setupFinished", (event, argv) => callback(event, argv)),
   confirmSetup: async () => {
-    return await ipcRenderer.invoke("confirm_setup");
+    return await ipcRenderer.invoke("confirmSetup");
   },
   createUser: async (user: User) => {
     return await ipcRenderer.invoke("createUser", user);
@@ -34,4 +35,23 @@ contextBridge.exposeInMainWorld("ipfs", {
   catImage: async (ipfsPath: string, mimeType: string) => {
     return await ipcRenderer.invoke("catImage", ipfsPath, mimeType);
   },
+});
+
+contextBridge.exposeInMainWorld("waku", {
+  isConnected: () => {
+    return ipcRenderer.invoke("WakuIsConnected");
+  },
+  addObservers: async (props: Array<WakuClientProps>) => {
+    return await ipcRenderer.invoke("addWakuObservers", props);
+  },
+  deleteObservers: async (props: Array<WakuClientProps>) => {
+    return await ipcRenderer.invoke("deleteWakuObservers", props);
+  },
+  sendMessage: async (prop: WakuClientProps) => {
+    return await ipcRenderer.invoke("sendWakuMessage", prop);
+  },
+  followMessage: (callback) =>
+    ipcRenderer.on("followMessage", (event, argv) => callback(event, argv)),
+  sharePost: (callback) =>
+    ipcRenderer.on("sharePost", (event, argv) => callback(event, argv)),
 });

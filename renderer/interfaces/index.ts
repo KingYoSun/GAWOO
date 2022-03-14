@@ -1,10 +1,11 @@
 import { Post, User } from "@prisma/client";
-import { UnixFSEntry } from "ipfs-unixfs-exporter";
+import { WakuClientProps } from "../types/general";
 
 declare global {
   interface Window {
     electron: IElectron;
     ipfs: IIpfs;
+    waku: IWaku;
   }
 }
 
@@ -26,6 +27,15 @@ interface IIpfs {
   ) => { post: Post; failures: Array<string> };
   imageToIpfs: (image: string, pin: boolean) => string | Error;
   catImage: (ipfsPath: string, mimeType: string) => string;
+}
+
+interface IWaku {
+  isConnected: () => boolean;
+  addObservers: (props: Array<WakuClientProps>) => string;
+  deleteObservers: (props: Array<WakuClientProps>) => string;
+  sendMessage: (prop: WakuClientProps) => string;
+  followMessage: (callback: (msg: string) => void) => void;
+  sharePost: (callback: (msg: string) => void) => void;
 }
 
 export {};

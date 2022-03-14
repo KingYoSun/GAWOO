@@ -6,6 +6,7 @@ import { createWindow } from "./helpers";
 import { criticalErrorDialog } from "./dialogs";
 import setupI18n from "./i18n";
 import setupDaemon from "./deamon";
+import setupWaku, { WakuClient, WakuClientProps } from "./pubsub/waku";
 import setupProtocolHandlers from "./protocol-handler";
 import addToIpfs, { addImage } from "./add-to-ipfs";
 import i18n from "i18next";
@@ -18,6 +19,8 @@ export interface mainContext {
   startIpfs?: () => Promise<any>;
   stopIpfs?: () => Promise<any>;
   restartIpfs?: () => Promise<any>;
+  wakuClient?: WakuClient;
+  mainWindow?: Electron.CrossProcessExports.BrowserWindow;
 }
 
 const isProd: boolean = process.env.NODE_ENV === "production";
@@ -71,23 +74,24 @@ process.on("unhandledRejection", handleError);
   }
 
   try {
-    const mainWindow = createWindow("main", {
+    ctx.mainWindow = createWindow("main", {
       width: 1000,
       height: 600,
     });
 
     if (isProd) {
-      await mainWindow.loadURL("app://./index.html");
+      await ctx.mainWindow.loadURL("app://./index.html");
     } else {
       const port = process.argv[2];
-      await mainWindow.loadURL(`http://localhost:${port}/`);
-      mainWindow.webContents.openDevTools();
+      await ctx.mainWindow.loadURL(`http://localhost:${port}/`);
+      ctx.mainWindow.webContents.openDevTools();
     }
 
     await setupI18n();
     await setupDaemon(ctx); // ctx.getIpfsd, startIpfs, stopIpfs, restartIpfs
+    await setupWaku(ctx);
 
-    mainWindow.webContents.send("setup_finished", {
+    ctx.mainWindow.webContents.send("setupFinished", {
       message: "setup finished",
     });
     setupFinished = true;
@@ -105,7 +109,7 @@ ipcMain.handle("sayMsg", (event: IpcMainEvent, message: string) => {
   return "said message";
 });
 
-ipcMain.handle("confirm_setup", (event: IpcMainEvent) => {
+ipcMain.handle("confirmSetup", (event: IpcMainEvent) => {
   return Boolean(setupFinished) ? true : false;
 });
 
@@ -134,7 +138,7 @@ ipcMain.handle(
     try {
       const res = await prisma.post.findMany({
         where: { authorDid: did },
-        orderBy: { published_at: "desc" },
+        orderBy: { publishedAt: "desc" },
         take: take,
       });
       return res;
@@ -204,5 +208,49 @@ ipcMain.handle(
     ).join("");
     const dataurl = `data:${mimeType};base64,${btoa(bibnaryString)}`;
     return dataurl;
+  }
+);
+
+ipcMain.handle("WakuIsConnected", (event: IpcMainEvent) => {
+  if (!ctx.wakuClient) return false;
+  return ctx.wakuClient.connected;
+});
+
+ipcMain.handle(
+  "addWakuObservers",
+  async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
+    if (!ctx.wakuClient.connected) return "waku is not connected";
+    try {
+      await ctx.wakuClient.addObservers(ctx, props);
+      return "succeeded";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+);
+
+ipcMain.handle(
+  "deleteWakuObservers",
+  async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
+    if (!ctx.wakuClient.connected) return "waku is not connected";
+    try {
+      await ctx.wakuClient.deleteObservers(props);
+      return "succeeded";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+);
+
+ipcMain.handle(
+  "sendWakuMessage",
+  async (event: IpcMainEvent, prop: WakuClientProps) => {
+    if (!ctx.wakuClient.connected) return "waku is not connected";
+    try {
+      await ctx.wakuClient.sendMessage(prop);
+      return "succeeded";
+    } catch (e) {
+      return e.toString();
+    }
   }
 );

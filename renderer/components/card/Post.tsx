@@ -56,10 +56,11 @@ const CardPost = ({ post }: CardPostProps) => {
           <Typography variant="h6">{post.authorName}</Typography>
           <Typography variant="body2">
             ・
-            {format(
-              utcToZonedTime(post.published_at, "Asia/Tokyo"),
-              "yyyy-MM-dd HH:mm:ss"
-            )}
+            {Boolean(post.publishedAt) &&
+              format(
+                utcToZonedTime(post.publishedAt, "Asia/Tokyo"),
+                "yyyy-MM-dd HH:mm:ss"
+              )}
           </Typography>
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="10px">

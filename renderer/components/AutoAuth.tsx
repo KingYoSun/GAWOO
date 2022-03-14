@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 import { LoadingContext } from "../context/LoadingContext";
 import { SetupContext } from "../context/SetupContext";
-import { type } from "os";
 
 type Props = {
   children: ReactNode;

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Layout from "../components/Layout";
 import AutoAuth from "../components/AutoAuth";
 import LoadingOverlay from "../components/LoadingOverlay";
+import Subscribe from "../components/Subscribe";
 
 import AuthContextProvider from "../context/AuthContext";
 import ProfileContextProvider from "../context/ProfileContext";
@@ -22,11 +23,13 @@ const App = ({ Component, pageProps }: AppProps) => {
           <LoadingContextProvider>
             <SafeHydrate>
               <AutoAuth>
-                <LoadingOverlay>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </LoadingOverlay>
+                <Subscribe>
+                  <LoadingOverlay>
+                    <Layout>
+                      <Component {...pageProps} />
+                    </Layout>
+                  </LoadingOverlay>
+                </Subscribe>
               </AutoAuth>
             </SafeHydrate>
           </LoadingContextProvider>

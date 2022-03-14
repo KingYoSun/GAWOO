@@ -21,7 +21,7 @@ type InputPostProps = {
 const emptyPost = {
   cid: null,
   content: "",
-  published_at: null,
+  publishedAt: null,
   authorDid: null,
 };
 
@@ -65,7 +65,7 @@ const InputPost = (props: InputPostProps) => {
   const onSubmit: SubmitHandler<Post> = async (data) => {
     setUpload(true);
     try {
-      data.published_at = new Date().getTime();
+      data.publishedAt = new Date().getTime();
       console.log("post data!: ", data);
       const res = await window.ipfs.createPost(data, [], true);
       console.log("posted!: ", res);

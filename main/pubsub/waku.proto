@@ -1,0 +1,13 @@
+message FollowMessage {
+  required uint64 timestamp = 1;
+  required string followerDid = 2; 
+}
+
+message SharePost {
+  required string cid = 1;
+  required uint64 publishedAt = 2;
+  required string authorDid = 3;
+  optional string content = 4;
+  optional string authorName = 5;
+  optional string authorAvatar = 6;
+}

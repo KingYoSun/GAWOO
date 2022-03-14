@@ -1,5 +1,6 @@
 import type { SvgIconTypeMap } from "@mui/material";
 import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import { Post } from "@prisma/client";
 
 export interface IMenuItem {
   name: string;
@@ -35,4 +36,10 @@ export type BasicProfile = {
   residenceCountry?: string;
   nationalities?: Array<string>;
   affiliations?: Array<string>;
+};
+
+export type WakuClientProps = {
+  selfId: string;
+  purpose: "follow" | "share";
+  post?: Post;
 };

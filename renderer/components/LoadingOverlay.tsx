@@ -22,7 +22,7 @@ const LoadingOverlay = ({ children }: Props) => {
     })();
 
     window.electron.setup(() => {
-      console.log("setup_finished!");
+      console.log("setup finished!");
       dispatchSetup({ type: "set", payload: true });
     });
   }, []);
