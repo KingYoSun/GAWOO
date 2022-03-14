@@ -4,10 +4,12 @@ type SetupProviderProps = { children: React.ReactNode };
 
 export const SetupContext = createContext(null);
 
-function reducer(state: Array<String>, action) {
+function reducer(state, action) {
   switch (action?.type) {
-    case "set":
-      return action.payload;
+    case "ipfs":
+      return { ...state, ipfs: action.payload };
+    case "waku":
+      return { ...state, waku: action.payload };
     default:
       return state;
   }
@@ -16,7 +18,10 @@ function reducer(state: Array<String>, action) {
 export default function SetupContextProvider({
   children,
 }: SetupProviderProps): JSX.Element {
-  const initialState = false;
+  const initialState = {
+    ipfs: false,
+    waku: false,
+  };
 
   const [setup, dispatchSetup] = useReducer(reducer, initialState);
 

@@ -89,12 +89,13 @@ process.on("unhandledRejection", handleError);
 
     await setupI18n();
     await setupDaemon(ctx); // ctx.getIpfsd, startIpfs, stopIpfs, restartIpfs
-    await setupWaku(ctx);
 
     ctx.mainWindow.webContents.send("setupFinished", {
       message: "setup finished",
     });
     setupFinished = true;
+
+    await setupWaku(ctx);
   } catch (e) {
     handleError(e);
   }

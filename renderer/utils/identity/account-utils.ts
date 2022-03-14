@@ -16,6 +16,7 @@ export default class AccountUtils {
   ceramicClient: CeramicClient;
   basicProfile: BasicProfile;
   didProvider: DIDProvider;
+  authenticated: boolean;
 
   constructor() {
     this.selfId = null;
@@ -63,6 +64,7 @@ export default class AccountUtils {
     const client = this.selfIdClient;
     this.selfId = new SelfID({ client });
     console.log("authenticated!");
+    this.authenticated = true;
 
     return this;
   }

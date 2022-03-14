@@ -30,7 +30,7 @@ const AutoAuth = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    if (!setup) return;
+    if (!setup.ipfs) return;
 
     const loadingMsg = "ログイン中...";
 
@@ -51,7 +51,7 @@ const AutoAuth = ({ children }: Props) => {
         dispatchLoading({ type: "remove", payload: loadingMsg });
       })();
     }
-  }, [setup]);
+  }, [setup.ipfs]);
 
   useEffect(() => {
     if (Boolean(profile?.image?.original.src)) {

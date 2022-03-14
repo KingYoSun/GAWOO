@@ -1,7 +1,8 @@
 import { ReactNode, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { SetupContext } from "../context/SetupContext";
 import { WakuClientProps } from "../types/general";
+import { SetupContext } from "../context/SetupContext";
+import { LoadingContext } from "../context/LoadingContext";
 
 type Props = {
   children: ReactNode;
@@ -10,18 +11,30 @@ type Props = {
 const Subscribe = ({ children }: Props) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { setup, dispatchSetup } = useContext(SetupContext);
+  const { loading, dispatchLoading } = useContext(LoadingContext);
+
+  const wakuSetupMsg = "Wakuの接続中...";
 
   useEffect(() => {
+    if (!setup.waku) dispatchLoading({ type: "add", payload: wakuSetupMsg });
+    if (setup.waku) dispatchLoading({ type: "remove", payload: wakuSetupMsg });
+
     window.waku.followMessage((msg: string) => {
       console.log("followed!: ", msg);
     });
     window.waku.sharePost((msg: string) => {
       console.log("shared post!: ", msg);
     });
+    window.waku.setup((flag: boolean) => {
+      if (flag) {
+        dispatchSetup({ type: "waku", payload: true });
+        dispatchLoading({ type: "remove", payload: wakuSetupMsg });
+      }
+    });
   }, []);
 
   useEffect(() => {
-    if (!Boolean(account?.selfId?.id) || !setup) return;
+    if (!Boolean(account?.selfId?.id) || !setup.waku) return;
 
     const wakuIsConnected = window.waku.isConnected();
     if (!wakuIsConnected) {
@@ -39,12 +52,8 @@ const Subscribe = ({ children }: Props) => {
       purpose: "share",
     };
 
-    let newWaku = window.waku.deleteObservers([
-      wakuPropsFollow,
-      wakuPropsShare,
-    ]);
-    newWaku = window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
-  }, [account?.selfId?.id, setup]);
+    window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
+  }, [account.authenticated, setup.waku]);
 
   return <>{children}</>;
 };

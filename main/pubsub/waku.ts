@@ -34,44 +34,56 @@ export class WakuClient {
     const propFollow = props.find((prop) => prop.purpose === "follow");
     const propShare = props.find((prop) => prop.purpose === "share");
 
+    const existObservers = Object.keys(this.client.relay.observers);
+
     if (Boolean(propFollow)) {
       let topicFollow = this.setTopic(propFollow);
-      topics.push(topicFollow);
 
-      const processIncomingMessageFollow = (wakuMessage) => {
-        if (!wakuMessage.payload) return;
+      if (!existObservers.includes(topicFollow)) {
+        topics.push(topicFollow);
 
-        const payload = this.proto.FollowMessage.decode(wakuMessage.payload);
-        mainWindow.webContents.send("followMessage", JSON.stringify(payload));
-      };
-      this.client.relay.addObserver(
-        (msg) => processIncomingMessageFollow,
-        [topicFollow]
-      );
+        const processIncomingMessageFollow = (wakuMessage) => {
+          if (!wakuMessage.payload) return;
+
+          const payload = this.proto.FollowMessage.decode(wakuMessage.payload);
+          mainWindow.webContents.send("followMessage", JSON.stringify(payload));
+        };
+        this.client.relay.addObserver(
+          (msg) => processIncomingMessageFollow,
+          [topicFollow]
+        );
+      }
     }
 
     if (Boolean(propShare)) {
       let topicShare = this.setTopic(propShare);
-      topics.push(topicShare);
 
-      const processIncomingMessageShare = (wakuMessage) => {
-        if (!wakuMessage.payload) return;
+      if (!existObservers.includes(topicShare)) {
+        topics.push(topicShare);
 
-        const payload = this.proto.SharePost.decode(wakuMessage.payload);
-        mainWindow.webContents.send("sharePost", JSON.stringify(payload));
-      };
-      this.client.relay.addObserver(
-        (msg) => processIncomingMessageShare,
-        [topicShare]
-      );
+        const processIncomingMessageShare = (wakuMessage) => {
+          if (!wakuMessage.payload) return;
+
+          const payload = this.proto.SharePost.decode(wakuMessage.payload);
+          mainWindow.webContents.send("sharePost", JSON.stringify(payload));
+        };
+        this.client.relay.addObserver(
+          (msg) => processIncomingMessageShare,
+          [topicShare]
+        );
+      }
     }
 
-    console.log("Listen waku topic!: ", topics);
+    console.log(
+      "Listen waku topic!: ",
+      Object.keys(this.client.relay.observers)
+    );
   }
 
   deleteObservers(props: Array<WakuClientProps>) {
     let topics = [];
     props.map((prop) => topics.push(this.setTopic(prop)));
+    console.log("del topics!: ", topics);
 
     this.client.relay.deleteObserver((msg) => {}, topics);
   }
@@ -108,4 +120,5 @@ export class WakuClient {
 export default async function setupWaku(ctx) {
   ctx.wakuClient = new WakuClient();
   await ctx.wakuClient.initClient();
+  ctx.mainWindow.webContents.send("wakuSetup", true);
 }

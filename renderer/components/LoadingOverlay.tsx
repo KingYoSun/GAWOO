@@ -18,19 +18,19 @@ const LoadingOverlay = ({ children }: Props) => {
     (async () => {
       const res = await window.electron.confirmSetup();
       console.log("setup confirmed!: ", res);
-      dispatchSetup({ type: "set", payload: res });
+      dispatchSetup({ type: "ipfs", payload: res });
     })();
 
     window.electron.setup(() => {
       console.log("setup finished!");
-      dispatchSetup({ type: "set", payload: true });
+      dispatchSetup({ type: "ipfs", payload: true });
     });
   }, []);
 
   useEffect(() => {
-    if (!setup) dispatchLoading({ type: "add", payload: setupMsg });
-    if (setup) dispatchLoading({ type: "remove", payload: setupMsg });
-  }, [setup]);
+    if (!setup.ipfs) dispatchLoading({ type: "add", payload: setupMsg });
+    if (setup.ipfs) dispatchLoading({ type: "remove", payload: setupMsg });
+  }, [setup.ipfs]);
 
   return (
     <>

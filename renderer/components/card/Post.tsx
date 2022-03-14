@@ -24,7 +24,7 @@ const CardPost = ({ post }: CardPostProps) => {
   const parentFlexBox = useRef(null);
 
   useEffect(() => {
-    if (setup && Boolean(post.authorAvatar)) {
+    if (setup.ipfs && Boolean(post.authorAvatar)) {
       (async () => {
         const newAvatar = await window.ipfs.catImage(
           post.authorAvatar,
@@ -33,7 +33,7 @@ const CardPost = ({ post }: CardPostProps) => {
         setAvatar(newAvatar);
       })();
     }
-  }, [setup]);
+  }, [setup.ipfs]);
 
   useLayoutEffect(() => {
     const updateSize = () => {
