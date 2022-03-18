@@ -38,8 +38,9 @@ contextBridge.exposeInMainWorld("ipfs", {
 });
 
 contextBridge.exposeInMainWorld("waku", {
-  setup: (callback) =>
-    ipcRenderer.on("wakuSetup", (event, argv) => callback(event, argv)),
+  init: async () => {
+    return await ipcRenderer.invoke("initWaku");
+  },
   isConnected: () => {
     return ipcRenderer.invoke("WakuIsConnected");
   },

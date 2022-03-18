@@ -94,8 +94,6 @@ process.on("unhandledRejection", handleError);
       message: "setup finished",
     });
     setupFinished = true;
-
-    await setupWaku(ctx);
   } catch (e) {
     handleError(e);
   }
@@ -211,6 +209,11 @@ ipcMain.handle(
     return dataurl;
   }
 );
+
+ipcMain.handle("initWaku", async (event: IpcMainEvent) => {
+  await setupWaku(ctx);
+  return true;
+});
 
 ipcMain.handle("WakuIsConnected", (event: IpcMainEvent) => {
   if (!ctx.wakuClient) return false;

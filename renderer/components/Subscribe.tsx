@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { WakuClientProps } from "../types/general";
 import { SetupContext } from "../context/SetupContext";
 import { LoadingContext } from "../context/LoadingContext";
+import * as ErrorMsg from "../utils/error-msg";
 
 type Props = {
   children: ReactNode;
@@ -16,21 +17,35 @@ const Subscribe = ({ children }: Props) => {
   const wakuSetupMsg = "Wakuの接続中...";
 
   useEffect(() => {
-    if (!setup.waku) dispatchLoading({ type: "add", payload: wakuSetupMsg });
-    if (setup.waku) dispatchLoading({ type: "remove", payload: wakuSetupMsg });
-
     window.waku.followMessage((msg: string) => {
       console.log("followed!: ", msg);
     });
     window.waku.sharePost((msg: string) => {
       console.log("shared post!: ", msg);
     });
-    window.waku.setup((flag: boolean) => {
-      if (flag) {
-        dispatchSetup({ type: "waku", payload: true });
+
+    const flag = window.waku.isConnected();
+    dispatchSetup({ type: "waku", payload: flag });
+
+    if (setup.waku) dispatchLoading({ type: "remove", payload: wakuSetupMsg });
+    if (!setup.waku) {
+      dispatchLoading({ type: "add", payload: wakuSetupMsg });
+      (async () => {
+        let setupWaku = false;
+        let retry = 0;
+
+        while (!setupWaku && retry < 4) {
+          setupWaku = await window.waku.init();
+          if (!setupWaku) retry++;
+          if (setupWaku) break;
+        }
+
+        if (!setupWaku) ErrorMsg.call(new Error("Wakuの接続に失敗しました"));
+
+        dispatchSetup({ type: "waku", payload: setupWaku });
         dispatchLoading({ type: "remove", payload: wakuSetupMsg });
-      }
-    });
+      })();
+    }
   }, []);
 
   useEffect(() => {

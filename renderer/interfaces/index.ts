@@ -30,7 +30,7 @@ interface IIpfs {
 }
 
 interface IWaku {
-  setup: (callback: (flag: boolean) => void) => void;
+  init: () => boolean;
   isConnected: () => boolean;
   addObservers: (props: Array<WakuClientProps>) => string;
   deleteObservers: (props: Array<WakuClientProps>) => string;

@@ -123,5 +123,4 @@ export class WakuClient {
 export default async function setupWaku(ctx) {
   ctx.wakuClient = new WakuClient();
   await ctx.wakuClient.initClient();
-  ctx.mainWindow.webContents.send("wakuSetup", true);
 }
