@@ -50,18 +50,6 @@ export default class WallectConnectClient {
     }
   }
 
-  deleteConnection() {
-    console.log("delete connection!");
-    return new Promise((resolve, reject) => {
-      console.log(this.connector);
-      this.connector.on("disconnect", (e) => {
-        if (e) reject(e);
-        console.log("walletconnect disconnected!");
-        resolve(true);
-      });
-    });
-  }
-
   async setProvider() {
     this.provider = new WalletConnectProvider({
       infuraId: INFURA_ID,

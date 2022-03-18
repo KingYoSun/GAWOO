@@ -32,11 +32,6 @@ const IndexPage = () => {
     dispatchAccount({ type: "set", payload: newAccount });
   };
 
-  const onDeleteConnection = async () => {
-    const newAccount = await account.deleteConnection();
-    dispatchAccount({ type: "set", payload: newAccount });
-  };
-
   const showAccount = () => {
     console.log("index account: ", account);
   };
@@ -66,10 +61,6 @@ const IndexPage = () => {
     });
   };
 
-  const logoutBtnDisabled = useCallback(() => {
-    return !account?.isConnected();
-  }, [account]);
-
   const getIndexPosts = async () => {
     const newPosts = await window.electron.indexPosts();
     dispatchPosts({ type: "add", payload: newPosts });
@@ -90,9 +81,6 @@ const IndexPage = () => {
         <Button onClick={sendShare}>Shareテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
-        <Button onClick={onDeleteConnection} disabled={logoutBtnDisabled()}>
-          切断
-        </Button>
       </FlexRow>
       <FlexRow>
         <InputPost doReload={() => getIndexPosts()} />

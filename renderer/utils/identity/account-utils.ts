@@ -102,10 +102,4 @@ export default class AccountUtils {
 
     console.log("updated profile!");
   }
-
-  async deleteConnection() {
-    await this.web3.wcClient.deleteConnection().catch((e) => ErrorMsg.call(e));
-    console.log("delete connection finished!");
-    return this;
-  }
 }
