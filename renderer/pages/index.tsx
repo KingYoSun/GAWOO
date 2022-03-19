@@ -1,13 +1,15 @@
 import { useContext, useReducer, useEffect } from "react";
-import { Button, Box, Divider } from "@mui/material";
+import { Button, Box, Divider, Typography } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
 import InputPost from "../components/Input/Post";
 import CardPost from "../components/card/Post";
 import { Post } from "@prisma/client";
+import { ProfileContext } from "../context/ProfileContext";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
+  const { profile, dispatchProfile } = useContext(ProfileContext);
 
   const reducer = (state: Array<Post>, action) => {
     switch (action?.type) {
@@ -83,7 +85,20 @@ const IndexPage = () => {
         <Button onClick={onAccountConnect}>認証</Button>
       </FlexRow>
       <FlexRow>
-        <InputPost doReload={() => getIndexPosts()} />
+        {Boolean(profile?.name) && (
+          <InputPost doReload={() => getIndexPosts()} />
+        )}
+        {!Boolean(profile?.name) && (
+          <Typography
+            variant="h6"
+            component="span"
+            sx={{
+              color: (theme) => theme.palette.primary.main,
+            }}
+          >
+            プロフィール設定画面よりユーザー名を設定すると投稿できます
+          </Typography>
+        )}
       </FlexRow>
       <FlexRow marginTop="20px">
         <Box width="90%">

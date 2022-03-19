@@ -34,13 +34,15 @@ export default class AccountUtils {
     );
   }
 
-  async authenticate() {
+  async authenticate(newSession: boolean = false) {
     if (typeof window === "undefined") {
       console.log("サーバープロセスです");
       return this;
     }
 
-    await this.web3.wcClient.initConnection().catch((e) => ErrorMsg.call(e));
+    await this.web3.wcClient
+      .initConnection(newSession)
+      .catch((e) => ErrorMsg.call(e));
     console.log("set provider!");
     await this.web3.wcClient.setProvider().catch((e) => ErrorMsg.call(e));
     this.web3.setWeb3(this.web3.wcClient.provider);

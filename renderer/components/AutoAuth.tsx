@@ -78,7 +78,7 @@ const AutoAuth = ({ children }: Props) => {
   useEffect(() => {
     if (
       Boolean(account?.selfId?.id) &&
-      (Boolean(profile.name) || Boolean(profile?.image?.original.src))
+      (Boolean(profile?.name) || Boolean(profile?.image?.original.src))
     ) {
       (async () => {
         const myUser = await window.electron.showUser(account.selfId.id);
@@ -112,7 +112,7 @@ const AutoAuth = ({ children }: Props) => {
         }
       })();
     }
-  }, [account?.selfId?.id, profile.name, profile?.image?.original.src]);
+  }, [account?.selfId?.id, profile?.name, profile?.image?.original.src]);
 
   return <>{children}</>;
 };

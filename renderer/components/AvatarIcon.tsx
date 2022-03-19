@@ -2,7 +2,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Box, Avatar } from "@mui/material";
 
 interface AvatarIconProps {
-  src: string;
+  src: string | null;
   marginTop?: string | number;
   marginRight?: string | number;
   marginBottom?: string | number;

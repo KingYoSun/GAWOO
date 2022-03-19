@@ -8,20 +8,26 @@ import {
   ListItemText,
   Box,
   Typography,
-  Avatar,
+  Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 
 import { MENU_LIST_ITEMS } from "../../constants/menu-items";
 import { drawerWidth } from "../../styles/theme";
 
 import { ProfileContext } from "../../context/ProfileContext";
+import { AuthContext } from "../../context/AuthContext";
 import ThemeToggler from "../../components/ThemeToggler";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AvatarIcon } from "../../components/AvatarIcon";
+import * as ErrorMsg from "../../utils/error-msg";
+import { LoadingContext } from "../../context/LoadingContext";
 
 interface SideBarProps {
   open: boolean;
@@ -30,6 +36,18 @@ interface SideBarProps {
 
 const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const { account, dispatchAccount } = useContext(AuthContext);
+  const { loading, dispatchLoading } = useContext(LoadingContext);
+  const [accounts, setAccounts] = useState([]);
+  const [avatarMenuAnchor, setAvatarMenuAnchor] = useState(null);
+  const avatarOpen = Boolean(avatarMenuAnchor);
+
+  const handleAvatarIconButton = (event) => {
+    setAvatarMenuAnchor(event.currentTarget);
+  };
+  const handleAvatarMenuClose = () => {
+    setAvatarMenuAnchor(null);
+  };
 
   const router = useRouter();
   const initialSelection = MENU_LIST_ITEMS.findIndex(
@@ -54,6 +72,77 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
       duration: theme.transitions.duration.leavingScreen,
     }),
   });
+
+  const avatarIconStyle = {
+    width: 45,
+    height: 45,
+    marginRight: "15px",
+    marginTop: "3px",
+    marginBottom: "3px",
+  };
+
+  useEffect(() => {
+    let arrAccount = JSON.parse(localStorage.getItem("accounts"));
+    setAccounts(arrAccount ?? []);
+  }, []);
+
+  const storeWalletConnect = () => {
+    const wcJson = localStorage.getItem("walletconnect");
+    if (!Boolean(wcJson) || !Boolean(account?.selfId?.id)) return;
+    localStorage.setItem(`walletconnect-${account.selfId.id}`, wcJson);
+  };
+
+  const handleChangeAccount = async (item) => {
+    const loadingMsg = "アカウント切替中...";
+    dispatchLoading({ type: "add", payload: loadingMsg });
+
+    try {
+      storeWalletConnect();
+      let arrAccount = JSON.parse(localStorage.getItem("accounts"));
+      if (!Boolean(arrAccount)) arrAccount = [];
+      arrAccount = arrAccount.filter(
+        (storedItem) => storedItem.did !== item.did
+      );
+      arrAccount.push({
+        name: profile?.name,
+        did: account.selfId.id,
+        avatar: profile?.avatar,
+      });
+      localStorage.setItem("accounts", JSON.stringify(arrAccount));
+      setAccounts(arrAccount ?? []);
+
+      const targetWcJson = localStorage.getItem(`walletconnect-${item.did}`);
+      if (!Boolean(targetWcJson)) {
+        throw "指定されたアカウント接続情報がありません";
+      }
+
+      localStorage.setItem("walletconnect", targetWcJson);
+
+      await account.authenticate(false);
+    } catch (e) {
+      ErrorMsg.call(new Error(e));
+    } finally {
+      dispatchLoading({ type: "remove", payload: loadingMsg });
+      location.reload();
+    }
+  };
+
+  const handleAddAccount = async () => {
+    storeWalletConnect();
+
+    let arrAccount = JSON.parse(localStorage.getItem("accounts"));
+    if (!Boolean(arrAccount)) arrAccount = [];
+    arrAccount.push({
+      name: profile?.name,
+      did: account.selfId.id,
+      avatar: profile?.avatar,
+    });
+    localStorage.setItem("accounts", JSON.stringify(arrAccount));
+    setAccounts(arrAccount ?? []);
+
+    await account.authenticate(true);
+    location.reload();
+  };
 
   return (
     <Drawer
@@ -111,10 +200,18 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             alignItems: "center",
             marginTop: "5px",
             marginBottom: "5px",
-            marginLeft: "6px",
           }}
         >
-          <AvatarIcon src={profile.avatar} />
+          <Tooltip title="アカウント切り替え">
+            <IconButton
+              onClick={handleAvatarIconButton}
+              aria-controls={open ? "account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+            >
+              <AvatarIcon src={profile?.avatar} />
+            </IconButton>
+          </Tooltip>
           <Typography
             variant="h6"
             component="span"
@@ -125,9 +222,64 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
               color: (theme) => theme.palette.primary.contrastText,
             }}
           >
-            {profile.name}
+            {profile?.name}
           </Typography>
         </Box>
+        <Menu
+          anchorEl={avatarMenuAnchor}
+          id="account-menu"
+          open={avatarOpen}
+          onClose={handleAvatarMenuClose}
+          onClick={handleAvatarMenuClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: "visible",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+              mt: 1.5,
+              "&:before": {
+                content: '""',
+                display: "block",
+                position: "absolute",
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
+                zIndex: 0,
+              },
+            },
+          }}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        >
+          {accounts.map((item) => (
+            <MenuItem key={item.did} onClick={(e) => handleChangeAccount(item)}>
+              <AvatarIcon src={item.avatar} />
+              <Typography
+                variant="h6"
+                component="span"
+                sx={{
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  color: (theme) => theme.palette.primary.main,
+                }}
+              >
+                {item.name}
+              </Typography>
+            </MenuItem>
+          ))}
+          <MenuItem>
+            <IconButton onClick={handleAddAccount}>
+              <AddCircleOutlineIcon
+                sx={{
+                  color: (theme) => theme.palette.primary.light,
+                }}
+              />
+            </IconButton>
+          </MenuItem>
+        </Menu>
       </Box>
       <Divider />
       <List sx={{ padding: 0 }}>

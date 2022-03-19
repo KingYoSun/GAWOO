@@ -20,8 +20,12 @@ export default class WallectConnectClient {
     });
   }
 
-  async initConnection() {
+  async initConnection(newSession: boolean) {
     this.initConnector();
+    if (newSession) {
+      await this.connector.killSession();
+      console.log("session killed!");
+    }
 
     if (this.connector.connected) {
       return new Promise((resolve) => {
