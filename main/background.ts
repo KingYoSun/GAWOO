@@ -13,6 +13,7 @@ import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
 import { Post, PrismaClient, User } from "@prisma/client";
+import downloadCid from "./download-cid";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -209,6 +210,22 @@ ipcMain.handle(
     return dataurl;
   }
 );
+
+ipcMain.handle("getPost", async (event: IpcMainEvent, cid: string) => {
+  if (!ctx.getIpfsd) {
+    console.log(i18n.t("ipfsNotRunningDialog.title"));
+    return i18n.t("ipfsNotRunningDialog.title");
+  }
+  const ipfsd = await ctx.getIpfsd();
+  let succeeded, failure;
+  try {
+    succeeded = await downloadCid(ipfsd, cid);
+  } catch (e) {
+    failure = e.toString();
+  } finally {
+    return { succeeded, failure };
+  }
+});
 
 ipcMain.handle("initWaku", async (event: IpcMainEvent) => {
   await setupWaku(ctx);

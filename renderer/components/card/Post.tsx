@@ -32,6 +32,10 @@ const CardPost = ({ post }: CardPostProps) => {
         );
         setAvatar(newAvatar);
       })();
+      (async () => {
+        const postIpfs = await window.ipfs.getPost(post.cid);
+        console.log("postIpfs!: ", postIpfs);
+      })();
     }
   }, [setup.ipfs]);
 

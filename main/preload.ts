@@ -35,6 +35,9 @@ contextBridge.exposeInMainWorld("ipfs", {
   catImage: async (ipfsPath: string, mimeType: string) => {
     return await ipcRenderer.invoke("catImage", ipfsPath, mimeType);
   },
+  getPost: async (cid: string) => {
+    return await ipcRenderer.invoke("getPost", cid);
+  },
 });
 
 contextBridge.exposeInMainWorld("waku", {

@@ -27,6 +27,7 @@ interface IIpfs {
   ) => { post: Post; failures: Array<string> };
   imageToIpfs: (image: string, pin: boolean) => string | Error;
   catImage: (ipfsPath: string, mimeType: string) => string;
+  getPost: (cat: string) => string;
 }
 
 interface IWaku {
