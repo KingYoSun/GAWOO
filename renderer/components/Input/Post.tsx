@@ -48,8 +48,10 @@ const InputPost = (props: InputPostProps) => {
   }, [account?.selfId?.id]);
 
   useEffect(() => {
-    if (Boolean(profile?.image?.original.src))
+    if (Boolean(profile?.image?.original.src)) {
       setValue("authorAvatar", profile?.image?.original.src);
+      setValue("authorAvatarMime", profile?.image?.original.mimeType);
+    }
     if (Boolean(profile?.name)) setValue("authorName", profile.name);
   }, [profile?.name, profile?.image?.original.src]);
 

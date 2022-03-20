@@ -58,6 +58,7 @@ const IndexPage = () => {
         authorDid: "test did",
         authorName: null,
         authorAvatar: null,
+        authorAvatarMime: null,
         content: "test",
       },
     });

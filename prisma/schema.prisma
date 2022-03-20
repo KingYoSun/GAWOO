@@ -15,6 +15,7 @@ model Post {
   author        User?   @relation(fields: [authorDid], references: [did])
   authorName    String?
   authorAvatar  String?
+  authorAvatarMime  String?
   authorDid     String?
 }
 

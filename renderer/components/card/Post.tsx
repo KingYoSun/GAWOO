@@ -28,7 +28,7 @@ const CardPost = ({ post }: CardPostProps) => {
       (async () => {
         const newAvatar = await window.ipfs.catImage(
           post.authorAvatar,
-          "image/png"
+          post.authorAvatarMime ?? "image/png"
         );
         setAvatar(newAvatar);
       })();
