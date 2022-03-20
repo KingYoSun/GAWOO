@@ -31,7 +31,7 @@ export const addImage = async (
 };
 
 const addJson = async (ipfs, post, pin) => {
-  const filename = `${post.authorName}_${post.publishedAt}`;
+  const filename = `${post.authorName}_${post.publishedAt}.json`;
   delete post.cid;
   const res = await ipfs.add(JSON.stringify(post), { pin: pin });
   const cid = res.cid;
