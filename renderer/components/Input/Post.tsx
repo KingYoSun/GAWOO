@@ -7,12 +7,13 @@ import {
   useState,
 } from "react";
 import { ProfileContext } from "../../context/ProfileContext";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button } from "@mui/material";
 import { FlexRow } from "../Flex";
 import { AvatarIcon } from "../AvatarIcon";
 import { AuthContext } from "../../context/AuthContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import * as ErrorMsg from "../../utils/error-msg";
+import ImgPreview from "./ImgPreview";
 
 type InputPostProps = {
   target?: Post;
@@ -79,8 +80,11 @@ const InputPost = (props: InputPostProps) => {
       ErrorMsg.call("既に動画が選択されています");
       return;
     }
-    if (file.type.includes("image")) setImages([...images, file]);
-    if (file.type.includes("video")) setVideo(file);
+    if (file.type.includes("image")) {
+      const imgNames = images.map((image) => image.name);
+      if (!imgNames.includes(file.name)) setImages([...images, file]);
+    }
+    if (file.type.includes("video") && video.name !== file.name) setVideo(file);
     setDragging(false);
     setCounter(0);
   };
@@ -97,12 +101,36 @@ const InputPost = (props: InputPostProps) => {
     }
   };
 
+  const removeImage = (file: File) => {
+    setImages([...images.filter((image) => image.name !== file.name)]);
+  };
+
   const onSubmit: SubmitHandler<Post> = async (data) => {
     setUpload(true);
     try {
       data.publishedAt = new Date().getTime();
       console.log("post data!: ", data);
-      const res = await window.ipfs.createPost(data, [], true);
+      const files = await Promise.all(
+        [...images, video].map(async (item) => {
+          if (!item) return null;
+          console.log("exchange!: ", item);
+          const url = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = async () => resolve(reader.result);
+            reader.readAsDataURL(item);
+          });
+          return {
+            url: url as string,
+            name: item.name,
+            type: item.type,
+          };
+        })
+      );
+      const res = await window.ipfs.createPost(
+        data,
+        files.filter((file) => Boolean(file)),
+        true
+      );
       console.log("posted!: ", res);
       if (res.failures.length > 0) {
         alert("Error!: " + res.failures.join(", "));
@@ -112,6 +140,8 @@ const InputPost = (props: InputPostProps) => {
     } finally {
       setValue("content", "");
       setUpload(false);
+      setImages([]);
+      setVideo(null);
       props.doReload();
     }
   };
@@ -157,6 +187,16 @@ const InputPost = (props: InputPostProps) => {
               />
             )}
           />
+        </FlexRow>
+        <FlexRow justifyContent="start" marginTop="0px" marginLeft="60px">
+          {images.map((image) => (
+            <ImgPreview
+              disabled={upload}
+              key={image.name}
+              file={image}
+              onClose={() => removeImage(image)}
+            />
+          ))}
         </FlexRow>
         <FlexRow justifyContent="end" marginTop="0px">
           <Button

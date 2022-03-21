@@ -10,6 +10,8 @@ const FlexRow = ({
   maxWidth = "100%",
   marginTop = "4px",
   marginBottom = "4px",
+  marginLeft = "0px",
+  marginRight = "0px",
   flexRef = null,
   ...props
 }: {
@@ -21,6 +23,8 @@ const FlexRow = ({
   maxWidth?: string | number;
   marginTop?: string | number;
   marginBottom?: string | number;
+  marginLeft?: string | number;
+  marginRight?: string | number;
   flexRef?: MutableRefObject<any>;
 }) => {
   return (
@@ -33,6 +37,8 @@ const FlexRow = ({
       sx={{
         marginTop: marginTop,
         marginBottom: marginBottom,
+        marginLeft: marginLeft,
+        marginRight: marginRight,
         flexDirection: flexDirection,
       }}
       ref={flexRef}

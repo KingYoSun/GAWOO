@@ -1,5 +1,6 @@
 import { Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
+import { TFile } from "./add-to-ipfs";
 import { WakuClientProps } from "./pubsub/waku";
 
 contextBridge.exposeInMainWorld("electron", {
@@ -26,7 +27,7 @@ contextBridge.exposeInMainWorld("electron", {
 });
 
 contextBridge.exposeInMainWorld("ipfs", {
-  createPost: async (post: Post, files: Array<File>, pin: boolean) => {
+  createPost: async (post: Post, files: Array<TFile>, pin: boolean) => {
     return await ipcRenderer.invoke("createPost", post, files, pin);
   },
   imageToIpfs: async (image: string, pin: boolean) => {

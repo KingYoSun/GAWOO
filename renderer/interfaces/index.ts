@@ -1,5 +1,5 @@
 import { Post, User } from "@prisma/client";
-import { WakuClientProps } from "../types/general";
+import { TFile, WakuClientProps } from "../types/general";
 
 declare global {
   interface Window {
@@ -22,7 +22,7 @@ interface IElectron {
 interface IIpfs {
   createPost: (
     post: Post,
-    files: Array<File>,
+    files: Array<TFile>,
     pin: boolean
   ) => { post: Post; failures: Array<string> };
   imageToIpfs: (image: string, pin: boolean) => string | Error;

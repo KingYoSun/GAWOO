@@ -2,11 +2,15 @@ import logger from "./logger";
 import { mainContext } from "./background";
 import { dataUrlToBlob } from "./utils/dataurl-to-blob";
 import fs from "fs-extra";
-import last from "it-last";
-import { globSource } from "ipfs-http-client";
 import { extname, basename } from "path";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import { Post } from "@prisma/client";
+
+export type TFile = {
+  url: string;
+  name: string;
+  type: string;
+};
 
 export const addImage = async (
   { getIpfsd }: mainContext,
@@ -61,18 +65,10 @@ const copyFileToMfs = async (ipfs, cid, filename) => {
 };
 
 const addFileOrDirectory = async (ipfs, file, pin) => {
-  const filepath = file.path;
-  const stat = fs.statSync(filepath);
-  let res = null;
-  let cid = null;
+  const blob = dataUrlToBlob(file.url);
+  const res = await ipfs.add(blob, { pin: pin });
+  const cid = res.cid;
 
-  if (stat.isDirectory()) {
-    throw new Error("It is Directory!");
-  } else {
-    const readStream = fs.createReadStream(filepath);
-    res = await ipfs.add(readStream, { pin: pin });
-    cid = res.cid;
-  }
   await copyFileToMfs(ipfs, cid, file.name);
   return { cid, filename: file.name };
 };
@@ -95,7 +91,7 @@ const getShareableCid = async (ipfs, files) => {
 const addToIpfs = async (
   { getIpfsd }: mainContext,
   post: Post,
-  files: Array<File>,
+  files: Array<TFile>,
   pin: Boolean
 ) => {
   const ipfsd = await getIpfsd();

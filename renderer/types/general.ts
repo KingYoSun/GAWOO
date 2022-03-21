@@ -43,3 +43,9 @@ export type WakuClientProps = {
   purpose: "follow" | "share";
   post?: Post;
 };
+
+export type TFile = {
+  url: string;
+  name: string;
+  type: string;
+};

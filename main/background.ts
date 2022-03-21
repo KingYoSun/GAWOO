@@ -8,7 +8,7 @@ import setupI18n from "./i18n";
 import setupDaemon from "./deamon";
 import setupWaku, { WakuClient, WakuClientProps } from "./pubsub/waku";
 import setupProtocolHandlers from "./protocol-handler";
-import addToIpfs, { addImage } from "./add-to-ipfs";
+import addToIpfs, { addImage, TFile } from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
@@ -115,7 +115,12 @@ ipcMain.handle("confirmSetup", (event: IpcMainEvent) => {
 
 ipcMain.handle(
   "createPost",
-  async (event: IpcMainEvent, post: Post, files: Array<File>, pin: boolean) => {
+  async (
+    event: IpcMainEvent,
+    post: Post,
+    files: Array<TFile>,
+    pin: boolean
+  ) => {
     if (!ctx.getIpfsd) {
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {
