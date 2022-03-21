@@ -49,3 +49,13 @@ export type TFile = {
   name: string;
   type: string;
 };
+
+export type IpfsFile = {
+  cid: string;
+  name: string;
+};
+
+export type IpfsPost = {
+  succeeded: Array<string>;
+  failure: string;
+};

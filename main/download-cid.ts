@@ -88,7 +88,7 @@ const downloadCid = async (ipfsd: Controller, cid: string) => {
 
     const arrFilePath = files.map((file) => file.name);
 
-    return JSON.stringify(arrFilePath);
+    return arrFilePath;
   } catch (err) {
     const errMsg = err.toString();
     logger.error(`[cid download] ${errMsg}`);

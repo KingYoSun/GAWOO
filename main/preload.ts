@@ -1,7 +1,6 @@
 import { Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
-import { TFile } from "./add-to-ipfs";
-import { WakuClientProps } from "./pubsub/waku";
+import { IpfsFile, TFile, WakuClientProps } from "../renderer/types/general";
 
 contextBridge.exposeInMainWorld("electron", {
   sayMsg: async (message: string) => {
@@ -23,6 +22,9 @@ contextBridge.exposeInMainWorld("electron", {
   },
   indexPosts: async (did?: string, take?: number) => {
     return await ipcRenderer.invoke("indexPosts", did, take);
+  },
+  getFileByBase64: async (ipfsFile: IpfsFile) => {
+    return await ipcRenderer.invoke("getFileByBase64", ipfsFile);
   },
 });
 

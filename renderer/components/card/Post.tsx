@@ -12,6 +12,7 @@ import { Box, Typography } from "@mui/material";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { SetupContext } from "../../context/SetupContext";
+import ImgPreview from "./ImgPreview";
 
 interface CardPostProps {
   post: Post;
@@ -20,6 +21,8 @@ interface CardPostProps {
 const CardPost = ({ post }: CardPostProps) => {
   const [avatar, setAvatar] = useState(null);
   const [width, setWidth] = useState(0);
+  const [images, setImages] = useState([]);
+  const [video, setVideo] = useState(null);
   const { setup, dispatchSetup } = useContext(SetupContext);
   const parentFlexBox = useRef(null);
 
@@ -34,7 +37,19 @@ const CardPost = ({ post }: CardPostProps) => {
       })();
       (async () => {
         const postIpfs = await window.ipfs.getPost(post.cid);
-        console.log("getPostFromIpfs!: ", postIpfs);
+        if (Boolean(postIpfs.succeeded)) {
+          await Promise.all(
+            postIpfs.succeeded.map(async (name) => {
+              const dataUrl = await window.electron.getFileByBase64({
+                cid: post.cid,
+                name: name,
+              });
+              if (dataUrl.includes("data:image/"))
+                setImages([...images, dataUrl]);
+              if (dataUrl.includes("data:video/")) setVideo(dataUrl);
+            })
+          );
+        }
       })();
     }
   }, [setup.ipfs]);
@@ -69,6 +84,11 @@ const CardPost = ({ post }: CardPostProps) => {
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="10px">
           <Typography>{post.content}</Typography>
+        </FlexRow>
+        <FlexRow justifyContent="start" marginLeft="0px">
+          {images.map((image, num) => (
+            <ImgPreview key={num} src={image} />
+          ))}
         </FlexRow>
       </Box>
     </FlexRow>

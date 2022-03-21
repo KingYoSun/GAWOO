@@ -6,14 +6,18 @@ import { createWindow } from "./helpers";
 import { criticalErrorDialog } from "./dialogs";
 import setupI18n from "./i18n";
 import setupDaemon from "./deamon";
-import setupWaku, { WakuClient, WakuClientProps } from "./pubsub/waku";
+import setupWaku, { WakuClient } from "./pubsub/waku";
 import setupProtocolHandlers from "./protocol-handler";
-import addToIpfs, { addImage, TFile } from "./add-to-ipfs";
+import addToIpfs, { addImage } from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
 import { Post, PrismaClient, User } from "@prisma/client";
 import downloadCid from "./download-cid";
+import { IpfsFile, WakuClientProps, TFile } from "../renderer/types/general";
+import fs from "fs-extra";
+import { join } from "path";
+import mime from "mime-types";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -183,6 +187,22 @@ ipcMain.handle("showUser", async (event: IpcMainEvent, did: string) => {
     return e.toString();
   }
 });
+
+ipcMain.handle(
+  "getFileByBase64",
+  async (event: IpcMainEvent, ipfsFile: IpfsFile) => {
+    const path = join(
+      app.getPath("userData"),
+      "downloads",
+      ipfsFile.cid,
+      ipfsFile.name
+    );
+    const base64 = await fs.readFileSync(path, { encoding: "base64" });
+    const mimeType = mime.lookup(path);
+    const dataurl = `data:${mimeType};base64,${base64}`;
+    return dataurl;
+  }
+);
 
 ipcMain.handle(
   "imageToIpfs",

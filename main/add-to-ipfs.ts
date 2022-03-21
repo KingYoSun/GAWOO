@@ -5,12 +5,7 @@ import fs from "fs-extra";
 import { extname, basename } from "path";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import { Post } from "@prisma/client";
-
-export type TFile = {
-  url: string;
-  name: string;
-  type: string;
-};
+import { TFile } from "../renderer/types/general";
 
 export const addImage = async (
   { getIpfsd }: mainContext,

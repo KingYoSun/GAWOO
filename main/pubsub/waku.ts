@@ -2,13 +2,8 @@ import protons from "protons";
 import { Post } from "@prisma/client";
 import fs from "fs-extra";
 import { mainContext } from "../background";
-import { waku, Waku, WakuMessage } from "js-waku";
-
-export interface WakuClientProps {
-  selfId: string;
-  purpose: "follow" | "share";
-  post?: Post;
-}
+import { Waku, WakuMessage } from "js-waku";
+import { WakuClientProps } from "../../renderer/types/general";
 
 export class WakuClient {
   client: Waku;
