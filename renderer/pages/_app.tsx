@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import dynamic from "next/dynamic";
 import Layout from "../components/Layout";
@@ -15,6 +15,12 @@ const App = ({ Component, pageProps }: AppProps) => {
   const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
     ssr: false,
   });
+
+  useEffect(() => {
+    document.ondragover = document.ondrop = (e) => {
+      e.preventDefault();
+    };
+  }, []);
 
   return (
     <SetupContextProvider>

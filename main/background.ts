@@ -115,7 +115,7 @@ ipcMain.handle("confirmSetup", (event: IpcMainEvent) => {
 
 ipcMain.handle(
   "createPost",
-  async (event: IpcMainEvent, post: Post, files: Array<any>, pin: boolean) => {
+  async (event: IpcMainEvent, post: Post, files: Array<File>, pin: boolean) => {
     if (!ctx.getIpfsd) {
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {

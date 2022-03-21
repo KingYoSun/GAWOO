@@ -22,7 +22,7 @@ interface IElectron {
 interface IIpfs {
   createPost: (
     post: Post,
-    files: Array<any>,
+    files: Array<File>,
     pin: boolean
   ) => { post: Post; failures: Array<string> };
   imageToIpfs: (image: string, pin: boolean) => string | Error;

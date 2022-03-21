@@ -7,11 +7,12 @@ import {
   useState,
 } from "react";
 import { ProfileContext } from "../../context/ProfileContext";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Box } from "@mui/material";
 import { FlexRow } from "../Flex";
 import { AvatarIcon } from "../AvatarIcon";
 import { AuthContext } from "../../context/AuthContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import * as ErrorMsg from "../../utils/error-msg";
 
 type InputPostProps = {
   target?: Post;
@@ -31,6 +32,10 @@ const InputPost = (props: InputPostProps) => {
   const [contentLength, setContentLength] = useState(0);
   const [width, setWidth] = useState(0);
   const [upload, setUpload] = useState(false);
+  const [images, setImages] = useState([]);
+  const [video, setVideo] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const [counter, setCounter] = useState(0);
   const {
     control,
     handleSubmit,
@@ -63,6 +68,34 @@ const InputPost = (props: InputPostProps) => {
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, []);
+
+  const onDrop = (e) => {
+    const file = e.dataTransfer.files[0];
+    if (images.length >= 4) {
+      ErrorMsg.call("一度に投稿できる画像は4枚までです");
+      return;
+    }
+    if (Boolean(video)) {
+      ErrorMsg.call("既に動画が選択されています");
+      return;
+    }
+    if (file.type.includes("image")) setImages([...images, file]);
+    if (file.type.includes("video")) setVideo(file);
+    setDragging(false);
+    setCounter(0);
+  };
+
+  const onDragEnter = (e) => {
+    setCounter(counter + 1);
+    setDragging(true);
+  };
+
+  const onDragLeave = (e) => {
+    setCounter(counter - 1);
+    if (counter <= 1) {
+      setDragging(false);
+    }
+  };
 
   const onSubmit: SubmitHandler<Post> = async (data) => {
     setUpload(true);
@@ -112,7 +145,15 @@ const InputPost = (props: InputPostProps) => {
                   setContentLength(e.target.value?.length);
                 }}
                 helperText={`${contentLength}/2000`}
-                sx={{ width: width }}
+                onDrop={onDrop}
+                onDragEnter={onDragEnter}
+                onDragLeave={onDragLeave}
+                sx={{
+                  width: width,
+                  borderColor: (theme) => theme.palette.primary.main,
+                  borderStyle: dragging ? "dashed" : "none",
+                  borderWidth: "5px",
+                }}
               />
             )}
           />

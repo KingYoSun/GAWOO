@@ -47,7 +47,6 @@
     "moment": "^2.29.1",
     "portfinder": "^1.0.28",
     "protons": "^2.0.3",
-    "react-dropzone": "^12.0.4",
     "react-hook-form": "^7.27.1",
     "react-image-crop": "^10.0.0-beta.2",
     "web3": "^1.7.0",

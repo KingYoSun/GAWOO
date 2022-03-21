@@ -26,7 +26,7 @@ contextBridge.exposeInMainWorld("electron", {
 });
 
 contextBridge.exposeInMainWorld("ipfs", {
-  createPost: async (post: Post, files: Array<any>, pin: boolean) => {
+  createPost: async (post: Post, files: Array<File>, pin: boolean) => {
     return await ipcRenderer.invoke("createPost", post, files, pin);
   },
   imageToIpfs: async (image: string, pin: boolean) => {

@@ -60,31 +60,24 @@ const copyFileToMfs = async (ipfs, cid, filename) => {
   return ipfs.files.cp(`/ipfs/${cid.toString()}`, `/${filename}`);
 };
 
-const addFileOrDirectory = async (ipfs, filepath, pin) => {
+const addFileOrDirectory = async (ipfs, file, pin) => {
+  const filepath = file.path;
   const stat = fs.statSync(filepath);
   let res = null;
   let cid = null;
 
   if (stat.isDirectory()) {
-    const files = globSource(filepath, "**/*");
-    res = await last(ipfs.addAll(files, { pin: pin, wrapWithDirectory: true }));
-    cid = res.cid;
+    throw new Error("It is Directory!");
   } else {
     const readStream = fs.createReadStream(filepath);
     res = await ipfs.add(readStream, { pin: pin });
     cid = res.cid;
   }
-
-  const filename = basename(filepath);
-  await copyFileToMfs(ipfs, cid, filename);
-  return { cid, filename };
+  await copyFileToMfs(ipfs, cid, file.name);
+  return { cid, filename: file.name };
 };
 
 const getShareableCid = async (ipfs, files) => {
-  if (files.length === 1) {
-    return files[0];
-  }
-
   const dirpath = `/zzzz_${Date.now()}`;
   await ipfs.files.mkdir(dirpath, {});
 
@@ -102,7 +95,7 @@ const getShareableCid = async (ipfs, files) => {
 const addToIpfs = async (
   { getIpfsd }: mainContext,
   post: Post,
-  files: Array<any>,
+  files: Array<File>,
   pin: Boolean
 ) => {
   const ipfsd = await getIpfsd();

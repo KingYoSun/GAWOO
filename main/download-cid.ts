@@ -9,13 +9,13 @@ import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
 
 const saveFile = async (dir, file) => {
-  const destination = join(dir, file.path);
+  const destination = join(dir, file.name);
   if (!destination.startsWith(dir)) {
-    throw new Error(`unable to create '${file.path}' outside of '${dir}'`);
+    throw new Error(`unable to create '${file.name}' outside of '${dir}'`);
   }
   if (fs.existsSync(destination)) {
     console.log(
-      `unable to create '${file.path}' as it already exists at '${destination}'`
+      `unable to create '${file.name}' as it already exists at '${destination}'`
     );
     return;
   }
@@ -43,12 +43,15 @@ const getLs = async (ipfs, cid: string) => {
   );
 };
 
-const get = async (ipfs, filelist) => {
+const get = async (ipfs, filelist, existFiles) => {
   return await Promise.all(
     filelist.map(async (fileObj) => {
-      const res = await ipfs.get(fileObj.cid.toString());
+      const name = fileObj.name ?? fileObj.path;
+      if (existFiles.includes(name)) return { name, content: null };
+
+      const res = await ipfs.cat(fileObj.cid.toString());
       const content = await toBuffer(res);
-      return { path: fileObj.path, content };
+      return { name, content };
     })
   );
 };
@@ -60,17 +63,20 @@ const downloadCid = async (ipfsd: Controller, cid: string) => {
   try {
     logger.info(`[cid download] downloading ${cid}: started`);
     const filelist = await getLs(ipfsd.api, cid);
-    logger.info(`[cid download] filelist ${cid}: ${JSON.stringify(filelist)}`);
-    files = await get(ipfsd.api, filelist);
+    // logger.info(`[cid download] filelist ${cid}: ${JSON.stringify(filelist)}`);
+    const existFiles = fs.existsSync(dir) ? fs.readdirSync(dir) : [];
+    files = await get(ipfsd.api, filelist, existFiles);
     logger.info(`[cid download] downloading ${cid}: completed`);
   } catch (err) {
     logger.error(`[cid download] ${err.stack}`);
 
+    /*
     showDialog({
       title: i18n.t("couldNotGetCidDialog.title"),
       message: i18n.t("couldNotGetCidDialog.message", { cid }),
       buttons: [i18n.t("close")],
     });
+    */
 
     return;
   }
@@ -80,18 +86,20 @@ const downloadCid = async (ipfsd: Controller, cid: string) => {
       files.filter((file) => !!file.content).map((file) => saveFile(dir, file))
     );
 
-    const arrFilePath = files.map((file) => file.path);
+    const arrFilePath = files.map((file) => file.name);
 
     return JSON.stringify(arrFilePath);
   } catch (err) {
     const errMsg = err.toString();
     logger.error(`[cid download] ${errMsg}`);
 
+    /*
     showDialog({
       title: i18n.t("couldNotSaveDialog.title"),
       message: i18n.t("couldNotSaveDialog.message", { dir, error: errMsg }),
       buttons: [i18n.t("close")],
     });
+    */
   }
 };
 

@@ -34,7 +34,7 @@ const CardPost = ({ post }: CardPostProps) => {
       })();
       (async () => {
         const postIpfs = await window.ipfs.getPost(post.cid);
-        console.log("postIpfs!: ", postIpfs);
+        console.log("getPostFromIpfs!: ", postIpfs);
       })();
     }
   }, [setup.ipfs]);
