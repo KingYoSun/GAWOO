@@ -18,6 +18,7 @@ import { IpfsFile, WakuClientProps, TFile } from "../renderer/types/general";
 import fs from "fs-extra";
 import { join } from "path";
 import mime from "mime-types";
+import setProtocol from "./protocol";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -79,6 +80,8 @@ process.on("unhandledRejection", handleError);
   }
 
   try {
+    setProtocol();
+
     ctx.mainWindow = createWindow("main", {
       width: 1000,
       height: 600,

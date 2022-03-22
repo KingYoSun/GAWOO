@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { SetupContext } from "../../context/SetupContext";
 import ImgPreview from "./ImgPreview";
+import mime from "mime-types";
 
 interface CardPostProps {
   post: Post;
@@ -38,17 +39,14 @@ const CardPost = ({ post }: CardPostProps) => {
       (async () => {
         const postIpfs = await window.ipfs.getPost(post.cid);
         if (Boolean(postIpfs.succeeded)) {
-          await Promise.all(
-            postIpfs.succeeded.map(async (name) => {
-              const dataUrl = await window.electron.getFileByBase64({
-                cid: post.cid,
-                name: name,
-              });
-              if (dataUrl.includes("data:image/"))
-                setImages([...images, dataUrl]);
-              if (dataUrl.includes("data:video/")) setVideo(dataUrl);
-            })
-          );
+          postIpfs.succeeded.map((name) => {
+            const url = `filehandler:///${post.cid}/${name}`;
+            const mimeType = mime.lookup(name);
+            if (Boolean(mimeType) && mimeType.includes("image/"))
+              setImages([...images, url]);
+            if (Boolean(mimeType) && mimeType.includes("data:video/"))
+              setVideo(url);
+          });
         }
       })();
     }

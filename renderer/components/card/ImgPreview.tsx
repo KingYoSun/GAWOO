@@ -13,8 +13,8 @@ const ImgPreview = (props: InputImgPreviewProps) => {
           alt="post image preview"
           src={props.src}
           style={{
-            width: "120px",
-            height: "120px",
+            maxWidth: "120px",
+            maxHeight: "250px",
           }}
         />
       )}
