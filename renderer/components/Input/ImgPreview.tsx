@@ -25,11 +25,7 @@ const ImgPreview = (props: InputImgPreviewProps) => {
   }, []);
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-      }}
-    >
+    <Box sx={{ position: "relative" }}>
       {Boolean(dataUrl) && (
         <Box>
           <IconButton

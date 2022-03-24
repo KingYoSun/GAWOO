@@ -1,0 +1,132 @@
+import { Box, Dialog, DialogTitle, Slide, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { useState, useEffect } from "react";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+
+export interface ImagesDialogProps {
+  images: Array<string>;
+  num: number;
+  length: number;
+  open: boolean;
+  onClose: () => void;
+}
+
+const ImagesDialog = (props: ImagesDialogProps) => {
+  const MAX_IMAGES_COUNT = props.length;
+  const [index, setIndex] = useState(props.num);
+  const [slideIn, setSlideIn] = useState(true);
+  const [slideDirection, setSlideDirection] = useState<
+    "down" | "left" | "right" | "up"
+  >("down");
+
+  const onArrowClick = (direction) => {
+    const increment = direction === "left" ? -1 : 1;
+    const newIndex = (index + increment + MAX_IMAGES_COUNT) % MAX_IMAGES_COUNT;
+    const newDirection = direction === "left" ? "right" : "left";
+    setSlideDirection(direction);
+    setSlideIn(false);
+
+    setTimeout(() => {
+      setIndex(newIndex);
+      setSlideDirection(newDirection);
+      setSlideIn(true);
+    }, 500);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 39) {
+        onArrowClick("right");
+      }
+      if (e.keyCode === 37) {
+        onArrowClick("left");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
+  const handleClose = () => {
+    props.onClose();
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={props.open}>
+      <Box
+        sx={{
+          position: "relative",
+          overflow: (slideIn) => (slideIn ? "hidden" : "visible"),
+        }}
+      >
+        <IconButton
+          sx={{
+            color: (theme) => theme.palette.primary.contrastText,
+            position: "absolute",
+            top: "5px",
+            left: "5px",
+            backgroundColor: (theme) => theme.palette.primary.dark,
+            opacity: 0.5,
+            "&:hover": {
+              backgroundColor: (theme) => theme.palette.primary.dark,
+              opacity: 0.3,
+            },
+          }}
+          onClick={handleClose}
+        >
+          <CloseIcon />
+        </IconButton>
+        <IconButton
+          sx={{
+            color: (theme) => theme.palette.primary.contrastText,
+            position: "absolute",
+            top: "50%",
+            left: "5px",
+            backgroundColor: (theme) => theme.palette.primary.dark,
+            opacity: 0.5,
+            "&:hover": {
+              backgroundColor: (theme) => theme.palette.primary.dark,
+              opacity: 0.3,
+            },
+          }}
+          onClick={() => onArrowClick("left")}
+        >
+          <ChevronLeftIcon />
+        </IconButton>
+        <IconButton
+          sx={{
+            color: (theme) => theme.palette.primary.contrastText,
+            position: "absolute",
+            top: "50%",
+            right: "5px",
+            backgroundColor: (theme) => theme.palette.primary.dark,
+            opacity: 0.5,
+            "&:hover": {
+              backgroundColor: (theme) => theme.palette.primary.dark,
+              opacity: 0.3,
+            },
+          }}
+          onClick={() => onArrowClick("left")}
+        >
+          <ChevronRightIcon />
+        </IconButton>
+        <Slide in={slideIn} direction={slideDirection}>
+          <img
+            alt="images preview"
+            src={props.images[index]}
+            style={{
+              maxWidth: "900px",
+              maxHeight: "900px",
+            }}
+          />
+        </Slide>
+      </Box>
+    </Dialog>
+  );
+};
+
+export default ImagesDialog;

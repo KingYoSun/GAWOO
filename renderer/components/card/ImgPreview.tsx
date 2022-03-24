@@ -1,24 +1,26 @@
-import { Box, IconButton } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Card, CardMedia, CardActionArea } from "@mui/material";
 
 type InputImgPreviewProps = {
   src: string;
+  onClick: () => void;
 };
 
 const ImgPreview = (props: InputImgPreviewProps) => {
   return (
-    <Box>
+    <>
       {Boolean(props.src) && (
-        <img
-          alt="post image preview"
-          src={props.src}
-          style={{
+        <Card
+          sx={{
             maxWidth: "120px",
             maxHeight: "250px",
           }}
-        />
+        >
+          <CardActionArea onClick={() => props.onClick()}>
+            <CardMedia component="img" image={props.src} alt="image button" />
+          </CardActionArea>
+        </Card>
       )}
-    </Box>
+    </>
   );
 };
 

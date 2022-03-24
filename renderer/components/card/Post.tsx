@@ -14,6 +14,7 @@ import { utcToZonedTime } from "date-fns-tz";
 import { SetupContext } from "../../context/SetupContext";
 import ImgPreview from "./ImgPreview";
 import mime from "mime-types";
+import ImagesDialog from "../modal/images";
 
 interface CardPostProps {
   post: Post;
@@ -26,6 +27,8 @@ const CardPost = ({ post }: CardPostProps) => {
   const [video, setVideo] = useState(null);
   const { setup, dispatchSetup } = useContext(SetupContext);
   const parentFlexBox = useRef(null);
+  const [dialogIndex, setDialogIndex] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (setup.ipfs && Boolean(post.authorAvatar)) {
@@ -61,6 +64,11 @@ const CardPost = ({ post }: CardPostProps) => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
+  const handleOpenImageDialog = (index: number) => {
+    setDialogIndex(index);
+    setDialogOpen(true);
+  };
+
   return (
     <FlexRow alignItems="start" flexRef={parentFlexBox}>
       <AvatarIcon src={avatar} marginTop="10px" />
@@ -85,10 +93,21 @@ const CardPost = ({ post }: CardPostProps) => {
         </FlexRow>
         <FlexRow justifyContent="start" marginLeft="0px">
           {images.map((image, num) => (
-            <ImgPreview key={num} src={image} />
+            <ImgPreview
+              key={num}
+              src={image}
+              onClick={() => handleOpenImageDialog(num)}
+            />
           ))}
         </FlexRow>
       </Box>
+      <ImagesDialog
+        images={images}
+        num={dialogIndex}
+        length={images.length}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
     </FlexRow>
   );
 };
