@@ -7,13 +7,14 @@ import {
   useState,
 } from "react";
 import { ProfileContext } from "../../context/ProfileContext";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, IconButton } from "@mui/material";
 import { FlexRow } from "../Flex";
 import { AvatarIcon } from "../AvatarIcon";
 import { AuthContext } from "../../context/AuthContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import * as ErrorMsg from "../../utils/error-msg";
 import ImgPreview from "./ImgPreview";
+import ImageIcon from "@mui/icons-material/Image";
 
 type InputPostProps = {
   target?: Post;
@@ -37,6 +38,7 @@ const InputPost = (props: InputPostProps) => {
   const [video, setVideo] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [counter, setCounter] = useState(0);
+  const imageInputElement = useRef(null);
   const {
     control,
     handleSubmit,
@@ -69,6 +71,18 @@ const InputPost = (props: InputPostProps) => {
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, []);
+
+  const handleImageButton = (e) => {
+    let files: Array<File> = Array.from(e.target.files);
+    if (images.length + files.length > 4) {
+      ErrorMsg.call("一度に投稿できる画像は4枚までです");
+      return;
+    }
+    const imgNames = images.map((image) => image.name);
+    files = files.filter((file) => !imgNames.includes(file.name));
+    if (files.length > 0) setImages([...images, ...files]);
+    e.target.value = null;
+  };
 
   const onDrop = (e) => {
     const file = e.dataTransfer.files[0];
@@ -187,6 +201,23 @@ const InputPost = (props: InputPostProps) => {
               />
             )}
           />
+        </FlexRow>
+        <FlexRow justifyContent="start" marginTop="-10px" marginLeft="60px">
+          <input
+            accept="image/*"
+            style={{ display: "none" }}
+            id="icon-button-image"
+            multiple
+            type="file"
+            onChange={handleImageButton}
+            ref={imageInputElement}
+          />
+          <IconButton
+            onClick={() => imageInputElement.current.click()}
+            size="small"
+          >
+            <ImageIcon />
+          </IconButton>
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="0px" marginLeft="60px">
           {images.map((image) => (

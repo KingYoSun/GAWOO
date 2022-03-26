@@ -25,7 +25,7 @@ const ImgPreview = (props: InputImgPreviewProps) => {
   }, []);
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative", marginRight: "5px" }}>
       {Boolean(dataUrl) && (
         <Box>
           <IconButton
@@ -50,8 +50,8 @@ const ImgPreview = (props: InputImgPreviewProps) => {
             alt="post image preview"
             src={dataUrl}
             style={{
-              width: "120px",
-              height: "120px",
+              maxWidth: "150px",
+              maxHeight: "150px",
             }}
           />
         </Box>

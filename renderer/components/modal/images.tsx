@@ -1,12 +1,11 @@
-import { Box, Dialog, DialogTitle, Slide, IconButton } from "@mui/material";
+import { Box, Dialog, Slide, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 export interface ImagesDialogProps {
   images: Array<string>;
-  num: number;
   length: number;
   open: boolean;
   onClose: () => void;
@@ -14,11 +13,11 @@ export interface ImagesDialogProps {
   maxHeight?: number | string;
 }
 
-const ImagesDialog = (props: ImagesDialogProps) => {
+const ImagesDialog = (props: ImagesDialogProps, ref) => {
   const MAX_IMAGES_COUNT = props.length;
   const maxWidth = props.maxWidth ?? "900px";
   const maxHeight = props.maxHeight ?? "900px";
-  const [index, setIndex] = useState(props.num);
+  const [index, setIndex] = useState(0);
   const [slideIn, setSlideIn] = useState(true);
   const [slideDirection, setSlideDirection] = useState<
     "down" | "left" | "right" | "up"
@@ -56,8 +55,15 @@ const ImagesDialog = (props: ImagesDialogProps) => {
   });
 
   const handleClose = () => {
+    setSlideDirection("down");
     props.onClose();
   };
+
+  useImperativeHandle(ref, () => ({
+    setIndexFromParent(val: number) {
+      setIndex(val);
+    },
+  }));
 
   return (
     <Dialog
@@ -149,4 +155,4 @@ const ImagesDialog = (props: ImagesDialogProps) => {
   );
 };
 
-export default ImagesDialog;
+export default forwardRef(ImagesDialog);

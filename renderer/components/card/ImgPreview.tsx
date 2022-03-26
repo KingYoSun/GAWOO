@@ -1,4 +1,4 @@
-import { Card, CardMedia, CardActionArea } from "@mui/material";
+import { Card, CardMedia, CardActionArea, Box } from "@mui/material";
 
 type InputImgPreviewProps = {
   src: string;
@@ -7,7 +7,7 @@ type InputImgPreviewProps = {
 
 const ImgPreview = (props: InputImgPreviewProps) => {
   return (
-    <>
+    <Box sx={{ marginRight: "5px" }}>
       {Boolean(props.src) && (
         <Card
           sx={{
@@ -20,7 +20,7 @@ const ImgPreview = (props: InputImgPreviewProps) => {
           </CardActionArea>
         </Card>
       )}
-    </>
+    </Box>
   );
 };
 

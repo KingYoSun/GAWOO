@@ -29,6 +29,7 @@ const CardPost = ({ post }: CardPostProps) => {
   const parentFlexBox = useRef(null);
   const [dialogIndex, setDialogIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const refImageDialog = useRef(null);
 
   useEffect(() => {
     if (setup.ipfs && Boolean(post.authorAvatar)) {
@@ -42,14 +43,18 @@ const CardPost = ({ post }: CardPostProps) => {
       (async () => {
         const postIpfs = await window.ipfs.getPost(post.cid);
         if (Boolean(postIpfs.succeeded)) {
+          const addImages = [];
+          let addVideo = null;
           postIpfs.succeeded.map((name) => {
             const url = `filehandler:///${post.cid}/${name}`;
             const mimeType = mime.lookup(name);
             if (Boolean(mimeType) && mimeType.includes("image/"))
-              setImages([...images, url]);
+              addImages.push(url);
             if (Boolean(mimeType) && mimeType.includes("data:video/"))
-              setVideo(url);
+              addVideo = url;
           });
+          setImages([...images, ...addImages]);
+          setVideo(addVideo);
         }
       })();
     }
@@ -65,7 +70,7 @@ const CardPost = ({ post }: CardPostProps) => {
   }, []);
 
   const handleOpenImageDialog = (index: number) => {
-    setDialogIndex(index);
+    refImageDialog.current?.setIndexFromParent(index);
     setDialogOpen(true);
   };
 
@@ -103,9 +108,9 @@ const CardPost = ({ post }: CardPostProps) => {
       </Box>
       <ImagesDialog
         images={images}
-        num={dialogIndex}
         length={images.length}
         open={dialogOpen}
+        ref={refImageDialog}
         onClose={() => setDialogOpen(false)}
       />
     </FlexRow>
