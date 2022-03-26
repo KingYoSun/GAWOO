@@ -10,10 +10,14 @@ export interface ImagesDialogProps {
   length: number;
   open: boolean;
   onClose: () => void;
+  maxWidth?: number | string;
+  maxHeight?: number | string;
 }
 
 const ImagesDialog = (props: ImagesDialogProps) => {
   const MAX_IMAGES_COUNT = props.length;
+  const maxWidth = props.maxWidth ?? "900px";
+  const maxHeight = props.maxHeight ?? "900px";
   const [index, setIndex] = useState(props.num);
   const [slideIn, setSlideIn] = useState(true);
   const [slideDirection, setSlideDirection] = useState<
@@ -56,11 +60,24 @@ const ImagesDialog = (props: ImagesDialogProps) => {
   };
 
   return (
-    <Dialog onClose={handleClose} open={props.open}>
+    <Dialog
+      onClose={handleClose}
+      open={props.open}
+      PaperProps={{
+        sx: {
+          backgroundColor: "transparent",
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+          boxShadow: "none",
+        },
+      }}
+    >
       <Box
         sx={{
           position: "relative",
           overflow: (slideIn) => (slideIn ? "hidden" : "visible"),
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
         }}
       >
         <IconButton
@@ -69,6 +86,7 @@ const ImagesDialog = (props: ImagesDialogProps) => {
             position: "absolute",
             top: "5px",
             left: "5px",
+            zIndex: 2,
             backgroundColor: (theme) => theme.palette.primary.dark,
             opacity: 0.5,
             "&:hover": {
@@ -86,6 +104,7 @@ const ImagesDialog = (props: ImagesDialogProps) => {
             position: "absolute",
             top: "50%",
             left: "5px",
+            zIndex: 2,
             backgroundColor: (theme) => theme.palette.primary.dark,
             opacity: 0.5,
             "&:hover": {
@@ -103,6 +122,7 @@ const ImagesDialog = (props: ImagesDialogProps) => {
             position: "absolute",
             top: "50%",
             right: "5px",
+            zIndex: 2,
             backgroundColor: (theme) => theme.palette.primary.dark,
             opacity: 0.5,
             "&:hover": {
@@ -119,8 +139,8 @@ const ImagesDialog = (props: ImagesDialogProps) => {
             alt="images preview"
             src={props.images[index]}
             style={{
-              maxWidth: "900px",
-              maxHeight: "900px",
+              maxWidth: maxWidth,
+              maxHeight: maxHeight,
             }}
           />
         </Slide>
