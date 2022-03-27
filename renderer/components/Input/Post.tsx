@@ -15,8 +15,10 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import * as ErrorMsg from "../../utils/error-msg";
 import ImgPreview from "./ImgPreview";
 import ImageIcon from "@mui/icons-material/Image";
+import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import { basename, extname } from "path";
 import mime from "mime-types";
+import VideoPreview from "./videoPreview";
 
 type InputPostProps = {
   target?: Post;
@@ -40,7 +42,6 @@ const InputPost = (props: InputPostProps) => {
   const [video, setVideo] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [counter, setCounter] = useState(0);
-  const imageInputElement = useRef(null);
   const {
     control,
     handleSubmit,
@@ -76,12 +77,13 @@ const InputPost = (props: InputPostProps) => {
 
   const handleImageButton = async () => {
     let files: Array<string> = await window.electron.getFullPath("image");
+    if (!Boolean(files)) return;
     if (images.length + files.length > 4) {
       ErrorMsg.call("一度に投稿できる画像は4枚までです");
       return;
     }
     if (Boolean(video)) {
-      ErrorMsg.call("既に動画が選択されています");
+      ErrorMsg.call("画像と動画を同時に投稿することはできません");
       return;
     }
     const imgNames = images.map((image) => image.name);
@@ -89,21 +91,39 @@ const InputPost = (props: InputPostProps) => {
     if (files.length > 0) setImages([...images, ...files]);
   };
 
+  const handleVideoButton = async () => {
+    let files: Array<string> = await window.electron.getFullPath("video");
+    if (!Boolean(files)) return;
+    if (images.length > 0) {
+      ErrorMsg.call("画像と動画を同時に投稿することはできません");
+      return;
+    }
+    if (files.length > 0) setVideo(files[0]);
+  };
+
   const onDrop = (e) => {
     const file = e.dataTransfer.files[0];
-    if (images.length >= 4) {
-      ErrorMsg.call("一度に投稿できる画像は4枚までです");
-      return;
-    }
-    if (Boolean(video)) {
-      ErrorMsg.call("既に動画が選択されています");
-      return;
-    }
     if (file.type.includes("image")) {
+      if (images.length >= 4) {
+        ErrorMsg.call("一度に投稿できる画像は4枚までです");
+        return;
+      }
+      if (Boolean(video)) {
+        ErrorMsg.call("画像と動画を同時に投稿することはできません");
+        return;
+      }
+
       const imgNames = images.map((image) => image.name);
       if (!imgNames.includes(file.name)) setImages([...images, file]);
     }
-    if (file.type.includes("video") && video.name !== file.name) setVideo(file);
+    if (file.type.includes("video") && video?.name !== file.name) {
+      if (images.length > 0) {
+        ErrorMsg.call("画像と動画を同時に投稿することはできません");
+        return;
+      }
+
+      setVideo(file);
+    }
     setDragging(false);
     setCounter(0);
   };
@@ -224,6 +244,9 @@ const InputPost = (props: InputPostProps) => {
           <IconButton onClick={() => handleImageButton()} size="small">
             <ImageIcon />
           </IconButton>
+          <IconButton onClick={() => handleVideoButton()} size="small">
+            <LocalMoviesIcon />
+          </IconButton>
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="0px" marginLeft="60px">
           {images.map((image, index) => (
@@ -235,6 +258,15 @@ const InputPost = (props: InputPostProps) => {
             />
           ))}
         </FlexRow>
+        {Boolean(video) && (
+          <FlexRow justifyContent="start" marginTop="0px" marginLeft="60px">
+            <VideoPreview
+              disabled={upload}
+              file={video}
+              onClose={() => setVideo(null)}
+            />
+          </FlexRow>
+        )}
         <FlexRow justifyContent="end" marginTop="0px">
           <Button
             type="submit"

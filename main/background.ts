@@ -212,7 +212,7 @@ ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
   let properties: ("openFile" | "multiSelections")[] = ["openFile"];
 
   const imageFilter = {
-    name: "Images",
+    name: "jpg, png, gif, webp",
     extensions: ["jpg", "png", "gif", "webp"],
   };
   if (type === "image") {
@@ -220,7 +220,7 @@ ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
     properties.push("multiSelections");
   }
 
-  const videoFilter = { name: "Movies", extensions: ["mp4", "webm"] };
+  const videoFilter = { name: "mp4, webm", extensions: ["mp4", "webm"] };
   if (type === "video") filters.push(videoFilter);
 
   const files = dialog.showOpenDialogSync(ctx.mainWindow, {

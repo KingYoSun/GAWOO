@@ -50,7 +50,7 @@ const CardPost = ({ post }: CardPostProps) => {
             const mimeType = mime.lookup(name);
             if (Boolean(mimeType) && mimeType.includes("image/"))
               addImages.push(url);
-            if (Boolean(mimeType) && mimeType.includes("data:video/"))
+            if (Boolean(mimeType) && mimeType.includes("video/"))
               addVideo = url;
           });
           setImages([...images, ...addImages]);
@@ -105,6 +105,16 @@ const CardPost = ({ post }: CardPostProps) => {
             />
           ))}
         </FlexRow>
+        {Boolean(video) && (
+          <video
+            src={video}
+            controls
+            style={{
+              maxWidth: "500px",
+              maxHeight: "500px",
+            }}
+          />
+        )}
       </Box>
       <ImagesDialog
         images={images}

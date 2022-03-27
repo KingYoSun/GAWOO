@@ -2,13 +2,13 @@ import { Box, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 
-type InputImgPreviewProps = {
+type InputVideoPreviewProps = {
   file: File;
   onClose: () => void;
   disabled: boolean;
 };
 
-const ImgPreview = (props: InputImgPreviewProps) => {
+const VideoPreview = (props: InputVideoPreviewProps) => {
   const [dataUrl, setDataUrl] = useState(null);
 
   useEffect(() => {
@@ -37,8 +37,9 @@ const ImgPreview = (props: InputImgPreviewProps) => {
             sx={{
               color: (theme) => theme.palette.primary.contrastText,
               position: "absolute",
-              top: "0px",
+              top: "5px",
               left: "5px",
+              zIndex: 2,
               backgroundColor: (theme) => theme.palette.primary.dark,
               opacity: 0.8,
               "&:hover": {
@@ -50,12 +51,12 @@ const ImgPreview = (props: InputImgPreviewProps) => {
           >
             <CloseIcon />
           </IconButton>
-          <img
-            alt="post image preview"
+          <video
             src={dataUrl}
+            controls
             style={{
-              maxWidth: "150px",
-              maxHeight: "150px",
+              maxWidth: "500px",
+              maxHeight: "500px",
             }}
           />
         </Box>
@@ -64,4 +65,4 @@ const ImgPreview = (props: InputImgPreviewProps) => {
   );
 };
 
-export default ImgPreview;
+export default VideoPreview;
