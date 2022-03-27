@@ -60,8 +60,17 @@ const copyFileToMfs = async (ipfs, cid, filename) => {
 };
 
 const addFileOrDirectory = async (ipfs, file, pin) => {
-  const blob = dataUrlToBlob(file.url);
-  const res = await ipfs.add(blob, { pin: pin });
+  let payload = null;
+
+  if (Boolean(file.url)) {
+    payload = dataUrlToBlob(file.url);
+  }
+  if (Boolean(file.path)) {
+    payload = fs.createReadStream(file.path);
+  }
+  if (payload === null) throw new Error("payload is null!");
+
+  const res = await ipfs.add(payload, { pin: pin });
   const cid = res.cid;
 
   await copyFileToMfs(ipfs, cid, file.name);

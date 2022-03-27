@@ -207,6 +207,30 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
+  let filters = [];
+  let properties: ("openFile" | "multiSelections")[] = ["openFile"];
+
+  const imageFilter = {
+    name: "Images",
+    extensions: ["jpg", "png", "gif", "webp"],
+  };
+  if (type === "image") {
+    filters.push(imageFilter);
+    properties.push("multiSelections");
+  }
+
+  const videoFilter = { name: "Movies", extensions: ["mp4", "webm"] };
+  if (type === "video") filters.push(videoFilter);
+
+  const files = dialog.showOpenDialogSync(ctx.mainWindow, {
+    properties: properties,
+    filters: filters,
+  });
+
+  return files;
+});
+
 ipcMain.handle(
   "imageToIpfs",
   async (event: IpcMainEvent, image: string, pin: boolean) => {

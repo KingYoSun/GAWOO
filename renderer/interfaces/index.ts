@@ -18,6 +18,7 @@ interface IElectron {
   showUser: (did: string) => User | string | null;
   indexPosts: (did?: string, take?: number) => Array<Post>;
   getFileByBase64: (ipfsFile: IpfsFile) => string;
+  getFullPath: (type: string) => Array<string>;
 }
 
 interface IIpfs {

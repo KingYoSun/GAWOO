@@ -26,6 +26,9 @@ contextBridge.exposeInMainWorld("electron", {
   getFileByBase64: async (ipfsFile: IpfsFile) => {
     return await ipcRenderer.invoke("getFileByBase64", ipfsFile);
   },
+  getFullPath: async (type: string) => {
+    return await ipcRenderer.invoke("getFullPath", type);
+  },
 });
 
 contextBridge.exposeInMainWorld("ipfs", {

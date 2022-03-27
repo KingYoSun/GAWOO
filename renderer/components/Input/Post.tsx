@@ -15,6 +15,8 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import * as ErrorMsg from "../../utils/error-msg";
 import ImgPreview from "./ImgPreview";
 import ImageIcon from "@mui/icons-material/Image";
+import { basename, extname } from "path";
+import mime from "mime-types";
 
 type InputPostProps = {
   target?: Post;
@@ -72,16 +74,19 @@ const InputPost = (props: InputPostProps) => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const handleImageButton = (e) => {
-    let files: Array<File> = Array.from(e.target.files);
+  const handleImageButton = async () => {
+    let files: Array<string> = await window.electron.getFullPath("image");
     if (images.length + files.length > 4) {
       ErrorMsg.call("一度に投稿できる画像は4枚までです");
       return;
     }
+    if (Boolean(video)) {
+      ErrorMsg.call("既に動画が選択されています");
+      return;
+    }
     const imgNames = images.map((image) => image.name);
-    files = files.filter((file) => !imgNames.includes(file.name));
+    files = files.filter((file) => !imgNames.includes(basename(file)));
     if (files.length > 0) setImages([...images, ...files]);
-    e.target.value = null;
   };
 
   const onDrop = (e) => {
@@ -127,19 +132,32 @@ const InputPost = (props: InputPostProps) => {
       const files = await Promise.all(
         [...images, video].map(async (item) => {
           if (!item) return null;
-          console.log("exchange!: ", item);
-          const url = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = async () => resolve(reader.result);
-            reader.readAsDataURL(item);
-          });
-          return {
-            url: url as string,
-            name: item.name,
-            type: item.type,
+          const obj = {
+            url: null,
+            path: null,
+            name: null,
+            type: null,
           };
+          if (item instanceof File) {
+            obj.url = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = async () => resolve(reader.result);
+              reader.readAsDataURL(item);
+            });
+            obj.name = item.name;
+            obj.type = item.type;
+          }
+
+          if (typeof item === "string") {
+            obj.path = item;
+            obj.type = mime.lookup(extname(item));
+            obj.name = item.split("\\").pop();
+          }
+
+          return obj;
         })
       );
+
       const res = await window.ipfs.createPost(
         data,
         files.filter((file) => Boolean(file)),
@@ -147,10 +165,10 @@ const InputPost = (props: InputPostProps) => {
       );
       console.log("posted!: ", res);
       if (res.failures.length > 0) {
-        alert("Error!: " + res.failures.join(", "));
+        ErrorMsg.call("Error!: " + res.failures.join(", "));
       }
     } catch (e) {
-      console.log("Error!: ", e.toString());
+      ErrorMsg.call("Error!: " + e.toString());
     } finally {
       setValue("content", "");
       setUpload(false);
@@ -203,27 +221,15 @@ const InputPost = (props: InputPostProps) => {
           />
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="-10px" marginLeft="60px">
-          <input
-            accept="image/*"
-            style={{ display: "none" }}
-            id="icon-button-image"
-            multiple
-            type="file"
-            onChange={handleImageButton}
-            ref={imageInputElement}
-          />
-          <IconButton
-            onClick={() => imageInputElement.current.click()}
-            size="small"
-          >
+          <IconButton onClick={() => handleImageButton()} size="small">
             <ImageIcon />
           </IconButton>
         </FlexRow>
         <FlexRow justifyContent="start" marginTop="0px" marginLeft="60px">
-          {images.map((image) => (
+          {images.map((image, index) => (
             <ImgPreview
               disabled={upload}
-              key={image.name}
+              key={image.name ?? index}
               file={image}
               onClose={() => removeImage(image)}
             />

@@ -45,7 +45,8 @@ export type WakuClientProps = {
 };
 
 export type TFile = {
-  url: string;
+  path: string | null;
+  url: string | null;
   name: string;
   type: string;
 };

@@ -2,7 +2,7 @@ import { join } from "path";
 import { app } from "electron";
 import fs from "fs-extra";
 
-const fileHandler = (req, callback) => {
+export const fileHandler = (req, callback) => {
   const path = join(
     app.getPath("userData"),
     "downloads",
@@ -16,4 +16,12 @@ const fileHandler = (req, callback) => {
   callback({ path });
 };
 
-export default fileHandler;
+export const fileAbsolute = (req, callback) => {
+  const path = decodeURI(req.url.replace("fileabsolute:///", ""));
+  if (!fs.existsSync(path)) {
+    callback({ error: -6 });
+    return;
+  }
+
+  callback({ path });
+};

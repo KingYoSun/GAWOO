@@ -1,6 +1,7 @@
 import { Box, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import { basename } from "path";
 
 type InputImgPreviewProps = {
   file: File;
@@ -12,16 +13,20 @@ const ImgPreview = (props: InputImgPreviewProps) => {
   const [dataUrl, setDataUrl] = useState(null);
 
   useEffect(() => {
-    const reader = new FileReader();
-    reader.addEventListener(
-      "load",
-      () => {
-        setDataUrl(reader.result);
-      },
-      false
-    );
-
-    if (Boolean(props.file)) reader.readAsDataURL(props.file);
+    if (Boolean(props.file) && props.file instanceof File) {
+      const reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        () => {
+          setDataUrl(reader.result);
+        },
+        false
+      );
+      reader.readAsDataURL(props.file);
+    }
+    if (Boolean(props.file) && typeof props.file === "string") {
+      setDataUrl(`fileabsolute:///${props.file}`);
+    }
   }, []);
 
   return (
