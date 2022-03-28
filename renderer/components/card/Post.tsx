@@ -110,6 +110,7 @@ const CardPost = ({ post }: CardPostProps) => {
             src={video}
             controls
             style={{
+              borderRadius: "10px",
               maxWidth: "500px",
               maxHeight: "500px",
             }}
