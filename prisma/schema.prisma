@@ -8,15 +8,17 @@ generator client {
 }
 
 model Post {
-  id            Int @id @default(autoincrement())
-  cid           String?
-  content       String?
-  publishedAt  Int?
-  author        User?   @relation(fields: [authorDid], references: [did])
-  authorName    String?
-  authorAvatar  String?
+  id                Int @id @default(autoincrement())
+  cid               String?
+  content           String?
+  publishedAt       Int?
+  author            User?   @relation(fields: [authorDid], references: [did])
+  authorName        String?
+  authorAvatar      String?
   authorAvatarMime  String?
-  authorDid     String?
+  authorDid         String?
+  topicCid          String?
+  replyToCid        String?
 }
 
 model User {
