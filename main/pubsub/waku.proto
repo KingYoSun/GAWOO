@@ -10,4 +10,6 @@ message SharePost {
   optional string content = 4;
   optional string authorName = 5;
   optional string authorAvatar = 6;
+  optional string topicCid = 7;
+  optional string replyToCid = 8;
 }
