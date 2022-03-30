@@ -8,7 +8,7 @@ import {
 } from "react";
 import { AvatarIcon } from "../AvatarIcon";
 import { FlexRow } from "../Flex";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Card, CardActionArea } from "@mui/material";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { SetupContext } from "../../context/SetupContext";
@@ -75,56 +75,73 @@ const CardPost = ({ post }: CardPostProps) => {
   };
 
   return (
-    <FlexRow alignItems="start" flexRef={parentFlexBox}>
-      <AvatarIcon src={avatar} marginTop="10px" />
-      <Box
-        sx={{
-          width: width,
-        }}
-      >
-        <FlexRow justifyContent="start">
-          <Typography variant="h6">{post.authorName}</Typography>
-          <Typography variant="body2">
-            ・
-            {Boolean(post.publishedAt) &&
-              format(
-                utcToZonedTime(post.publishedAt, "Asia/Tokyo"),
-                "yyyy-MM-dd HH:mm:ss"
-              )}
-          </Typography>
-        </FlexRow>
-        <FlexRow justifyContent="start" marginTop="10px">
-          <Typography>{post.content}</Typography>
-        </FlexRow>
-        <FlexRow justifyContent="start" marginLeft="0px">
-          {images.map((image, num) => (
-            <ImgPreview
-              key={num}
-              src={image}
-              onClick={() => handleOpenImageDialog(num)}
+    <Card
+      onClick={() => {}}
+      sx={{
+        borderRadius: "0px",
+        boxShadow: "none",
+        backgroundColor: "rgba(0, 0, 0, 0)",
+        transition: (theme) =>
+          theme.transitions.create("background-color", {
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        "&:hover": {
+          backgroundColor: "rgba(0, 0, 0, 0.05)",
+          cursor: "pointer",
+        },
+      }}
+    >
+      <FlexRow alignItems="start" flexRef={parentFlexBox}>
+        <AvatarIcon src={avatar} marginTop="10px" />
+        <Box
+          sx={{
+            width: width,
+          }}
+        >
+          <FlexRow justifyContent="start">
+            <Typography variant="h6">{post.authorName}</Typography>
+            <Typography variant="body2">
+              ・
+              {Boolean(post.publishedAt) &&
+                format(
+                  utcToZonedTime(post.publishedAt, "Asia/Tokyo"),
+                  "yyyy-MM-dd HH:mm:ss"
+                )}
+            </Typography>
+          </FlexRow>
+          <FlexRow justifyContent="start" marginTop="10px">
+            <Typography>{post.content}</Typography>
+          </FlexRow>
+          <FlexRow justifyContent="start" marginLeft="0px">
+            {images.map((image, num) => (
+              <ImgPreview
+                key={num}
+                src={image}
+                onClick={() => handleOpenImageDialog(num)}
+              />
+            ))}
+          </FlexRow>
+          {Boolean(video) && (
+            <video
+              src={video}
+              controls
+              style={{
+                borderRadius: "10px",
+                maxWidth: "500px",
+                maxHeight: "500px",
+              }}
             />
-          ))}
-        </FlexRow>
-        {Boolean(video) && (
-          <video
-            src={video}
-            controls
-            style={{
-              borderRadius: "10px",
-              maxWidth: "500px",
-              maxHeight: "500px",
-            }}
-          />
-        )}
-      </Box>
-      <ImagesDialog
-        images={images}
-        length={images.length}
-        open={dialogOpen}
-        ref={refImageDialog}
-        onClose={() => setDialogOpen(false)}
-      />
-    </FlexRow>
+          )}
+        </Box>
+        <ImagesDialog
+          images={images}
+          length={images.length}
+          open={dialogOpen}
+          ref={refImageDialog}
+          onClose={() => setDialogOpen(false)}
+        />
+      </FlexRow>
+    </Card>
   );
 };
 
