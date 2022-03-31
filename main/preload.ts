@@ -29,6 +29,12 @@ contextBridge.exposeInMainWorld("electron", {
   getFullPath: async (type: string) => {
     return await ipcRenderer.invoke("getFullPath", type);
   },
+  readLocalJson: async (cid: string, name: string) => {
+    return await ipcRenderer.invoke("readLocalJson", cid, name);
+  },
+  countReply: async (cid: string) => {
+    return await ipcRenderer.invoke("countReply", cid);
+  },
 });
 
 contextBridge.exposeInMainWorld("ipfs", {

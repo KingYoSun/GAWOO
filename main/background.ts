@@ -207,6 +207,29 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle(
+  "readLocalJson",
+  async (event: IpcMainEvent, cid: string, name: string) => {
+    const path = join(app.getPath("userData"), "downloads", cid, name);
+    const postString = await fs.readFileSync(path, "utf8");
+    const post = JSON.parse(postString);
+    post.cid = cid;
+    post.id = await prisma.post.findFirst({
+      where: { cid: cid },
+    });
+    if (!Boolean(post.id)) await prisma.post.create({ data: post });
+
+    return post;
+  }
+);
+
+ipcMain.handle("countReply", async (event: IpcMainEvent, cid: string) => {
+  const replyCount = await prisma.post.count({
+    where: { replyToCid: cid },
+  });
+  return replyCount;
+});
+
 ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
   let filters = [];
   let properties: ("openFile" | "multiSelections")[] = ["openFile"];

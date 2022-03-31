@@ -8,19 +8,27 @@ import {
 } from "react";
 import { AvatarIcon } from "../AvatarIcon";
 import { FlexRow } from "../Flex";
-import { Box, Typography, Card, CardActionArea } from "@mui/material";
+import { Box, Typography, Card, IconButton } from "@mui/material";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { SetupContext } from "../../context/SetupContext";
 import ImgPreview from "./ImgPreview";
 import mime from "mime-types";
-import ImagesDialog from "../modal/images";
+import ImagesDialog from "../modal/Images";
+import ChatIcon from "@mui/icons-material/Chat";
+
+type PostAndReply = Post & {
+  replyCount?: number;
+};
 
 interface CardPostProps {
-  post: Post;
+  post: PostAndReply;
+  onReply: () => void;
+  showBar?: Boolean;
+  isReply?: Boolean;
 }
 
-const CardPost = ({ post }: CardPostProps) => {
+const CardPost = ({ post, onReply, showBar, isReply }: CardPostProps) => {
   const [avatar, setAvatar] = useState(null);
   const [width, setWidth] = useState(0);
   const [images, setImages] = useState([]);
@@ -30,8 +38,10 @@ const CardPost = ({ post }: CardPostProps) => {
   const [dialogIndex, setDialogIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const refImageDialog = useRef(null);
+  const [elemHeight, setElemHeight] = useState(0);
 
   useEffect(() => {
+    getElemHeight();
     if (setup.ipfs && Boolean(post.authorAvatar)) {
       (async () => {
         const newAvatar = await window.ipfs.catImage(
@@ -50,11 +60,13 @@ const CardPost = ({ post }: CardPostProps) => {
             const mimeType = mime.lookup(name);
             if (Boolean(mimeType) && mimeType.includes("image/"))
               addImages.push(url);
-            if (Boolean(mimeType) && mimeType.includes("video/"))
+            if (Boolean(mimeType) && mimeType.includes("video/")) {
               addVideo = url;
+            }
           });
           setImages([...images, ...addImages]);
           setVideo(addVideo);
+          getElemHeight();
         }
       })();
     }
@@ -74,12 +86,18 @@ const CardPost = ({ post }: CardPostProps) => {
     setDialogOpen(true);
   };
 
+  const getElemHeight = () => {
+    const height = parentFlexBox.current?.clientHeight ?? 0;
+    setElemHeight(height);
+  };
+
   return (
     <Card
       onClick={() => {}}
       sx={{
         borderRadius: "0px",
         boxShadow: "none",
+        width: "100%",
         backgroundColor: "rgba(0, 0, 0, 0)",
         transition: (theme) =>
           theme.transitions.create("background-color", {
@@ -91,8 +109,27 @@ const CardPost = ({ post }: CardPostProps) => {
         },
       }}
     >
-      <FlexRow alignItems="start" flexRef={parentFlexBox}>
-        <AvatarIcon src={avatar} marginTop="10px" />
+      <FlexRow
+        alignItems="start"
+        flexRef={parentFlexBox}
+        marginTop="0px"
+        marginBottom="0px"
+      >
+        <Box sx={{ position: "relative" }}>
+          <AvatarIcon src={avatar} marginTop="10px" />
+          {Boolean(showBar) && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "65px",
+                left: "21px",
+                width: "2px",
+                height: `${elemHeight}px`,
+                backgroundColor: (theme) => theme.palette.divider,
+              }}
+            />
+          )}
+        </Box>
         <Box
           sx={{
             width: width,
@@ -125,6 +162,7 @@ const CardPost = ({ post }: CardPostProps) => {
             <video
               src={video}
               controls
+              onLoadedMetadata={() => getElemHeight()}
               style={{
                 borderRadius: "10px",
                 maxWidth: "500px",
@@ -140,6 +178,14 @@ const CardPost = ({ post }: CardPostProps) => {
           ref={refImageDialog}
           onClose={() => setDialogOpen(false)}
         />
+      </FlexRow>
+      <FlexRow justifyContent="start" marginLeft="15%">
+        {!Boolean(isReply) && (
+          <IconButton onClick={() => onReply()} color="primary">
+            <ChatIcon />
+            <Typography>{post.replyCount ?? ""}</Typography>
+          </IconButton>
+        )}
       </FlexRow>
     </Card>
   );

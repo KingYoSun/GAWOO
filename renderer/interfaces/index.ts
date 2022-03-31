@@ -19,6 +19,8 @@ interface IElectron {
   indexPosts: (did?: string, take?: number) => Array<Post>;
   getFileByBase64: (ipfsFile: IpfsFile) => string;
   getFullPath: (type: string) => Array<string>;
+  readLocalJson: (cid: string, name: string) => Post;
+  countReply: (cid: string) => number;
 }
 
 interface IIpfs {

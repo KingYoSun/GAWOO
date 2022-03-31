@@ -3,9 +3,9 @@ import { Button, Box, Divider, Typography } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
 import InputPost from "../components/Input/Post";
-import CardPost from "../components/card/Post";
 import { Post } from "@prisma/client";
 import { ProfileContext } from "../context/ProfileContext";
+import CardTopic from "../components/card/Topic";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
@@ -60,6 +60,8 @@ const IndexPage = () => {
         authorAvatar: null,
         authorAvatarMime: null,
         content: "test",
+        topicCid: null,
+        replyToCid: null,
       },
     });
   };
@@ -106,7 +108,7 @@ const IndexPage = () => {
           <Divider />
           {posts.map((post) => (
             <Box key={post.id}>
-              <CardPost post={post} />
+              <CardTopic post={post} doReload={() => getIndexPosts()} />
               <Divider />
             </Box>
           ))}

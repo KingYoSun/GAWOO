@@ -34,6 +34,7 @@ const FlexRow = ({
       width={width}
       maxWidth={maxWidth}
       justifyContent={justifyContent}
+      flexWrap="wrap"
       sx={{
         marginTop: marginTop,
         marginBottom: marginBottom,

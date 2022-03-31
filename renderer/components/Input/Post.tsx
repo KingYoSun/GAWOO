@@ -18,10 +18,11 @@ import ImageIcon from "@mui/icons-material/Image";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import { basename, extname } from "path";
 import mime from "mime-types";
-import VideoPreview from "./videoPreview";
+import VideoPreview from "./VideoPreview";
 
 type InputPostProps = {
-  target?: Post;
+  topic?: Post;
+  replyTo?: Post;
   doReload?: () => Promise<void>;
 };
 
@@ -148,6 +149,8 @@ const InputPost = (props: InputPostProps) => {
     setUpload(true);
     try {
       data.publishedAt = new Date().getTime();
+      data.topicCid = props.topic?.cid ?? null;
+      data.replyToCid = props.replyTo?.cid ?? null;
       console.log("post data!: ", data);
       const files = await Promise.all(
         [...images, video].map(async (item) => {
@@ -217,7 +220,9 @@ const InputPost = (props: InputPostProps) => {
             render={({ field }) => (
               <TextField
                 {...field}
-                label="メッセージを書き込む"
+                label={`${
+                  Boolean(props.replyTo) ? "返信" : "メッセージ"
+                }を書き込む`}
                 multiline
                 minRows={3}
                 error={Boolean(errors.content)}

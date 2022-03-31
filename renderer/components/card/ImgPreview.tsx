@@ -7,7 +7,7 @@ type InputImgPreviewProps = {
 
 const ImgPreview = (props: InputImgPreviewProps) => {
   return (
-    <Box sx={{ marginRight: "5px" }}>
+    <Box sx={{ marginRight: "5px", marginTop: "5px" }}>
       {Boolean(props.src) && (
         <Card
           sx={{
