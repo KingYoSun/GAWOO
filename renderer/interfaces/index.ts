@@ -21,6 +21,7 @@ interface IElectron {
   getFullPath: (type: string) => Array<string>;
   readLocalJson: (cid: string, name: string) => Post;
   countReply: (cid: string) => number;
+  getPostPage: (cid: string) => Array<Post>;
 }
 
 interface IIpfs {

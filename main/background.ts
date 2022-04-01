@@ -254,6 +254,47 @@ ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
   return files;
 });
 
+ipcMain.handle("getPostPage", async (event: IpcMainEvent, cid: string) => {
+  const basePost = await prisma.post.findFirst({
+    where: { cid: cid },
+  });
+  let topicPost = Boolean(basePost.topicCid)
+    ? await prisma.post.findFirst({
+        where: { cid: basePost.topicCid },
+      })
+    : null;
+  let postsHasTopic = await prisma.post.findMany({
+    where: { topicCid: topicPost?.cid ?? basePost.cid },
+    orderBy: {
+      publishedAt: "asc",
+    },
+  });
+
+  if (!Boolean(topicPost) && postsHasTopic.length === 0) return [basePost];
+  if (!Boolean(topicPost) && postsHasTopic.length > 0) topicPost = basePost;
+
+  const postsArr = [topicPost];
+  let postsHasTopicPrevLength = postsHasTopic.length;
+  while (postsHasTopic.length > 0) {
+    console.log("do while!");
+    const delPostCids = [];
+    postsHasTopic.forEach((post) => {
+      const replyToIndex = postsArr.findIndex(
+        (item) => item.cid === post.replyToCid
+      );
+      postsArr.splice(replyToIndex, 0, post);
+      delPostCids.push(post.cid);
+    });
+    postsHasTopic = postsHasTopic.filter(
+      (post) => !delPostCids.includes(post.cid)
+    );
+    if (postsHasTopic.length === postsHasTopicPrevLength) break;
+    postsHasTopicPrevLength = postsHasTopic.length;
+  }
+
+  return postsArr;
+});
+
 ipcMain.handle(
   "imageToIpfs",
   async (event: IpcMainEvent, image: string, pin: boolean) => {

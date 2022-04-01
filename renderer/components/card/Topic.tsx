@@ -132,7 +132,7 @@ const CardTopic = (props: CardTopicProps) => {
               position: "absolute",
               top: "5px",
               right: "5px",
-              zIndex: 2,
+              zIndex: 3,
               backgroundColor: (theme) => theme.palette.primary.dark,
               opacity: 0.5,
               "&:hover": {
@@ -145,7 +145,11 @@ const CardTopic = (props: CardTopicProps) => {
             <CloseIcon />
           </IconButton>
           {Boolean(targetPost) && (
-            <Box>
+            <Box
+              sx={{
+                backgroundColor: (theme) => theme.palette.background.default,
+              }}
+            >
               <FlexRow
                 justifyContent="start"
                 marginTop="0px"

@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld("electron", {
   indexPosts: async (did?: string, take?: number) => {
     return await ipcRenderer.invoke("indexPosts", did, take);
   },
+  getPostPage: async (cid: string) => {
+    return await ipcRenderer.invoke("getPostPage", cid);
+  },
   getFileByBase64: async (ipfsFile: IpfsFile) => {
     return await ipcRenderer.invoke("getFileByBase64", ipfsFile);
   },

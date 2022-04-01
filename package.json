@@ -47,7 +47,7 @@
     "mime-types": "^2.1.35",
     "moment": "^2.29.1",
     "portfinder": "^1.0.28",
-    "protons": "^3.0.1",
+    "protons": "^2.0.3",
     "react-hook-form": "^7.29.0",
     "react-image-crop": "^10.0.0",
     "web3": "^1.7.0",

@@ -16,6 +16,7 @@ import ImgPreview from "./ImgPreview";
 import mime from "mime-types";
 import ImagesDialog from "../modal/Images";
 import ChatIcon from "@mui/icons-material/Chat";
+import { useRouter } from "next/router";
 
 type PostAndReply = Post & {
   replyCount?: number;
@@ -26,9 +27,16 @@ interface CardPostProps {
   onReply: () => void;
   showBar?: Boolean;
   isReply?: Boolean;
+  isThread?: Boolean;
 }
 
-const CardPost = ({ post, onReply, showBar, isReply }: CardPostProps) => {
+const CardPost = ({
+  post,
+  onReply,
+  showBar,
+  isReply,
+  isThread,
+}: CardPostProps) => {
   const [avatar, setAvatar] = useState(null);
   const [width, setWidth] = useState(0);
   const [images, setImages] = useState([]);
@@ -39,6 +47,7 @@ const CardPost = ({ post, onReply, showBar, isReply }: CardPostProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const refImageDialog = useRef(null);
   const [elemHeight, setElemHeight] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     getElemHeight();
@@ -93,20 +102,12 @@ const CardPost = ({ post, onReply, showBar, isReply }: CardPostProps) => {
 
   return (
     <Card
-      onClick={() => {}}
       sx={{
         borderRadius: "0px",
         boxShadow: "none",
         width: "100%",
+        position: "relative",
         backgroundColor: "rgba(0, 0, 0, 0)",
-        transition: (theme) =>
-          theme.transitions.create("background-color", {
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-        "&:hover": {
-          backgroundColor: "rgba(0, 0, 0, 0.05)",
-          cursor: "pointer",
-        },
       }}
     >
       <FlexRow
@@ -180,13 +181,39 @@ const CardPost = ({ post, onReply, showBar, isReply }: CardPostProps) => {
         />
       </FlexRow>
       <FlexRow justifyContent="start" marginLeft="15%">
-        {!Boolean(isReply) && (
-          <IconButton onClick={() => onReply()} color="primary">
+        {(!isReply || isThread) && (
+          <IconButton
+            onClick={() => onReply()}
+            color="primary"
+            sx={{ zIndex: 3 }}
+          >
             <ChatIcon />
             <Typography>{post.replyCount ?? ""}</Typography>
           </IconButton>
         )}
       </FlexRow>
+      {!isReply && (
+        <Box
+          onClick={() => router.push(`/posts/${post.cid}`)}
+          sx={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0)",
+            zIndex: 2,
+            transition: (theme) =>
+              theme.transitions.create("background-color", {
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.05)",
+              cursor: "pointer",
+            },
+          }}
+        />
+      )}
     </Card>
   );
 };

@@ -12,6 +12,7 @@ const FlexRow = ({
   marginBottom = "4px",
   marginLeft = "0px",
   marginRight = "0px",
+  paddingLeft = "0px",
   flexRef = null,
   ...props
 }: {
@@ -25,6 +26,7 @@ const FlexRow = ({
   marginBottom?: string | number;
   marginLeft?: string | number;
   marginRight?: string | number;
+  paddingLeft?: string | number;
   flexRef?: MutableRefObject<any>;
 }) => {
   return (
@@ -40,6 +42,7 @@ const FlexRow = ({
         marginBottom: marginBottom,
         marginLeft: marginLeft,
         marginRight: marginRight,
+        paddingLeft: paddingLeft,
         flexDirection: flexDirection,
       }}
       ref={flexRef}
