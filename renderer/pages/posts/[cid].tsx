@@ -35,6 +35,12 @@ const PostPage = () => {
           replyFrom: [],
         };
         let targetThreads;
+        let newThreadOpen = [
+          {
+            cid: topic.cid,
+            open: true,
+          },
+        ];
         postsByDepth.map((arr, index) => {
           if (index === 0) {
             targetThreads = [threadObj];
@@ -50,6 +56,10 @@ const PostPage = () => {
                   post: item,
                   replyFrom: [],
                 });
+              newThreadOpen.push({
+                cid: item.cid,
+                open: true,
+              });
             });
             let newTargetThreads = [];
             targetThreads.map((thread) => {
@@ -59,14 +69,7 @@ const PostPage = () => {
           }
         });
         setThreadPosts(threadObj);
-        setThreadOpen(
-          threadObj.replyFrom.map((item) => {
-            return {
-              cid: item.post.cid,
-              open: true,
-            };
-          })
-        );
+        setThreadOpen(newThreadOpen);
       })();
     }
   }, []);
@@ -106,13 +109,15 @@ const PostPage = () => {
               if (item.cid === thread.post.cid) item.open = !item.open;
               return item;
             });
+            console.log(newThreadOpen);
             setThreadOpen(newThreadOpen);
           }}
         />
         {thread.replyFrom.map((child) => {
           return ThreadElem(
             child,
-            threadOpen.find((item) => item.cid === thread.post.cid)?.open
+            parentOpen &&
+              threadOpen.find((item) => item.cid === thread.post.cid)?.open
           );
         })}
       </FlexRow>
