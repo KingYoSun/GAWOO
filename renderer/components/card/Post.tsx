@@ -28,6 +28,8 @@ interface CardPostProps {
   showBar?: Boolean;
   isReply?: Boolean;
   isThread?: Boolean;
+  parentOpen?: Boolean;
+  handleClick?: () => void;
 }
 
 const CardPost = ({
@@ -36,6 +38,8 @@ const CardPost = ({
   showBar,
   isReply,
   isThread,
+  parentOpen,
+  handleClick,
 }: CardPostProps) => {
   const [avatar, setAvatar] = useState(null);
   const [width, setWidth] = useState(0);
@@ -78,6 +82,9 @@ const CardPost = ({
           getElemHeight();
         }
       })();
+      (async () => {
+        post.replyCount = await window.electron.countReply(post.cid);
+      })();
     }
   }, [setup.ipfs]);
 
@@ -106,8 +113,14 @@ const CardPost = ({
         borderRadius: "0px",
         boxShadow: "none",
         width: "100%",
+        height: parentOpen ? `${elemHeight + 50}px` : "0px",
         position: "relative",
         backgroundColor: "rgba(0, 0, 0, 0)",
+        transition: (theme) =>
+          theme.transitions.create("height", {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
       }}
     >
       <FlexRow
@@ -194,7 +207,10 @@ const CardPost = ({
       </FlexRow>
       {!isReply && (
         <Box
-          onClick={() => router.push(`/posts/${post.cid}`)}
+          onClick={() => {
+            if (!Boolean(handleClick)) router.push(`/posts/${post.cid}`);
+            if (Boolean(handleClick)) handleClick();
+          }}
           sx={{
             position: "absolute",
             top: "0",
@@ -216,6 +232,10 @@ const CardPost = ({
       )}
     </Card>
   );
+};
+
+CardPost.defaultProps = {
+  parentOpen: true,
 };
 
 export default CardPost;

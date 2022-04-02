@@ -30,7 +30,6 @@ const CardTopic = (props: CardTopicProps) => {
       });
       if (Boolean(jsonName)) {
         post = await window.electron.readLocalJson(cid, jsonName); // mainプロセスから取得に書き直し
-        post.replyCount = await window.electron.countReply(cid);
       }
       return post;
     }

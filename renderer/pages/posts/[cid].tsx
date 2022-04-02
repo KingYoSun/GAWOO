@@ -12,57 +12,143 @@ type extPost = Post & {
 const PostPage = () => {
   const router = useRouter();
   const { cid } = router.query;
-  const [threadPosts, setThreadPosts] = useState([]);
+  const [threadPosts, setThreadPosts] = useState(null);
+  const [threadOpen, setThreadOpen] = useState([]);
 
   useEffect(() => {
-    if (threadPosts.length === 0) {
+    if (!Boolean(threadPosts)) {
       (async () => {
         let res: Array<extPost> = await window.electron.getPostPage(
           cid as string
         );
-        setThreadPosts(res.reverse());
+        const topic = res.find((item) => !item.topicCid && !item.replyToCid);
+        res = res.map((post) => {
+          post.depth = calcDepth(post, res, topic);
+          return post;
+        });
+        const maxDepth = Math.max(...res.map((item) => item.depth));
+        const postsByDepth = [...Array(maxDepth + 1)].map((_, index) => {
+          return res.filter((item) => item.depth === index);
+        });
+        let threadObj = {
+          post: topic,
+          replyFrom: [],
+        };
+        let targetThreads;
+        postsByDepth.map((arr, index) => {
+          if (index === 0) {
+            targetThreads = [threadObj];
+            return;
+          }
+          if (index > 0) {
+            arr.map((item) => {
+              const threadIndex = targetThreads.findIndex(
+                (tItem) => tItem.post.cid === item.replyToCid
+              );
+              if (threadIndex !== -1)
+                targetThreads[threadIndex].replyFrom.push({
+                  post: item,
+                  replyFrom: [],
+                });
+            });
+            let newTargetThreads = [];
+            targetThreads.map((thread) => {
+              newTargetThreads = [...newTargetThreads, ...thread.replyFrom];
+            });
+            targetThreads = newTargetThreads;
+          }
+        });
+        setThreadPosts(threadObj);
+        setThreadOpen(
+          threadObj.replyFrom.map((item) => {
+            return {
+              cid: item.post.cid,
+              open: true,
+            };
+          })
+        );
       })();
     }
   }, []);
 
-  const checkShowingBar = (post) => {
-    return Boolean(threadPosts.find((item) => item.replyToCid === post.cid));
-  };
-
-  const calcDepth = (post) => {
+  const calcDepth = (post: Post, arr: Array<Post>, topic: Post) => {
     let depth = 0;
     let posPost = post;
     let replyPost = null;
-    if (posPost === threadPosts[0]) return depth;
+    if (posPost === topic) return depth;
 
-    while (posPost !== threadPosts[0]) {
+    while (posPost !== topic) {
       depth += 1;
-      replyPost = threadPosts.find((item) => item.cid === posPost?.replyToCid);
+      replyPost = arr.find((item) => item.cid === posPost?.replyToCid);
       posPost = replyPost;
     }
     return depth;
   };
 
+  const PostElem = (thread, parentOpen) => {
+    return (
+      <FlexRow
+        key={thread.post.cid}
+        justifyContent="start"
+        marginTop="0px"
+        marginBottom="0px"
+        paddingLeft="10px"
+      >
+        <CardPost
+          post={thread.post}
+          onReply={() => {}}
+          showBar={thread.replyFrom.length > 0}
+          isReply={thread.replyFrom.length === 0}
+          isThread={true}
+          parentOpen={parentOpen}
+          handleClick={() => {
+            const newThreadOpen = threadOpen.map((item) => {
+              if (item.cid === thread.post.cid) item.open = !item.open;
+              return item;
+            });
+            setThreadOpen(newThreadOpen);
+          }}
+        />
+        {thread.replyFrom.map((child) => {
+          return ThreadElem(
+            child,
+            threadOpen.find((item) => item.cid === thread.post.cid)?.open
+          );
+        })}
+      </FlexRow>
+    );
+  };
+
+  const ThreadElem = (thread, open) => {
+    return PostElem(thread, open);
+  };
+
   return (
     <Box sx={{ width: "100%" }}>
-      {threadPosts.map((post, index) => (
-        <Box key={post.cid} sx={{ width: "100%" }}>
+      {Boolean(threadPosts) && (
+        <Box sx={{ width: "100%" }}>
           <FlexRow
             justifyContent="start"
             marginTop="0px"
             marginBottom="0px"
-            paddingLeft={`${calcDepth(post) * 20}px`}
+            paddingLeft="0px"
           >
             <CardPost
-              post={post}
+              post={threadPosts.post}
               onReply={() => {}}
-              showBar={checkShowingBar(post)}
+              showBar={threadPosts.replyFrom.length > 0}
               isReply={true}
               isThread={true}
             />
           </FlexRow>
+          {threadPosts.replyFrom.map((thread) => {
+            return ThreadElem(
+              thread,
+              threadOpen.find((item) => item.cid === threadPosts.post.cid)?.open
+            );
+          })}
         </Box>
-      ))}
+      )}
     </Box>
   );
 };

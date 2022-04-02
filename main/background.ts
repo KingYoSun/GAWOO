@@ -273,24 +273,7 @@ ipcMain.handle("getPostPage", async (event: IpcMainEvent, cid: string) => {
   if (!Boolean(topicPost) && postsHasTopic.length === 0) return [basePost];
   if (!Boolean(topicPost) && postsHasTopic.length > 0) topicPost = basePost;
 
-  const postsArr = [topicPost];
-  let postsHasTopicPrevLength = postsHasTopic.length;
-  while (postsHasTopic.length > 0) {
-    console.log("do while!");
-    const delPostCids = [];
-    postsHasTopic.forEach((post) => {
-      const replyToIndex = postsArr.findIndex(
-        (item) => item.cid === post.replyToCid
-      );
-      postsArr.splice(replyToIndex, 0, post);
-      delPostCids.push(post.cid);
-    });
-    postsHasTopic = postsHasTopic.filter(
-      (post) => !delPostCids.includes(post.cid)
-    );
-    if (postsHasTopic.length === postsHasTopicPrevLength) break;
-    postsHasTopicPrevLength = postsHasTopic.length;
-  }
+  const postsArr = [topicPost, ...postsHasTopic];
 
   return postsArr;
 });
