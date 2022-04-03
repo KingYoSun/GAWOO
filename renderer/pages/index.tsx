@@ -70,7 +70,7 @@ const IndexPage = () => {
   };
 
   const getIndexPosts = async (direction: "new" | "old") => {
-    const takePosts = 5;
+    const takePosts = 15;
     const newPosts = await window.electron.indexPosts({
       cursorId: cursorId,
       take: takePosts,
@@ -79,7 +79,6 @@ const IndexPage = () => {
     const cursorPost =
       direction === "new" ? newPosts[0] : newPosts[newPosts.length - 1];
     setCursorId(cursorPost.id);
-    console.log(newPosts);
     dispatchPosts({ type: "add", payload: newPosts });
   };
 
@@ -125,10 +124,7 @@ const IndexPage = () => {
           <Divider />
           <InfiniteScroll
             dataLength={posts.length}
-            next={() => {
-              console.log("loadMore!: ", hasMore);
-              getIndexPosts("old");
-            }}
+            next={() => getIndexPosts("old")}
             loader={<FlexRow>読み込み中...</FlexRow>}
             endMessage={<FlexRow>読み込み終了</FlexRow>}
             hasMore={hasMore}
