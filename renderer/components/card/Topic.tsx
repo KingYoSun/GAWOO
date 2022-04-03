@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { Post } from "@prisma/client";
 import { useEffect, useState, useContext } from "react";
 import { FlexRow } from "../Flex";
@@ -6,6 +6,7 @@ import CardPost from "./Post";
 import { SetupContext } from "../../context/SetupContext";
 import { extname } from "path";
 import ReplyDialog from "../modal/reply";
+import { useRouter } from "next/router";
 
 interface CardTopicProps {
   post: Post;
@@ -18,6 +19,7 @@ const CardTopic = (props: CardTopicProps) => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [targetPost, setTargetPost] = useState(null);
   const { setup, dispatchSetup } = useContext(SetupContext);
+  const router = useRouter();
 
   const getPost = async (cid) => {
     const postIpfs = await window.ipfs.getPost(cid);
@@ -92,7 +94,12 @@ const CardTopic = (props: CardTopicProps) => {
                     marginRight: "10px",
                   }}
                 />
-                <Typography>スレッドを表示...</Typography>
+                <Button
+                  variant="text"
+                  onClick={() => router.push(`/posts/${topic.cid}`)}
+                >
+                  <Typography>スレッドを表示...</Typography>
+                </Button>
               </FlexRow>
             )}
           <FlexRow justifyContent="start" marginTop="0px" marginBottom="0px">
