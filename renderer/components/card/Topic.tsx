@@ -1,12 +1,11 @@
-import { Box, Dialog, IconButton, Divider, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Post } from "@prisma/client";
 import { useEffect, useState, useContext } from "react";
 import { FlexRow } from "../Flex";
 import CardPost from "./Post";
 import { SetupContext } from "../../context/SetupContext";
 import { extname } from "path";
-import InputPost from "../Input/Post";
-import CloseIcon from "@mui/icons-material/Close";
+import ReplyDialog from "../modal/reply";
 
 interface CardTopicProps {
   post: Post;
@@ -112,65 +111,13 @@ const CardTopic = (props: CardTopicProps) => {
           showBar={false}
         />
       </FlexRow>
-      <Dialog
+      <ReplyDialog
+        replyTo={targetPost}
+        topic={topic}
         open={replyOpen}
-        onClose={() => handleClose()}
-        PaperProps={{
-          sx: {
-            minWidth: "700px",
-          },
-        }}
-        sx={{
-          borderRadius: "30px",
-        }}
-      >
-        <Box sx={{ position: "relative" }}>
-          <IconButton
-            sx={{
-              color: (theme) => theme.palette.primary.contrastText,
-              position: "absolute",
-              top: "5px",
-              right: "5px",
-              zIndex: 3,
-              backgroundColor: (theme) => theme.palette.primary.dark,
-              opacity: 0.5,
-              "&:hover": {
-                backgroundColor: (theme) => theme.palette.primary.dark,
-                opacity: 0.3,
-              },
-            }}
-            onClick={handleClose}
-          >
-            <CloseIcon />
-          </IconButton>
-          {Boolean(targetPost) && (
-            <Box
-              sx={{
-                backgroundColor: (theme) => theme.palette.background.default,
-              }}
-            >
-              <FlexRow
-                justifyContent="start"
-                marginTop="0px"
-                marginBottom="0px"
-              >
-                <CardPost
-                  post={targetPost}
-                  onReply={() => {}}
-                  showBar={false}
-                  isReply={true}
-                />
-              </FlexRow>
-              <Divider />
-              <InputPost
-                topic={topic ?? targetPost}
-                replyTo={targetPost}
-                doReload={() => handleSubmit()}
-              />
-            </Box>
-          )}
-        </Box>
-      </Dialog>
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+      />
     </Box>
   );
 };

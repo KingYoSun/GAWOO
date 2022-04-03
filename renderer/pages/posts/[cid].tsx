@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CardPost from "../../components/card/Post";
 import { FlexRow } from "../../components/Flex";
 import { Post } from "@prisma/client";
+import ReplyDialog from "../../components/modal/reply";
 
 type extPost = Post & {
   depth?: number;
@@ -14,63 +15,65 @@ const PostPage = () => {
   const { cid } = router.query;
   const [threadPosts, setThreadPosts] = useState(null);
   const [threadOpen, setThreadOpen] = useState([]);
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [targetPost, setTargetPost] = useState(null);
+
+  const initPage = async () => {
+    let res: Array<extPost> = await window.electron.getPostPage(cid as string);
+    const topic = res.find((item) => !item.topicCid && !item.replyToCid);
+    res = res.map((post) => {
+      post.depth = calcDepth(post, res, topic);
+      return post;
+    });
+    const maxDepth = Math.max(...res.map((item) => item.depth));
+    const postsByDepth = [...Array(maxDepth + 1)].map((_, index) => {
+      return res.filter((item) => item.depth === index);
+    });
+    let threadObj = {
+      post: topic,
+      replyFrom: [],
+    };
+    let targetThreads;
+    let newThreadOpen = [
+      {
+        cid: topic.cid,
+        open: true,
+      },
+    ];
+    postsByDepth.map((arr, index) => {
+      if (index === 0) {
+        targetThreads = [threadObj];
+        return;
+      }
+      if (index > 0) {
+        arr.map((item) => {
+          const threadIndex = targetThreads.findIndex(
+            (tItem) => tItem.post.cid === item.replyToCid
+          );
+          if (threadIndex !== -1)
+            targetThreads[threadIndex].replyFrom.push({
+              post: item,
+              replyFrom: [],
+            });
+          newThreadOpen.push({
+            cid: item.cid,
+            open: true,
+          });
+        });
+        let newTargetThreads = [];
+        targetThreads.map((thread) => {
+          newTargetThreads = [...newTargetThreads, ...thread.replyFrom];
+        });
+        targetThreads = newTargetThreads;
+      }
+    });
+    setThreadPosts(threadObj);
+    setThreadOpen(newThreadOpen);
+  };
 
   useEffect(() => {
     if (!Boolean(threadPosts)) {
-      (async () => {
-        let res: Array<extPost> = await window.electron.getPostPage(
-          cid as string
-        );
-        const topic = res.find((item) => !item.topicCid && !item.replyToCid);
-        res = res.map((post) => {
-          post.depth = calcDepth(post, res, topic);
-          return post;
-        });
-        const maxDepth = Math.max(...res.map((item) => item.depth));
-        const postsByDepth = [...Array(maxDepth + 1)].map((_, index) => {
-          return res.filter((item) => item.depth === index);
-        });
-        let threadObj = {
-          post: topic,
-          replyFrom: [],
-        };
-        let targetThreads;
-        let newThreadOpen = [
-          {
-            cid: topic.cid,
-            open: true,
-          },
-        ];
-        postsByDepth.map((arr, index) => {
-          if (index === 0) {
-            targetThreads = [threadObj];
-            return;
-          }
-          if (index > 0) {
-            arr.map((item) => {
-              const threadIndex = targetThreads.findIndex(
-                (tItem) => tItem.post.cid === item.replyToCid
-              );
-              if (threadIndex !== -1)
-                targetThreads[threadIndex].replyFrom.push({
-                  post: item,
-                  replyFrom: [],
-                });
-              newThreadOpen.push({
-                cid: item.cid,
-                open: true,
-              });
-            });
-            let newTargetThreads = [];
-            targetThreads.map((thread) => {
-              newTargetThreads = [...newTargetThreads, ...thread.replyFrom];
-            });
-            targetThreads = newTargetThreads;
-          }
-        });
-        setThreadPosts(threadObj);
-        setThreadOpen(newThreadOpen);
-      })();
+      initPage();
     }
   }, []);
 
@@ -88,6 +91,21 @@ const PostPage = () => {
     return depth;
   };
 
+  const handleClose = () => {
+    setReplyOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    setTargetPost(null);
+    setReplyOpen(false);
+    initPage();
+  };
+
+  const onReply = (targetPost: Post) => {
+    setTargetPost(targetPost);
+    setReplyOpen(true);
+  };
+
   const PostElem = (thread, parentOpen) => {
     return (
       <FlexRow
@@ -99,7 +117,7 @@ const PostPage = () => {
       >
         <CardPost
           post={thread.post}
-          onReply={() => {}}
+          onReply={() => onReply(thread.post)}
           showBar={thread.replyFrom.length > 0}
           isReply={thread.replyFrom.length === 0}
           isThread={true}
@@ -109,7 +127,6 @@ const PostPage = () => {
               if (item.cid === thread.post.cid) item.open = !item.open;
               return item;
             });
-            console.log(newThreadOpen);
             setThreadOpen(newThreadOpen);
           }}
         />
@@ -140,7 +157,7 @@ const PostPage = () => {
           >
             <CardPost
               post={threadPosts.post}
-              onReply={() => {}}
+              onReply={() => onReply(threadPosts.post)}
               showBar={threadPosts.replyFrom.length > 0}
               isReply={true}
               isThread={true}
@@ -154,6 +171,13 @@ const PostPage = () => {
           })}
         </Box>
       )}
+      <ReplyDialog
+        replyTo={targetPost}
+        topic={threadPosts?.post}
+        open={replyOpen}
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+      />
     </Box>
   );
 };

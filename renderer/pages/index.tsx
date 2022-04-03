@@ -2,7 +2,7 @@ import { useContext, useReducer, useEffect } from "react";
 import { Button, Box, Divider, Typography } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
-import InputPost from "../components/Input/Post";
+import InputPost from "../components/input/Post";
 import { Post } from "@prisma/client";
 import { ProfileContext } from "../context/ProfileContext";
 import CardTopic from "../components/card/Topic";
