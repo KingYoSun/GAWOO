@@ -1,6 +1,11 @@
 import { Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
-import { IpfsFile, TFile, WakuClientProps } from "../renderer/types/general";
+import {
+  IIndexPosts,
+  IpfsFile,
+  TFile,
+  WakuClientProps,
+} from "../renderer/types/general";
 
 contextBridge.exposeInMainWorld("electron", {
   sayMsg: async (message: string) => {
@@ -20,8 +25,8 @@ contextBridge.exposeInMainWorld("electron", {
   showUser: async (did: string) => {
     return await ipcRenderer.invoke("showUser", did);
   },
-  indexPosts: async (did?: string, take?: number) => {
-    return await ipcRenderer.invoke("indexPosts", did, take);
+  indexPosts: async (props: IIndexPosts) => {
+    return await ipcRenderer.invoke("indexPosts", props);
   },
   getPostPage: async (cid: string) => {
     return await ipcRenderer.invoke("getPostPage", cid);

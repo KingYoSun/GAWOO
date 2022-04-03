@@ -14,7 +14,12 @@ import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
 import { Post, PrismaClient, User } from "@prisma/client";
 import downloadCid from "./download-cid";
-import { IpfsFile, WakuClientProps, TFile } from "../renderer/types/general";
+import {
+  IpfsFile,
+  WakuClientProps,
+  TFile,
+  IIndexPosts,
+} from "../renderer/types/general";
 import fs from "fs-extra";
 import { join } from "path";
 import mime from "mime-types";
@@ -146,12 +151,15 @@ ipcMain.handle(
 
 ipcMain.handle(
   "indexPosts",
-  async (event: IpcMainEvent, did: string, take: number) => {
+  async (event: IpcMainEvent, props: IIndexPosts) => {
     try {
+      const query = {};
+      if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
       const res = await prisma.post.findMany({
-        where: { authorDid: did },
+        where: { authorDid: props.did },
         orderBy: { publishedAt: "desc" },
-        take: take,
+        take: props.take ?? 20,
+        ...query,
       });
       return res;
     } catch (e) {

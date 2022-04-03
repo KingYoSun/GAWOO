@@ -113,7 +113,7 @@ const CardPost = ({
         borderRadius: "0px",
         boxShadow: "none",
         width: "100%",
-        height: parentOpen ? `${elemHeight + 50}px` : "0px",
+        height: parentOpen ? `auto` : "0px",
         position: "relative",
         backgroundColor: "rgba(0, 0, 0, 0)",
         transition: (theme) =>

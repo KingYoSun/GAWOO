@@ -60,3 +60,9 @@ export type IpfsPost = {
   succeeded: Array<string>;
   failure: string;
 };
+
+export interface IIndexPosts {
+  did?: string;
+  take?: number;
+  cursorId?: number;
+}

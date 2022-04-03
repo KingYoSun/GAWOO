@@ -1,4 +1,4 @@
-import { useContext, useReducer, useEffect } from "react";
+import { useContext, useReducer, useEffect, useState, useRef } from "react";
 import { Button, Box, Divider, Typography } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
@@ -6,18 +6,21 @@ import InputPost from "../components/input/Post";
 import { Post } from "@prisma/client";
 import { ProfileContext } from "../context/ProfileContext";
 import CardTopic from "../components/card/Topic";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const [cursorId, setCursorId] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
   const reducer = (state: Array<Post>, action) => {
     switch (action?.type) {
       case "add":
-        const addPostCids = action.payload.map((item) => item.cid);
+        const stateCids = state.map((item) => item.cid);
         return [
-          ...state.filter((item) => !addPostCids.includes(item.cid)),
-          ...action.payload,
+          ...state,
+          ...action.payload.filter((item) => !stateCids.includes(item.cid)),
         ];
       case "remove":
         return [...state.filter((msg) => msg !== action.payload)];
@@ -66,13 +69,22 @@ const IndexPage = () => {
     });
   };
 
-  const getIndexPosts = async () => {
-    const newPosts = await window.electron.indexPosts();
+  const getIndexPosts = async (direction: "new" | "old") => {
+    const takePosts = 5;
+    const newPosts = await window.electron.indexPosts({
+      cursorId: cursorId,
+      take: takePosts,
+    });
+    if (newPosts.length < takePosts) setHasMore(false);
+    const cursorPost =
+      direction === "new" ? newPosts[0] : newPosts[newPosts.length - 1];
+    setCursorId(cursorPost.id);
+    console.log(newPosts);
     dispatchPosts({ type: "add", payload: newPosts });
   };
 
   useEffect(() => {
-    getIndexPosts();
+    getIndexPosts("old");
   }, []);
 
   return (
@@ -89,7 +101,12 @@ const IndexPage = () => {
       </FlexRow>
       <FlexRow>
         {Boolean(profile?.name) && (
-          <InputPost doReload={() => getIndexPosts()} />
+          <InputPost
+            doReload={async () => {
+              setCursorId(null);
+              getIndexPosts("old");
+            }}
+          />
         )}
         {!Boolean(profile?.name) && (
           <Typography
@@ -104,15 +121,37 @@ const IndexPage = () => {
         )}
       </FlexRow>
       <FlexRow marginTop="20px">
-        <Box width="90%">
+        <div style={{ width: "90%" }}>
           <Divider />
-          {posts.map((post) => (
-            <Box key={post.id}>
-              <CardTopic post={post} doReload={() => getIndexPosts()} />
-              <Divider />
-            </Box>
-          ))}
-        </Box>
+          <InfiniteScroll
+            dataLength={posts.length}
+            next={() => {
+              console.log("loadMore!: ", hasMore);
+              getIndexPosts("old");
+            }}
+            loader={<FlexRow>読み込み中...</FlexRow>}
+            endMessage={<FlexRow>読み込み終了</FlexRow>}
+            hasMore={hasMore}
+            style={{
+              overflowX: "hidden",
+            }}
+            scrollableTarget="mainContent"
+            scrollThreshold={0.95}
+          >
+            {posts.map((post) => (
+              <div key={post.id}>
+                <CardTopic
+                  post={post}
+                  doReload={async () => {
+                    setCursorId(null);
+                    getIndexPosts("old");
+                  }}
+                />
+                <Divider />
+              </div>
+            ))}
+          </InfiniteScroll>
+        </div>
       </FlexRow>
     </>
   );

@@ -1,5 +1,11 @@
 import { Post, User } from "@prisma/client";
-import { IpfsFile, IpfsPost, TFile, WakuClientProps } from "../types/general";
+import {
+  IIndexPosts,
+  IpfsFile,
+  IpfsPost,
+  TFile,
+  WakuClientProps,
+} from "../types/general";
 
 declare global {
   interface Window {
@@ -16,7 +22,7 @@ interface IElectron {
   createUser: (user: User) => User | string;
   updateUser: (user: User) => User | string;
   showUser: (did: string) => User | string | null;
-  indexPosts: (did?: string, take?: number) => Array<Post>;
+  indexPosts: (props: IIndexPosts) => Array<Post>;
   getFileByBase64: (ipfsFile: IpfsFile) => string;
   getFullPath: (type: string) => Array<string>;
   readLocalJson: (cid: string, name: string) => Post;

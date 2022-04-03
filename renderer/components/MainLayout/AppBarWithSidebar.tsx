@@ -3,13 +3,11 @@ import { styled } from "@mui/material/styles";
 import { useState } from "react";
 
 import Sidebar from "./Sidebar";
-import TopAppBar from "./TopAppBar";
 
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   height: "100vh",
   overflow: "auto",
-  marginLeft: theme.spacing(2),
 }));
 
 const MainContainer = styled(Container)(({ theme }) => ({
@@ -35,7 +33,7 @@ const AppBarWithSidebar = ({
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
-      <MainContent>
+      <MainContent id="mainContent">
         <Box
           sx={{
             root: (theme) => ({ ...theme.mixins.toolbar }),
