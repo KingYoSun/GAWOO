@@ -7,10 +7,12 @@ import { Post } from "@prisma/client";
 import { ProfileContext } from "../context/ProfileContext";
 import CardTopic from "../components/card/Topic";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { ErrorDialogContext } from "../context/ErrorDialogContext";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
   const [cursorId, setCursorId] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
@@ -41,13 +43,17 @@ const IndexPage = () => {
     console.log("index account: ", account);
   };
 
-  const onSayHiClick = async () => {
-    const result = await window.electron.sayMsg("test");
-    console.log(result);
-  };
-
   const sendFollow = async () => {
     window.waku.sendMessage({ selfId: account.selfId.id, purpose: "follow" });
+  };
+
+  const alertTest = () => {
+    console.log("alert test!");
+    dispatchErrorDialog({
+      type: "open",
+      payload: "test!",
+    });
+    console.log("error dialog!: ", errorDialog);
   };
 
   const sendShare = async () => {
@@ -92,7 +98,7 @@ const IndexPage = () => {
         <h1>Hello GAWOO! 👋</h1>
       </FlexRow>
       <FlexRow>
-        <Button onClick={onSayHiClick}>ipcRendererテスト</Button>
+        <Button onClick={alertTest}>Alertテスト</Button>
         <Button onClick={sendFollow}>Followテスト</Button>
         <Button onClick={sendShare}>Shareテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>

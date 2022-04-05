@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { WakuClientProps } from "../types/general";
 import { SetupContext } from "../context/SetupContext";
 import { LoadingContext } from "../context/LoadingContext";
-import * as ErrorMsg from "../utils/error-msg";
+import { ErrorDialogContext } from "../context/ErrorDialogContext";
 
 type Props = {
   children: ReactNode;
@@ -13,6 +13,7 @@ const Subscribe = ({ children }: Props) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { setup, dispatchSetup } = useContext(SetupContext);
   const { loading, dispatchLoading } = useContext(LoadingContext);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
 
   const wakuSetupMsg = "Wakuの接続中...";
 
@@ -40,7 +41,11 @@ const Subscribe = ({ children }: Props) => {
           if (setupWaku) break;
         }
 
-        if (!setupWaku) ErrorMsg.call(new Error("Wakuの接続に失敗しました"));
+        if (!setupWaku)
+          dispatchErrorDialog({
+            type: "open",
+            payload: "Wakuの接続に失敗しました",
+          });
 
         dispatchSetup({ type: "waku", payload: setupWaku });
         dispatchLoading({ type: "remove", payload: wakuSetupMsg });

@@ -10,6 +10,7 @@ import AuthContextProvider from "../context/AuthContext";
 import ProfileContextProvider from "../context/ProfileContext";
 import LoadingContextProvider from "../context/LoadingContext";
 import SetupContextProvider from "../context/SetupContext";
+import ErrorDialogContextProvider from "../context/ErrorDialogContext";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
@@ -27,17 +28,19 @@ const App = ({ Component, pageProps }: AppProps) => {
       <AuthContextProvider>
         <ProfileContextProvider>
           <LoadingContextProvider>
-            <SafeHydrate>
-              <AutoAuth>
-                <Subscribe>
-                  <LoadingOverlay>
-                    <Layout>
-                      <Component {...pageProps} />
-                    </Layout>
-                  </LoadingOverlay>
-                </Subscribe>
-              </AutoAuth>
-            </SafeHydrate>
+            <ErrorDialogContextProvider>
+              <SafeHydrate>
+                <AutoAuth>
+                  <Subscribe>
+                    <LoadingOverlay>
+                      <Layout>
+                        <Component {...pageProps} />
+                      </Layout>
+                    </LoadingOverlay>
+                  </Subscribe>
+                </AutoAuth>
+              </SafeHydrate>
+            </ErrorDialogContextProvider>
           </LoadingContextProvider>
         </ProfileContextProvider>
       </AuthContextProvider>

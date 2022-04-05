@@ -12,7 +12,7 @@ import { FlexRow } from "../Flex";
 import { AvatarIcon } from "../AvatarIcon";
 import { AuthContext } from "../../context/AuthContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import * as ErrorMsg from "../../utils/error-msg";
+import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import ImgPreview from "./ImgPreview";
 import ImageIcon from "@mui/icons-material/Image";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
@@ -36,6 +36,7 @@ const emptyPost = {
 const InputPost = (props: InputPostProps) => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
   const [contentLength, setContentLength] = useState(0);
   const [width, setWidth] = useState(0);
   const [upload, setUpload] = useState(false);
@@ -80,11 +81,17 @@ const InputPost = (props: InputPostProps) => {
     let files: Array<string> = await window.electron.getFullPath("image");
     if (!Boolean(files)) return;
     if (images.length + files.length > 4) {
-      ErrorMsg.call("一度に投稿できる画像は4枚までです");
+      dispatchErrorDialog({
+        type: "open",
+        payload: "一度に投稿できる画像は4枚までです",
+      });
       return;
     }
     if (Boolean(video)) {
-      ErrorMsg.call("画像と動画を同時に投稿することはできません");
+      dispatchErrorDialog({
+        type: "open",
+        payload: "画像と動画を同時に投稿することはできません",
+      });
       return;
     }
     const imgNames = images.map((image) => image.name);
@@ -96,7 +103,10 @@ const InputPost = (props: InputPostProps) => {
     let files: Array<string> = await window.electron.getFullPath("video");
     if (!Boolean(files)) return;
     if (images.length > 0) {
-      ErrorMsg.call("画像と動画を同時に投稿することはできません");
+      dispatchErrorDialog({
+        type: "open",
+        payload: "画像と動画を同時に投稿することはできません",
+      });
       return;
     }
     if (files.length > 0) setVideo(files[0]);
@@ -106,11 +116,17 @@ const InputPost = (props: InputPostProps) => {
     const file = e.dataTransfer.files[0];
     if (file.type.includes("image")) {
       if (images.length >= 4) {
-        ErrorMsg.call("一度に投稿できる画像は4枚までです");
+        dispatchErrorDialog({
+          type: "open",
+          payload: "一度に投稿できる画像は4枚までです",
+        });
         return;
       }
       if (Boolean(video)) {
-        ErrorMsg.call("画像と動画を同時に投稿することはできません");
+        dispatchErrorDialog({
+          type: "open",
+          payload: "画像と動画を同時に投稿することはできません",
+        });
         return;
       }
 
@@ -119,7 +135,10 @@ const InputPost = (props: InputPostProps) => {
     }
     if (file.type.includes("video") && video?.name !== file.name) {
       if (images.length > 0) {
-        ErrorMsg.call("画像と動画を同時に投稿することはできません");
+        dispatchErrorDialog({
+          type: "open",
+          payload: "画像と動画を同時に投稿することはできません",
+        });
         return;
       }
 
@@ -188,10 +207,16 @@ const InputPost = (props: InputPostProps) => {
       );
       console.log("posted!: ", res);
       if (res.failures.length > 0) {
-        ErrorMsg.call("Error!: " + res.failures.join(", "));
+        dispatchErrorDialog({
+          type: "open",
+          payload: res.failures.join(", "),
+        });
       }
     } catch (e) {
-      ErrorMsg.call("Error!: " + e.toString());
+      dispatchErrorDialog({
+        type: "open",
+        payload: e.toString(),
+      });
     } finally {
       setValue("content", "");
       setUpload(false);

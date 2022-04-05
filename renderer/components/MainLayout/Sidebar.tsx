@@ -26,7 +26,7 @@ import { AuthContext } from "../../context/AuthContext";
 import ThemeToggler from "../../components/ThemeToggler";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AvatarIcon } from "../../components/AvatarIcon";
-import * as ErrorMsg from "../../utils/error-msg";
+import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import { LoadingContext } from "../../context/LoadingContext";
 
 interface SideBarProps {
@@ -38,6 +38,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const { account, dispatchAccount } = useContext(AuthContext);
   const { loading, dispatchLoading } = useContext(LoadingContext);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
   const [accounts, setAccounts] = useState([]);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState(null);
   const avatarOpen = Boolean(avatarMenuAnchor);
@@ -120,7 +121,10 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
 
       await account.authenticate(false);
     } catch (e) {
-      ErrorMsg.call(new Error(e));
+      dispatchErrorDialog({
+        type: "open",
+        payload: e,
+      });
     } finally {
       dispatchLoading({ type: "remove", payload: loadingMsg });
       location.reload();

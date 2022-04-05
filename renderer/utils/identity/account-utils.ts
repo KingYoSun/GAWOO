@@ -1,7 +1,6 @@
 import Web3Client from "./web3-client";
 import { EthereumAuthProvider, SelfID, WebClient } from "@self.id/web";
 import CeramicClient from "./ceramic-client";
-import * as ErrorMsg from "../error-msg";
 import { BasicProfile } from "../../types/general";
 import { DIDProvider } from "dids";
 import { Core } from "@self.id/core";
@@ -40,16 +39,18 @@ export default class AccountUtils {
       return this;
     }
 
-    await this.web3.wcClient
-      .initConnection(newSession)
-      .catch((e) => ErrorMsg.call(e));
+    await this.web3.wcClient.initConnection(newSession).catch((e) => {
+      throw e;
+    });
     console.log("set provider!");
-    await this.web3.wcClient.setProvider().catch((e) => ErrorMsg.call(e));
+    await this.web3.wcClient.setProvider().catch((e) => {
+      throw e;
+    });
     this.web3.setWeb3(this.web3.wcClient.provider);
 
     this.address = this.web3.wcClient.accounts[0];
     if (!this.address) {
-      ErrorMsg.call(new Error("ウォレットが見つかりません"));
+      throw new Error("ウォレットが見つかりません");
       return this;
     }
 
@@ -84,7 +85,9 @@ export default class AccountUtils {
 
     this.basicProfile = (await this.selfIdCore
       .get("basicProfile", this.selfId.id)
-      .catch((e) => ErrorMsg.call(e))) as BasicProfile;
+      .catch((e) => {
+        throw e;
+      })) as BasicProfile;
 
     console.log(`got profile!\n${JSON.stringify(this.basicProfile)}`);
 
@@ -93,14 +96,14 @@ export default class AccountUtils {
 
   async updateProfile(profile: BasicProfile) {
     if (!(this.selfId instanceof SelfID)) {
-      ErrorMsg.call("認証が必要です");
+      throw "認証が必要です";
       return;
     }
 
     console.log("updating Profile!");
-    await this.selfId
-      .set("basicProfile", profile)
-      .catch((e) => ErrorMsg.call(e));
+    await this.selfId.set("basicProfile", profile).catch((e) => {
+      throw e;
+    });
 
     console.log("updated profile!");
   }

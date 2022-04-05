@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 import { LoadingContext } from "../context/LoadingContext";
 import { SetupContext } from "../context/SetupContext";
+import { ErrorDialogContext } from "../context/ErrorDialogContext";
 
 type Props = {
   children: ReactNode;
@@ -14,10 +15,18 @@ const AutoAuth = ({ children }: Props) => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const { loading, dispatchLoading } = useContext(LoadingContext);
   const { setup, dispatchSetup } = useContext(SetupContext);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
 
   const getProfile = async () => {
-    const newProfile = await account.getMyProfile();
-    dispatchProfile({ type: "set", payload: newProfile });
+    try {
+      const newProfile = await account.getMyProfile();
+      dispatchProfile({ type: "set", payload: newProfile });
+    } catch (e) {
+      dispatchErrorDialog({
+        type: "open",
+        payload: e,
+      });
+    }
   };
 
   const fetchImage = async (key) => {
@@ -36,11 +45,18 @@ const AutoAuth = ({ children }: Props) => {
 
     if (typeof account !== "undefined" && !account?.isConnected()) {
       (async () => {
-        dispatchLoading({ type: "add", payload: loadingMsg });
-        const newAccount = await account.authenticate();
-        dispatchAccount({ type: "set", payload: newAccount });
-        if (!profile.name) await getProfile();
-        dispatchLoading({ type: "remove", payload: loadingMsg });
+        try {
+          dispatchLoading({ type: "add", payload: loadingMsg });
+          const newAccount = await account.authenticate();
+          dispatchAccount({ type: "set", payload: newAccount });
+          if (!profile.name) await getProfile();
+          dispatchLoading({ type: "remove", payload: loadingMsg });
+        } catch (e) {
+          dispatchErrorDialog({
+            type: "open",
+            payload: e,
+          });
+        }
       })();
     }
 
