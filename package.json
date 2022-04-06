@@ -15,7 +15,7 @@
     "@ceramicnetwork/3id-did-resolver": "^1.4.16",
     "@ceramicnetwork/http-client": "^1.5.7",
     "@date-io/moment": "^2.13.1",
-    "@emotion/react": "^11.8.1",
+    "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@kingyosun/legacy-modal": "latest",
     "@mui/icons-material": "^5.4.2",
