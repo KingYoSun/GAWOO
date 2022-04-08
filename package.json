@@ -47,7 +47,7 @@
     "mime-types": "^2.1.35",
     "moment": "^2.29.2",
     "portfinder": "^1.0.28",
-    "protons": "^2.0.3",
+    "protons": "^3.0.2",
     "react-hook-form": "^7.29.0",
     "react-image-crop": "^10.0.0",
     "react-infinite-scroll-component": "^6.1.0",
