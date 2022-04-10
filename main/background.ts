@@ -19,9 +19,10 @@ import {
   WakuClientProps,
   TFile,
   IIndexPosts,
+  IPostPage,
 } from "../renderer/types/general";
 import fs from "fs-extra";
-import { join } from "path";
+import { join, extname } from "path";
 import mime from "mime-types";
 import setProtocol from "./protocol";
 
@@ -262,29 +263,121 @@ ipcMain.handle("getFullPath", (event: IpcMainEvent, type: string) => {
   return files;
 });
 
-ipcMain.handle("getPostPage", async (event: IpcMainEvent, cid: string) => {
-  const basePost = await prisma.post.findFirst({
-    where: { cid: cid },
-  });
-  let topicPost = Boolean(basePost.topicCid)
-    ? await prisma.post.findFirst({
-        where: { cid: basePost.topicCid },
-      })
-    : null;
-  let postsHasTopic = await prisma.post.findMany({
-    where: { topicCid: topicPost?.cid ?? basePost.cid },
-    orderBy: {
-      publishedAt: "asc",
-    },
-  });
+ipcMain.handle(
+  "getPostPage",
+  async (event: IpcMainEvent, { cid, take, cursorId }: IPostPage) => {
+    if (!ctx.getIpfsd) {
+      console.log(i18n.t("ipfsNotRunningDialog.title"));
+      return i18n.t("ipfsNotRunningDialog.title");
+    }
+    const ipfsd = await ctx.getIpfsd();
 
-  if (!Boolean(topicPost) && postsHasTopic.length === 0) return [basePost];
-  if (!Boolean(topicPost) && postsHasTopic.length > 0) topicPost = basePost;
+    const basePost = await prisma.post.findFirst({
+      where: { cid: cid },
+    });
+    let topicPost = Boolean(basePost.topicCid)
+      ? await prisma.post.findFirst({
+          where: { cid: basePost.topicCid },
+        })
+      : null;
 
-  const postsArr = [topicPost, ...postsHasTopic];
+    let postsArr = [];
+    if (!Boolean(topicPost)) {
+      topicPost = basePost;
+      postsArr = [topicPost];
+    } else {
+      postsArr = [topicPost, basePost];
+    }
 
-  return postsArr;
-});
+    const replyBasePost = await prisma.post.findFirst({
+      where: { replyToCid: basePost.cid },
+    });
+    if (Boolean(replyBasePost)) {
+      postsArr.push(replyBasePost);
+    }
+
+    let addPost = basePost;
+    if (basePost !== topicPost) {
+      while (addPost.replyToCid !== topicPost.cid) {
+        const replyToCid = addPost.replyToCid;
+        addPost = await prisma.post.findFirst({
+          where: { cid: replyToCid },
+        });
+        if (!Boolean(addPost)) {
+          const succeeded = await downloadCid(ipfsd, replyToCid);
+          let jsonName;
+          succeeded.map((name) => {
+            if (extname(name) === ".json") jsonName = name;
+          });
+          if (!Boolean(jsonName)) break;
+          const path = join(
+            app.getPath("userData"),
+            "downloads",
+            cid,
+            jsonName
+          );
+          const postString = await fs.readFileSync(path, "utf8");
+          const post = JSON.parse(postString);
+          post.id = await prisma.post.findFirst({
+            where: { cid: post.cid },
+          });
+          if (!Boolean(post.id)) await prisma.post.create({ data: post });
+          addPost = post;
+        }
+        postsArr.push(addPost);
+      }
+    }
+
+    const query = {};
+    if (Boolean(cursorId)) query["cursor"] = { id: cursorId };
+    let postsHasTopic = await prisma.post.findMany({
+      where: {
+        NOT: {
+          cid: { in: postsArr.map((item) => item.cid) },
+        },
+        replyToCid: topicPost.cid,
+      },
+      orderBy: {
+        id: "asc",
+      },
+      take: take,
+      ...query,
+    });
+
+    postsArr = [...postsArr, ...postsHasTopic];
+    const countHasTopic = await prisma.post.count({
+      where: { replyToCid: topicPost.cid },
+    });
+    const endId = postsHasTopic[postsHasTopic.length - 1]?.id;
+    let nextId;
+    if (Boolean(endId)) nextId = endId + 1;
+
+    return { postsArr, countHasTopic, nextId };
+  }
+);
+
+ipcMain.handle(
+  "getChildPosts",
+  async (event: IpcMainEvent, { cid, take, cursorId }: IPostPage) => {
+    const query = {};
+    if (Boolean(cursorId)) query["cursor"] = { id: cursorId };
+    const addPosts = await prisma.post.findMany({
+      where: {
+        replyToCid: cid,
+      },
+      orderBy: {
+        id: "asc",
+      },
+      take: take,
+      ...query,
+    });
+    const endId = addPosts[addPosts.length - 1]?.id;
+    let nextId;
+    if (Boolean(endId)) nextId = endId + 1;
+
+    return { addPosts, nextId };
+  }
+);
 
 ipcMain.handle(
   "imageToIpfs",

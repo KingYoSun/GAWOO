@@ -1,14 +1,28 @@
-import { Box, Divider } from "@mui/material";
+import { Box, Divider, Typography, Button, Collapse } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CardPost from "../../components/card/Post";
 import { FlexRow } from "../../components/Flex";
 import { Post } from "@prisma/client";
 import ReplyDialog from "../../components/modal/reply";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 type extPost = Post & {
   depth?: number;
+  replyCount?: number;
 };
+
+type Thread = {
+  post: extPost;
+  nextId?: number;
+  replyFrom: Array<Thread>;
+};
+
+interface IGetPostPage {
+  postsArr: Array<extPost>;
+  countHasTopic: number;
+  nextId: number;
+}
 
 const PostPage = () => {
   const router = useRouter();
@@ -17,20 +31,30 @@ const PostPage = () => {
   const [threadOpen, setThreadOpen] = useState([]);
   const [replyOpen, setReplyOpen] = useState(false);
   const [targetPost, setTargetPost] = useState(null);
+  const [showThread, setShowThread] = useState(true);
 
   const initPage = async () => {
-    let res: Array<extPost> = await window.electron.getPostPage(cid as string);
-    const topic = res.find((item) => !item.topicCid && !item.replyToCid);
-    res = res.map((post) => {
-      post.depth = calcDepth(post, res, topic);
-      return post;
-    });
-    const maxDepth = Math.max(...res.map((item) => item.depth));
+    let { postsArr, countHasTopic, nextId }: IGetPostPage =
+      await window.electron.getPostPage({
+        cid: cid as string,
+        take: 5,
+      });
+    const topic = postsArr.find((item) => !item.topicCid && !item.replyToCid);
+    topic.replyCount = countHasTopic;
+    postsArr = await Promise.all(
+      postsArr.map(async (post) => {
+        post.depth = calcDepth(post, postsArr, topic);
+        post.replyCount = await window.electron.countReply(post.cid);
+        return post;
+      })
+    );
+    const maxDepth = Math.max(...postsArr.map((item) => item.depth));
     const postsByDepth = [...Array(maxDepth + 1)].map((_, index) => {
-      return res.filter((item) => item.depth === index);
+      return postsArr.filter((item) => item.depth === index);
     });
-    let threadObj = {
+    let threadObj: Thread = {
       post: topic,
+      nextId: nextId,
       replyFrom: [],
     };
     let targetThreads;
@@ -57,7 +81,7 @@ const PostPage = () => {
             });
           newThreadOpen.push({
             cid: item.cid,
-            open: true,
+            open: false,
           });
         });
         let newTargetThreads = [];
@@ -106,6 +130,38 @@ const PostPage = () => {
     setReplyOpen(true);
   };
 
+  const handleGetChildren = async (thread: Thread) => {
+    if (!Boolean(thread.nextId) && thread.replyFrom.length > 0) {
+      thread.nextId = thread.replyFrom[thread.replyFrom.length - 1].post.id + 1;
+    }
+    const { addPosts, nextId } = await window.electron.getChildPosts({
+      cid: thread.post.cid,
+      take: 5,
+      cursorId: thread.nextId,
+    });
+
+    thread.nextId = nextId;
+
+    const addThreads = await Promise.all(
+      addPosts.map(async (post: extPost) => {
+        post.depth = thread.post.depth + 1;
+        post.replyCount = await window.electron.countReply(post.cid);
+        threadOpen.push({
+          cid: post.cid,
+          open: false,
+        });
+        return {
+          post: post,
+          nextId: null,
+          replyFrom: [],
+        };
+      })
+    );
+    thread.replyFrom = [...thread.replyFrom, ...addThreads];
+    setThreadPosts(threadPosts);
+    setThreadOpen(threadOpen);
+  };
+
   const PostElem = (thread, parentOpen) => {
     return (
       <FlexRow
@@ -119,10 +175,14 @@ const PostPage = () => {
           post={thread.post}
           onReply={() => onReply(thread.post)}
           showBar={thread.replyFrom.length > 0}
-          isReply={thread.replyFrom.length === 0}
+          isReply={thread.post.replyCount < thread.replyFrom.length}
           isThread={true}
-          parentOpen={parentOpen}
-          handleClick={() => {
+          handleClick={async () => {
+            if (
+              thread.post.replyCount > thread.replyFrom.length &&
+              !threadOpen.find((item) => item.cid === thread.post.cid)?.open
+            )
+              await handleGetChildren(thread);
             const newThreadOpen = threadOpen.map((item) => {
               if (item.cid === thread.post.cid) item.open = !item.open;
               return item;
@@ -130,13 +190,45 @@ const PostPage = () => {
             setThreadOpen(newThreadOpen);
           }}
         />
-        {thread.replyFrom.map((child) => {
-          return ThreadElem(
-            child,
+        {thread.post.replyCount > thread.replyFrom.length && (
+          <FlexRow justifyContent="start" paddingLeft="120px">
+            <Button
+              variant="text"
+              onClick={async () => {
+                await handleGetChildren(thread);
+                const newThreadOpen = threadOpen.map((item) => {
+                  if (item.cid === thread.post.cid) item.open = true;
+                  return item;
+                });
+                setThreadOpen(newThreadOpen);
+              }}
+            >
+              <MoreVertIcon />
+              <Typography variant="subtitle2">
+                さらに返信を読み込む（
+                {thread.replyFrom.length} / {thread.post.replyCount}件）
+              </Typography>
+            </Button>
+          </FlexRow>
+        )}
+        <Collapse
+          in={
             parentOpen &&
-              threadOpen.find((item) => item.cid === thread.post.cid)?.open
-          );
-        })}
+            threadOpen.find((item) => item.cid === thread.post.cid)?.open
+          }
+          sx={{
+            width: "100%",
+          }}
+        >
+          {showThread &&
+            thread.replyFrom.map((child) => {
+              return ThreadElem(
+                child,
+                parentOpen &&
+                  threadOpen.find((item) => item.cid === thread.post.cid)?.open
+              );
+            })}
+        </Collapse>
       </FlexRow>
     );
   };

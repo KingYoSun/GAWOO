@@ -3,6 +3,7 @@ import {
   IIndexPosts,
   IpfsFile,
   IpfsPost,
+  IPostPage,
   TFile,
   WakuClientProps,
 } from "../types/general";
@@ -27,7 +28,15 @@ interface IElectron {
   getFullPath: (type: string) => Array<string>;
   readLocalJson: (cid: string, name: string) => Post;
   countReply: (cid: string) => number;
-  getPostPage: (cid: string) => Array<Post>;
+  getPostPage: (props: IPostPage) => {
+    postsArr: Array<Post>;
+    countHasTopic: number;
+    nextId: number;
+  };
+  getChildPosts: (props: IPostPage) => {
+    addPosts: Array<Post>;
+    nextId: number;
+  };
 }
 
 interface IIpfs {

@@ -3,6 +3,7 @@ import { ipcRenderer, contextBridge } from "electron";
 import {
   IIndexPosts,
   IpfsFile,
+  IPostPage,
   TFile,
   WakuClientProps,
 } from "../renderer/types/general";
@@ -28,8 +29,11 @@ contextBridge.exposeInMainWorld("electron", {
   indexPosts: async (props: IIndexPosts) => {
     return await ipcRenderer.invoke("indexPosts", props);
   },
-  getPostPage: async (cid: string) => {
-    return await ipcRenderer.invoke("getPostPage", cid);
+  getPostPage: async (props: IPostPage) => {
+    return await ipcRenderer.invoke("getPostPage", props);
+  },
+  getChildPosts: async (props: IPostPage) => {
+    return await ipcRenderer.invoke("getChildPosts", props);
   },
   getFileByBase64: async (ipfsFile: IpfsFile) => {
     return await ipcRenderer.invoke("getFileByBase64", ipfsFile);

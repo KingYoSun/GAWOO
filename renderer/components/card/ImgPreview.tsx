@@ -3,6 +3,7 @@ import { Card, CardMedia, CardActionArea, Box } from "@mui/material";
 type InputImgPreviewProps = {
   src: string;
   onClick: () => void;
+  onLoad: () => void;
 };
 
 const ImgPreview = (props: InputImgPreviewProps) => {
@@ -17,7 +18,12 @@ const ImgPreview = (props: InputImgPreviewProps) => {
           }}
         >
           <CardActionArea onClick={() => props.onClick()}>
-            <CardMedia component="img" image={props.src} alt="image button" />
+            <CardMedia
+              component="img"
+              image={props.src}
+              alt="image button"
+              onLoad={() => props.onLoad()}
+            />
           </CardActionArea>
         </Card>
       )}

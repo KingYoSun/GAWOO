@@ -66,3 +66,9 @@ export interface IIndexPosts {
   take?: number;
   cursorId?: number;
 }
+
+export interface IPostPage {
+  cid: string;
+  take: number;
+  cursorId?: number;
+}

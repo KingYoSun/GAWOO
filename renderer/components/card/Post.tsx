@@ -28,7 +28,6 @@ interface CardPostProps {
   showBar?: Boolean;
   isReply?: Boolean;
   isThread?: Boolean;
-  parentOpen?: Boolean;
   handleClick?: () => void;
 }
 
@@ -38,7 +37,6 @@ const CardPost = ({
   showBar,
   isReply,
   isThread,
-  parentOpen,
   handleClick,
 }: CardPostProps) => {
   const [avatar, setAvatar] = useState(null);
@@ -82,9 +80,11 @@ const CardPost = ({
           getElemHeight();
         }
       })();
-      (async () => {
-        post.replyCount = await window.electron.countReply(post.cid);
-      })();
+      if (!Boolean(post.replyCount)) {
+        (async () => {
+          post.replyCount = await window.electron.countReply(post.cid);
+        })();
+      }
     }
   }, [setup.ipfs]);
 
@@ -113,14 +113,9 @@ const CardPost = ({
         borderRadius: "0px",
         boxShadow: "none",
         width: "100%",
-        height: parentOpen ? `auto` : "0px",
+        height: `${elemHeight + 50}px`,
         position: "relative",
         backgroundColor: "rgba(0, 0, 0, 0)",
-        transition: (theme) =>
-          theme.transitions.create("height", {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
       }}
     >
       <FlexRow
@@ -169,6 +164,7 @@ const CardPost = ({
                 key={num}
                 src={image}
                 onClick={() => handleOpenImageDialog(num)}
+                onLoad={() => getElemHeight()}
               />
             ))}
           </FlexRow>
@@ -232,10 +228,6 @@ const CardPost = ({
       )}
     </Card>
   );
-};
-
-CardPost.defaultProps = {
-  parentOpen: true,
 };
 
 export default CardPost;
