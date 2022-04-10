@@ -28,6 +28,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { AvatarIcon } from "../../components/AvatarIcon";
 import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import { LoadingContext } from "../../context/LoadingContext";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface SideBarProps {
   open: boolean;
@@ -327,6 +328,25 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
         ))}
       </List>
       <Divider />
+      {router.pathname !== "/" && (
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: (theme) => theme.spacing(7),
+            left: "3px",
+          }}
+        >
+          <IconButton
+            onClick={() => router.back()}
+            size="large"
+            sx={{
+              color: (theme) => theme.palette.primary.contrastText,
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
+      )}
       <Box
         sx={{
           position: "absolute",

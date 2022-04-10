@@ -17,6 +17,7 @@ import mime from "mime-types";
 import ImagesDialog from "../modal/Images";
 import ChatIcon from "@mui/icons-material/Chat";
 import { useRouter } from "next/router";
+import { IndexIdContext } from "../../context/IndexIdContext";
 
 type PostAndReply = Post & {
   replyCount?: number;
@@ -50,6 +51,7 @@ const CardPost = ({
   const refImageDialog = useRef(null);
   const [elemHeight, setElemHeight] = useState(0);
   const router = useRouter();
+  const { indexId, dispatchIndexId } = useContext(IndexIdContext);
 
   useEffect(() => {
     getElemHeight();
@@ -204,7 +206,10 @@ const CardPost = ({
       {!isReply && (
         <Box
           onClick={() => {
-            if (!Boolean(handleClick)) router.push(`/posts/${post.cid}`);
+            if (!Boolean(handleClick)) {
+              dispatchIndexId({ type: "set", payload: post.id });
+              router.push(`/posts/${post.cid}`);
+            }
             if (Boolean(handleClick)) handleClick();
           }}
           sx={{

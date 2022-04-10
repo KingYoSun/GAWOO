@@ -158,11 +158,14 @@ ipcMain.handle(
       if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
       const res = await prisma.post.findMany({
         where: { authorDid: props.did },
-        orderBy: { publishedAt: "desc" },
+        orderBy: { id: props.direction === "new" ? "asc" : "desc" },
         take: props.take ?? 20,
         ...query,
       });
-      return res;
+      return {
+        posts: res,
+        nextId: res[res.length - 1]?.id + (props.direction === "new" ? 1 : -1),
+      };
     } catch (e) {
       return e.toString();
     }

@@ -23,7 +23,7 @@ interface IElectron {
   createUser: (user: User) => User | string;
   updateUser: (user: User) => User | string;
   showUser: (did: string) => User | string | null;
-  indexPosts: (props: IIndexPosts) => Array<Post>;
+  indexPosts: (props: IIndexPosts) => { posts: Array<Post>; nextId: number };
   getFileByBase64: (ipfsFile: IpfsFile) => string;
   getFullPath: (type: string) => Array<string>;
   readLocalJson: (cid: string, name: string) => Post;

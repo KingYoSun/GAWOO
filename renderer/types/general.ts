@@ -65,6 +65,7 @@ export interface IIndexPosts {
   did?: string;
   take?: number;
   cursorId?: number;
+  direction: "new" | "old";
 }
 
 export interface IPostPage {
