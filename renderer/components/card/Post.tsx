@@ -127,7 +127,7 @@ const CardPost = ({
         marginBottom="0px"
       >
         <Box sx={{ position: "relative" }}>
-          <AvatarIcon src={avatar} marginTop="10px" />
+          <AvatarIcon src={avatar} marginTop="10px" did={post.authorDid} />
           {Boolean(showBar) && (
             <Box
               sx={{
@@ -147,7 +147,18 @@ const CardPost = ({
           }}
         >
           <FlexRow justifyContent="start">
-            <Typography variant="h6">{post.authorName}</Typography>
+            <Typography
+              variant="h6"
+              onClick={() => router.push(`/users/${post.authorDid}`)}
+              sx={{
+                zIndex: 3,
+                "&:hover": {
+                  cursor: "pointer",
+                },
+              }}
+            >
+              {post.authorName}
+            </Typography>
             <Typography variant="body2">
               ・
               {Boolean(post.publishedAt) &&

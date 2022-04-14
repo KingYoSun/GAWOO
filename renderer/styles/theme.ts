@@ -10,11 +10,11 @@ export const lightTheme = createTheme({
       contrastText: "#FFF",
     },
     secondary: {
-      main: "#E13D4E",
+      main: "#616161",
       contrastText: "#d1713d",
     },
     text: {
-      primary: "#243354",
+      primary: "#0f1419",
       secondary: "#000",
     },
     background: {

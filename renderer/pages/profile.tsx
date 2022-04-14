@@ -69,12 +69,16 @@ const ProfilePage = () => {
     const newProfile = await account.getMyProfile();
     await Promise.all([
       (async () => {
-        const newAvatarImg = await fetchImage("image");
-        newProfile.avatar = newAvatarImg;
+        if (Boolean(profile?.image)) {
+          const newAvatarImg = await fetchImage("image");
+          newProfile.avatar = newAvatarImg;
+        }
       })(),
       (async () => {
-        const newBgImg = await fetchImage("background");
-        newProfile.bgImg = newBgImg;
+        if (Boolean(profile?.backgorund)) {
+          const newBgImg = await fetchImage("background");
+          newProfile.bgImg = newBgImg;
+        }
       })(),
     ]);
 
@@ -193,6 +197,7 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
+    if (!Boolean(profile)) return;
     for (const [key, value] of Object.entries(profile)) {
       setValue(key as keyof BasicProfile, value as any);
     }
@@ -280,7 +285,7 @@ const ProfilePage = () => {
         </Button>
       </FlexRow>
       <FlexRow justifyContent="start">
-        {avatar.input && (
+        {avatar?.input && (
           <input
             accept="image/*"
             id="input-avatar"
@@ -296,7 +301,7 @@ const ProfilePage = () => {
           </Button>
         </label>
       </FlexRow>
-      {!avatar.nowEdit && (Boolean(avatar.src) || Boolean(profile.avatar)) && (
+      {!avatar?.nowEdit && (Boolean(avatar?.src) || Boolean(profile?.avatar)) && (
         <FlexRow justifyContent="start">
           <Avatar
             alt="my avatar"
@@ -305,7 +310,7 @@ const ProfilePage = () => {
           />
         </FlexRow>
       )}
-      {avatar.nowEdit && Boolean(avatar.src) && (
+      {avatar?.nowEdit && Boolean(avatar?.src) && (
         <FlexRow justifyContent="start">
           <Box>
             <FlexRow>
@@ -372,7 +377,7 @@ const ProfilePage = () => {
         </FlexRow>
       )}
       <FlexRow justifyContent="start" marginTop={3}>
-        {bg.input && (
+        {bg?.input && (
           <input
             accept="image/*"
             id="input-bg"
@@ -388,7 +393,7 @@ const ProfilePage = () => {
           </Button>
         </label>
       </FlexRow>
-      {!bg.nowEdit && (Boolean(bg.src) || Boolean(profile.bgImg)) && (
+      {!bg?.nowEdit && (Boolean(bg?.src) || Boolean(profile?.bgImg)) && (
         <FlexRow justifyContent="start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -401,7 +406,7 @@ const ProfilePage = () => {
           />
         </FlexRow>
       )}
-      {bg.nowEdit && Boolean(bg.src) && (
+      {bg?.nowEdit && Boolean(bg?.src) && (
         <FlexRow justifyContent="start">
           <Box>
             <FlexRow>
@@ -523,7 +528,7 @@ const ProfilePage = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  error={!!profile.url && !regURL.test(profile.url)}
+                  error={!!profile?.url && !regURL.test(profile?.url)}
                   label="URL"
                   onChange={(event) =>
                     handleUpdateProfile("url", event.target.value)

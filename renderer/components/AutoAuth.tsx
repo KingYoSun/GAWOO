@@ -60,7 +60,7 @@ const AutoAuth = ({ children }: Props) => {
       })();
     }
 
-    if (account?.isConnected() && !profile.name) {
+    if (account?.isConnected() && !profile?.name) {
       (async () => {
         dispatchLoading({ type: "add", payload: loadingMsg });
         await getProfile();
@@ -81,7 +81,7 @@ const AutoAuth = ({ children }: Props) => {
   }, [profile?.image?.original.src]);
 
   useEffect(() => {
-    if (Boolean(profile?.image?.original.src)) {
+    if (Boolean(profile?.background?.original.src)) {
       console.log("fetch background!");
       (async () => {
         const newBgImg = await fetchImage("background");

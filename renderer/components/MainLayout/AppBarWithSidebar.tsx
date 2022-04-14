@@ -40,7 +40,14 @@ const AppBarWithSidebar = ({
           }}
         />
         <MainContainer maxWidth="md">
-          <Grid container spacing={3}>
+          <Grid
+            container
+            spacing={3}
+            sx={{
+              paddingRight: 0,
+              paddingLeft: 0,
+            }}
+          >
             {children}
           </Grid>
         </MainContainer>
