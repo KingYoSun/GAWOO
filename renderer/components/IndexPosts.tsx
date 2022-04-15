@@ -12,6 +12,8 @@ type IndexPostsProps = {
   reloadCount?: number;
 };
 
+type IndexPostsDirection = "new" | "old";
+
 const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
   const { indexId, dispatchIndexId } = useContext(IndexIdContext);
   const [hasMore, setHasMore] = useState(true);
@@ -19,7 +21,7 @@ const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
   const [upperNextId, setUpperNextId] = useState(null);
   const [lowerNextId, setLowerNextId] = useState(null);
   const [firstLoad, setFirstLoad] = useState(true);
-  const [direction, setDirection] = useState<"new" | "old">("old");
+  const [direction, setDirection] = useState<IndexPostsDirection>("old");
 
   const reducer = (state: Array<Post>, action) => {
     const stateCids = state.map((item) => item.cid);
@@ -68,24 +70,25 @@ const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
   };
 
   useEffect(() => {
+    if (posts.length > 0) return;
     if (Boolean(indexId)) {
       setUpperNextId(indexId);
       setCanLoadNew(true);
     }
     getIndexPosts();
     setFirstLoad(false);
-  }, []);
+  }, [posts]);
 
   useEffect(() => {
     if (direction === "new") getIndexPosts();
   }, [direction]);
 
   const handleReload = () => {
-    dispatchIndexId({ type: "reset" });
     setUpperNextId(null);
     setLowerNextId(null);
     setDirection("old");
-    getIndexPosts();
+    dispatchIndexId({ type: "reset" });
+    dispatchPosts({ type: "reset" });
   };
 
   useEffect(() => {

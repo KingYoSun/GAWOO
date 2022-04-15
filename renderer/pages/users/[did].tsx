@@ -17,7 +17,7 @@ const UserPage = () => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const [userProfile, setUserProfile] = useState<BasicProfile>(null);
   const [reloadCount, setReloadCount] = useState(0);
-  const [userAvatar, serUserAvatar] = useState(null);
+  const [userAvatar, setUserAvatar] = useState(null);
   const [userBgImg, setUserBgImg] = useState(null);
 
   const fetchImage = async (key) => {
@@ -57,8 +57,9 @@ const UserPage = () => {
           (async () => {
             if (Boolean(image?.original.src) && !Boolean(userProfile?.avatar)) {
               const newAvatarImg = await fetchImage("image");
-              serUserAvatar(newAvatarImg);
+              setUserAvatar(newAvatarImg);
             }
+            if (Boolean(userProfile?.avatar)) setUserAvatar(userProfile.avatar);
           })(),
           (async () => {
             if (
@@ -68,6 +69,7 @@ const UserPage = () => {
               const newBgImg = await fetchImage("background");
               setUserBgImg(newBgImg);
             }
+            if (Boolean(userProfile?.bgImg)) setUserBgImg(userProfile.bgImg);
           })(),
         ]);
       })();
