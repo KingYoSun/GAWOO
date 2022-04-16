@@ -1,11 +1,11 @@
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { ProfileContext } from "../../context/ProfileContext";
 import { BasicProfile, ImageSources } from "../../types/general";
 import IndexPosts from "../../components/IndexPosts";
 import { FlexRow } from "../../components/Flex";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { Core } from "@self.id/core";
 import { CERAMIC_NETWORK } from "../../constants/identity";
 import { AvatarIcon } from "../../components/AvatarIcon";
@@ -19,6 +19,8 @@ const UserPage = () => {
   const [reloadCount, setReloadCount] = useState(0);
   const [userAvatar, setUserAvatar] = useState(null);
   const [userBgImg, setUserBgImg] = useState(null);
+  const refProfileBody = useRef(null);
+  const [profileHeight, setProfileHeight] = useState(null);
 
   const fetchImage = async (key) => {
     const res = await window.ipfs.catImage(
@@ -75,6 +77,13 @@ const UserPage = () => {
       })();
   }, [userProfile]);
 
+  useEffect(() => {
+    const height = Boolean(refProfileBody?.current?.clientHeight)
+      ? `${refProfileBody?.current?.clientHeight + 35}px`
+      : "200px";
+    setProfileHeight(height);
+  }, [refProfileBody]);
+
   return (
     <Box
       sx={{
@@ -88,7 +97,7 @@ const UserPage = () => {
           flexWrap: "wrap",
           position: "relative",
           width: "100%",
-          minHeight: "150px",
+          minHeight: profileHeight ?? "200px",
           zIndex: 0,
         }}
       >
@@ -107,7 +116,7 @@ const UserPage = () => {
               alt="background"
               style={{
                 width: "100%",
-                height: "150px",
+                height: profileHeight ?? "200px",
                 objectFit: "cover",
                 zIndex: 0,
               }}
@@ -135,6 +144,7 @@ const UserPage = () => {
               left: "11%",
               zIndex: 2,
             }}
+            ref={refProfileBody}
           >
             <FlexRow justifyContent="start">
               <AvatarIcon src={userAvatar} size={60} />
@@ -157,6 +167,14 @@ const UserPage = () => {
               <Typography sx={{ fontSize: "15px", zIndex: 2 }}>
                 {userProfile?.description}
               </Typography>
+            </FlexRow>
+            <FlexRow justifyContent="start">
+              <Button
+                variant="contained"
+                onClick={() => router.push("/profile")}
+              >
+                <Typography>プロフィール編集</Typography>
+              </Button>
             </FlexRow>
           </div>
         )}

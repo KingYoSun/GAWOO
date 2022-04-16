@@ -29,6 +29,7 @@ import { AvatarIcon } from "../../components/AvatarIcon";
 import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import { LoadingContext } from "../../context/LoadingContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 
 interface SideBarProps {
   open: boolean;
@@ -326,6 +327,41 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             </ListItem>
           </Link>
         ))}
+        <Link href={`/users/${account?.selfId?.id}`}>
+          <ListItem
+            button
+            selected={MENU_LIST_ITEMS.length == selectedIndex}
+            onClick={() => setSelectedIndex(MENU_LIST_ITEMS.length)}
+            sx={{
+              backgroundColor: (theme) => theme.palette.primary.main,
+              "&.Mui-selected": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                color: (theme) =>
+                  MENU_LIST_ITEMS.length === selectedIndex
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+              }}
+            >
+              <AccountBoxIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="PROFILE"
+              primaryTypographyProps={{ variant: "subtitle1" }}
+              sx={{
+                color: (theme) =>
+                  MENU_LIST_ITEMS.length === selectedIndex
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+                primary: (theme) => ({ ...theme.typography.h6 }),
+              }}
+            />
+          </ListItem>
+        </Link>
       </List>
       <Divider />
       {router.pathname !== "/" && (
