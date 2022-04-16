@@ -51,6 +51,7 @@
     "react-hook-form": "^7.29.0",
     "react-image-crop": "^10.0.0",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-loading-skeleton": "^3.1.0",
     "web3": "^1.7.3",
     "winston": "^3.7.2"
   },

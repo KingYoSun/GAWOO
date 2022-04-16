@@ -9,6 +9,8 @@ import { Box, Button, Typography } from "@mui/material";
 import { Core } from "@self.id/core";
 import { CERAMIC_NETWORK } from "../../constants/identity";
 import { AvatarIcon } from "../../components/AvatarIcon";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const UserPage = () => {
   const router = useRouter();
@@ -21,6 +23,7 @@ const UserPage = () => {
   const [userBgImg, setUserBgImg] = useState(null);
   const refProfileBody = useRef(null);
   const [profileHeight, setProfileHeight] = useState(null);
+  const [isMyProfile, setIsMyProfile] = useState(false);
 
   const fetchImage = async (key) => {
     const res = await window.ipfs.catImage(
@@ -33,7 +36,10 @@ const UserPage = () => {
 
   useEffect(() => {
     if (!account?.isConnected()) return;
-    if (did === account?.selfId?.id) setUserProfile(profile);
+    if (did === account?.selfId?.id) {
+      setUserProfile(profile);
+      setIsMyProfile(true);
+    }
     if (did !== account?.selfId?.id) {
       (async () => {
         console.log("get user profile!");
@@ -78,11 +84,11 @@ const UserPage = () => {
   }, [userProfile]);
 
   useEffect(() => {
-    const height = Boolean(refProfileBody?.current?.clientHeight)
-      ? `${refProfileBody?.current?.clientHeight + 35}px`
-      : "200px";
+    const height = Boolean(refProfileBody?.current)
+      ? `${refProfileBody.current.clientHeight + 35}px`
+      : "180px";
     setProfileHeight(height);
-  }, [refProfileBody]);
+  }, [refProfileBody?.current]);
 
   return (
     <Box
@@ -97,10 +103,24 @@ const UserPage = () => {
           flexWrap: "wrap",
           position: "relative",
           width: "100%",
-          minHeight: profileHeight ?? "200px",
+          minHeight: profileHeight ?? "180px",
           zIndex: 0,
         }}
       >
+        {!Boolean(userBgImg) && (
+          <Skeleton
+            width="100%"
+            height="180px"
+            duration={1}
+            baseColor="#e0e0e0"
+            style={{
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              zIndex: 3,
+            }}
+          />
+        )}
         {Boolean(userBgImg) && (
           <div
             style={{
@@ -168,14 +188,16 @@ const UserPage = () => {
                 {userProfile?.description}
               </Typography>
             </FlexRow>
-            <FlexRow justifyContent="start">
-              <Button
-                variant="contained"
-                onClick={() => router.push("/profile")}
-              >
-                <Typography>プロフィール編集</Typography>
-              </Button>
-            </FlexRow>
+            {Boolean(isMyProfile) && (
+              <FlexRow justifyContent="start">
+                <Button
+                  variant="contained"
+                  onClick={() => router.push("/profile")}
+                >
+                  <Typography>プロフィール編集</Typography>
+                </Button>
+              </FlexRow>
+            )}
           </div>
         )}
       </Box>
