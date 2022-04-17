@@ -4,13 +4,11 @@ import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
 import InputPost from "../components/input/Post";
 import { ProfileContext } from "../context/ProfileContext";
-import { ErrorDialogContext } from "../context/ErrorDialogContext";
 import IndexPosts from "../components/IndexPosts";
 
 const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
-  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
   const [reloadCount, setReloadCount] = useState(0);
 
   const onAccountConnect = async () => {
@@ -35,6 +33,7 @@ const IndexPage = () => {
       type: "test",
       content: "test notice",
       url: null,
+      createdAt: new Date().getTime(),
     });
     console.log("added notice!");
   };

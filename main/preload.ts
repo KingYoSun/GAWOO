@@ -1,6 +1,7 @@
 import { Notice, Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
 import {
+  IIndexNotices,
   IIndexPosts,
   IpfsFile,
   IPostPage,
@@ -54,6 +55,12 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("addedNotice", (event, argv) => callback(event, argv)),
   addNotice: (props: Notice) => {
     ipcRenderer.send("addNotice", props);
+  },
+  indexNotice: async (props: IIndexNotices) => {
+    return await ipcRenderer.invoke("indexNotice", props);
+  },
+  getLatestNoticeId: async (did: string) => {
+    return await ipcRenderer.invoke("getLatestNoticeId", did);
   },
 });
 

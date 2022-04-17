@@ -33,6 +33,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { NoticeCountContext } from "../../context/NoticeCountContext";
+import AppsIcon from "@mui/icons-material/Apps";
 
 interface SideBarProps {
   open: boolean;
@@ -55,14 +56,29 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
   const handleAvatarMenuClose = () => {
     setAvatarMenuAnchor(null);
   };
-
   const router = useRouter();
-  const initialSelection = MENU_LIST_ITEMS.findIndex(
-    (el) => el.route === router.pathname
-  );
-  const [selectedIndex, setSelectedIndex] = useState(
-    initialSelection !== -1 ? initialSelection : 0
-  );
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialSelection = () => {
+    let index = MENU_LIST_ITEMS.findIndex((el) => el.route === router.pathname);
+    if (index !== -1) {
+      setSelectedIndex(index + 2);
+      return;
+    }
+    switch (router.pathname) {
+      case "/notices":
+        index = 1;
+        break;
+      case "/profile":
+        index = 2;
+        break;
+      case "/users/[did]":
+        index = 2;
+        break;
+      default:
+        index = 0;
+    }
+    setSelectedIndex(index);
+  };
 
   const openMixin = (theme) => ({
     width: drawerWidth,
@@ -83,6 +99,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
   useEffect(() => {
     let arrAccount = JSON.parse(localStorage.getItem("accounts"));
     setAccounts(arrAccount ?? []);
+    initialSelection();
   }, []);
 
   const storeWalletConnect = () => {
@@ -288,8 +305,8 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
         <Link href="/">
           <ListItem
             button
-            selected={selectedIndex === -1}
-            onClick={() => setSelectedIndex(-1)}
+            selected={selectedIndex === 0}
+            onClick={() => setSelectedIndex(0)}
             sx={{
               backgroundColor: (theme) => theme.palette.primary.main,
               "&.Mui-selected": {
@@ -300,7 +317,42 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             <ListItemIcon
               sx={{
                 color: (theme) =>
-                  selectedIndex === -1
+                  selectedIndex == 0
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+              }}
+            >
+              <AppsIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="HOME"
+              primaryTypographyProps={{ variant: "subtitle1" }}
+              sx={{
+                color: (theme) =>
+                  selectedIndex === 0
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+                primary: (theme) => ({ ...theme.typography.h6 }),
+              }}
+            />
+          </ListItem>
+        </Link>
+        <Link href="/notices">
+          <ListItem
+            button
+            selected={selectedIndex === 1}
+            onClick={() => setSelectedIndex(1)}
+            sx={{
+              backgroundColor: (theme) => theme.palette.primary.main,
+              "&.Mui-selected": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                color: (theme) =>
+                  selectedIndex === 1
                     ? theme.palette.primary.contrastText
                     : theme.palette.primary.light,
               }}
@@ -314,7 +366,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
               primaryTypographyProps={{ variant: "subtitle1" }}
               sx={{
                 color: (theme) =>
-                  selectedIndex === -1
+                  selectedIndex === 1
                     ? theme.palette.primary.contrastText
                     : theme.palette.primary.light,
                 primary: (theme) => ({ ...theme.typography.h6 }),
@@ -322,49 +374,11 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             />
           </ListItem>
         </Link>
-        {MENU_LIST_ITEMS.map(({ route, Icon, name }, id) => (
-          // eslint-disable-next-line @next/next/link-passhref
-          <Link href={route} key={id}>
-            <ListItem
-              button
-              selected={id === selectedIndex}
-              onClick={() => setSelectedIndex(id)}
-              sx={{
-                backgroundColor: (theme) => theme.palette.primary.main,
-                "&.Mui-selected": {
-                  backgroundColor: (theme) => theme.palette.primary.light,
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: (theme) =>
-                    id === selectedIndex
-                      ? theme.palette.primary.contrastText
-                      : theme.palette.primary.light,
-                }}
-              >
-                <Icon />
-              </ListItemIcon>
-              <ListItemText
-                primary={name}
-                primaryTypographyProps={{ variant: "subtitle1" }}
-                sx={{
-                  color: (theme) =>
-                    id === selectedIndex
-                      ? theme.palette.primary.contrastText
-                      : theme.palette.primary.light,
-                  primary: (theme) => ({ ...theme.typography.h6 }),
-                }}
-              />
-            </ListItem>
-          </Link>
-        ))}
         <Link href={`/users/${account?.selfId?.id}`}>
           <ListItem
             button
-            selected={MENU_LIST_ITEMS.length == selectedIndex}
-            onClick={() => setSelectedIndex(MENU_LIST_ITEMS.length)}
+            selected={selectedIndex === 2}
+            onClick={() => setSelectedIndex(2)}
             sx={{
               backgroundColor: (theme) => theme.palette.primary.main,
               "&.Mui-selected": {
@@ -375,7 +389,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             <ListItemIcon
               sx={{
                 color: (theme) =>
-                  MENU_LIST_ITEMS.length === selectedIndex
+                  selectedIndex === 2
                     ? theme.palette.primary.contrastText
                     : theme.palette.primary.light,
               }}
@@ -387,7 +401,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
               primaryTypographyProps={{ variant: "subtitle1" }}
               sx={{
                 color: (theme) =>
-                  MENU_LIST_ITEMS.length === selectedIndex
+                  selectedIndex === 2
                     ? theme.palette.primary.contrastText
                     : theme.palette.primary.light,
                 primary: (theme) => ({ ...theme.typography.h6 }),
@@ -395,6 +409,44 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
             />
           </ListItem>
         </Link>
+        {MENU_LIST_ITEMS.map(({ route, Icon, name }, id) => (
+          // eslint-disable-next-line @next/next/link-passhref
+          <Link href={route} key={id + 3}>
+            <ListItem
+              button
+              selected={id + 3 === selectedIndex}
+              onClick={() => setSelectedIndex(id + 3)}
+              sx={{
+                backgroundColor: (theme) => theme.palette.primary.main,
+                "&.Mui-selected": {
+                  backgroundColor: (theme) => theme.palette.primary.light,
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  color: (theme) =>
+                    id + 3 === selectedIndex
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.primary.light,
+                }}
+              >
+                <Icon />
+              </ListItemIcon>
+              <ListItemText
+                primary={name}
+                primaryTypographyProps={{ variant: "subtitle1" }}
+                sx={{
+                  color: (theme) =>
+                    id + 3 === selectedIndex
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.primary.light,
+                  primary: (theme) => ({ ...theme.typography.h6 }),
+                }}
+              />
+            </ListItem>
+          </Link>
+        ))}
       </List>
       <Divider />
       {router.pathname !== "/" && (

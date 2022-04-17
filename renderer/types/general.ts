@@ -73,3 +73,10 @@ export interface IPostPage {
   take: number;
   cursorId?: number;
 }
+
+export interface IIndexNotices {
+  did: string;
+  take?: number;
+  cursorId?: number;
+  direction: "new" | "old";
+}

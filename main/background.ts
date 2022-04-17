@@ -20,6 +20,7 @@ import {
   TFile,
   IIndexPosts,
   IPostPage,
+  IIndexNotices,
 } from "../renderer/types/general";
 import fs from "fs-extra";
 import { join, extname } from "path";
@@ -400,6 +401,47 @@ ipcMain.on("addNotice", async (event: IpcMainEvent, props: Notice) => {
     message: "notice added",
   });
 });
+
+ipcMain.handle(
+  "indexNotice",
+  async (event: IpcMainEvent, props: IIndexNotices) => {
+    try {
+      const query = {};
+      if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
+      const res = await prisma.notice.findMany({
+        where: { did: props.did },
+        orderBy: { id: props.direction === "new" ? "asc" : "desc" },
+        take: props.take ?? 20,
+        ...query,
+      });
+      await prisma.notice.updateMany({
+        where: { id: { in: res.map((item) => item.id) } },
+        data: { read: true },
+      });
+      ctx.mainWindow.webContents.send("addedNotice", {
+        message: "notice added",
+      });
+      return {
+        notices: res,
+        nextId: res[res.length - 1]?.id + (props.direction === "new" ? 1 : -1),
+      };
+    } catch (e) {
+      return e.toString();
+    }
+  }
+);
+
+ipcMain.handle(
+  "getLatestNoticeId",
+  async (event: IpcMainEvent, did: string) => {
+    const latestNotice = await prisma.notice.findFirst({
+      where: { did: did },
+      orderBy: { id: "desc" },
+    });
+
+    return latestNotice?.id;
+  }
+);
 
 ipcMain.handle(
   "imageToIpfs",

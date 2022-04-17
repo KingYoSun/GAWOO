@@ -42,10 +42,11 @@ model Follow {
 }
 
 model Notice {
-  id      Int @id @default(autoincrement())
-  read    Boolean @default(false)
-  did     String?
-  type    String?
-  content String?
-  url     String?
+  id        Int @id @default(autoincrement())
+  read      Boolean @default(false)
+  did       String?
+  type      String?
+  content   String?
+  url       String?
+  createdAt Int?
 }

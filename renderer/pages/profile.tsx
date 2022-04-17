@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { BasicProfile, ImageSources } from "../types/general";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { Button, TextField, Box, Avatar } from "@mui/material";
+import { Button, TextField, Box, Avatar, Typography } from "@mui/material";
 import { FlexRow } from "../components/Flex";
 import DateAdapter from "@mui/lab/AdapterDateFns";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
@@ -279,7 +279,7 @@ const ProfilePage = () => {
   return (
     <>
       <FlexRow justifyContent="start">
-        <h1>プロフィール編集</h1>
+        <Typography variant="h4">プロフィール編集</Typography>
         <Button onClick={showAccount} sx={{ marginLeft: 1 }}>
           アカウント確認
         </Button>
