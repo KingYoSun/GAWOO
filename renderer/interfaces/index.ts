@@ -1,4 +1,4 @@
-import { Post, User } from "@prisma/client";
+import { Notice, Post, User } from "@prisma/client";
 import {
   IIndexPosts,
   IpfsFile,
@@ -37,6 +37,9 @@ interface IElectron {
     addPosts: Array<Post>;
     nextId: number;
   };
+  countUnreadNotice: (did: string) => number;
+  addedNotice: (callback: () => void) => void;
+  addNotice: (props: Notice) => void;
 }
 
 interface IIpfs {

@@ -12,6 +12,7 @@ import LoadingContextProvider from "../context/LoadingContext";
 import SetupContextProvider from "../context/SetupContext";
 import ErrorDialogContextProvider from "../context/ErrorDialogContext";
 import IndexIdContextProvider from "../context/IndexIdContext";
+import NoticeCountContextProvider from "../context/NoticeCountContext";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
@@ -30,19 +31,21 @@ const App = ({ Component, pageProps }: AppProps) => {
         <ProfileContextProvider>
           <LoadingContextProvider>
             <ErrorDialogContextProvider>
-              <IndexIdContextProvider>
-                <SafeHydrate>
-                  <AutoAuth>
-                    <Subscribe>
-                      <LoadingOverlay>
-                        <Layout>
-                          <Component {...pageProps} />
-                        </Layout>
-                      </LoadingOverlay>
-                    </Subscribe>
-                  </AutoAuth>
-                </SafeHydrate>
-              </IndexIdContextProvider>
+              <NoticeCountContextProvider>
+                <IndexIdContextProvider>
+                  <SafeHydrate>
+                    <AutoAuth>
+                      <Subscribe>
+                        <LoadingOverlay>
+                          <Layout>
+                            <Component {...pageProps} />
+                          </Layout>
+                        </LoadingOverlay>
+                      </Subscribe>
+                    </AutoAuth>
+                  </SafeHydrate>
+                </IndexIdContextProvider>
+              </NoticeCountContextProvider>
             </ErrorDialogContextProvider>
           </LoadingContextProvider>
         </ProfileContextProvider>

@@ -12,7 +12,7 @@ import addToIpfs, { addImage } from "./add-to-ipfs";
 import i18n from "i18next";
 import { Controller } from "ipfsd-ctl";
 import toBuffer from "it-to-buffer";
-import { Post, PrismaClient, User } from "@prisma/client";
+import { Notice, Post, PrismaClient, User } from "@prisma/client";
 import downloadCid from "./download-cid";
 import {
   IpfsFile,
@@ -381,6 +381,25 @@ ipcMain.handle(
     return { addPosts, nextId };
   }
 );
+
+ipcMain.handle(
+  "countUnreadNotice",
+  async (event: IpcMainEvent, did: string) => {
+    const count = await prisma.notice.count({
+      where: { did: did, read: false },
+    });
+
+    return count ?? 0;
+  }
+);
+
+ipcMain.on("addNotice", async (event: IpcMainEvent, props: Notice) => {
+  delete props.id;
+  await prisma.notice.create({ data: props });
+  ctx.mainWindow.webContents.send("addedNotice", {
+    message: "notice added",
+  });
+});
 
 ipcMain.handle(
   "imageToIpfs",

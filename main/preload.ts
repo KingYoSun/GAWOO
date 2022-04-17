@@ -1,4 +1,4 @@
-import { Post, User } from "@prisma/client";
+import { Notice, Post, User } from "@prisma/client";
 import { ipcRenderer, contextBridge } from "electron";
 import {
   IIndexPosts,
@@ -46,6 +46,14 @@ contextBridge.exposeInMainWorld("electron", {
   },
   countReply: async (cid: string) => {
     return await ipcRenderer.invoke("countReply", cid);
+  },
+  countUnreadNotice: async (did: string) => {
+    return await ipcRenderer.invoke("countUnreadNotice", did);
+  },
+  addedNotice: (callback) =>
+    ipcRenderer.on("addedNotice", (event, argv) => callback(event, argv)),
+  addNotice: (props: Notice) => {
+    ipcRenderer.send("addNotice", props);
   },
 });
 

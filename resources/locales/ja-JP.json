@@ -37,7 +37,7 @@
   "cancel": "キャンセル",
   "enable": "有効",
   "reportTheError": "エラーを報告する",
-  "restartIpfsDesktop": "IPFSデスクトップを再起動する",
+  "restartgawoo": "GAWOOを再起動する",
   "openLogs": "ログを開く",
   "takeScreenshot": "スクリーンショットを撮ります",
   "downloadCid": "ダウンロード...",
@@ -62,19 +62,19 @@
   },
   "recoverableErrorDialog": {
     "title": "エラーが発生しました",
-    "message": "エラーが発生しましたが、IPFS Desktopの実行には影響ありません。自分でログを調べるか、開発者にエラーを報告することができます。"
+    "message": "エラーが発生しましたが、GAWOOの実行には影響ありません。自分でログを調べるか、開発者にエラーを報告することができます。"
   },
   "cannotConnectToApiDialog": {
     "title": "APIに接続できません",
-    "message": "IPFSデスクトップは、提供されたAPIアドレス  { addr } に接続できません。"
+    "message": "GAWOOは、提供されたAPIアドレス  { addr } に接続できません。"
   },
-  "ipfsDesktopHasShutdownDialog": {
-    "title": "IPFSデスクトップがシャットダウンしました",
-    "message": "エラーが原因でIPFSデスクトップがシャットダウンしました。 GitHubアカウントが必要なアプリを再起動するか、開発者にエラーを報告できます。"
+  "gawooHasShutdownDialog": {
+    "title": "GAWOOがシャットダウンしました",
+    "message": "エラーが原因でGAWOOがシャットダウンしました。 GitHubアカウントが必要なアプリを再起動するか、開発者にエラーを報告できます。"
   },
   "moveRepositoryWarnDialog": {
     "title": "リポジトリを移動する",
-    "message": "リポジトリがメインドライブのスペースを使いすぎている場合は、他の場所に移動できます。 IPFSデスクトップが正しく機能するためには、新しい場所が常に利用可能でなければならないことに注意してください。",
+    "message": "リポジトリがメインドライブのスペースを使いすぎている場合は、他の場所に移動できます。 GAWOOが正しく機能するためには、新しい場所が常に利用可能でなければならないことに注意してください。",
     "action": "ノードを移動して再起動する"
   },
   "moveRepositorySuccessDialog": {
@@ -118,25 +118,25 @@
   },
   "updateAvailableDialog": {
     "title": "更新可能",
-    "message": "新しいバージョン ({ version }) の IPFS Desktop が利用可能です。バックグラウンドでダウンロードが開始します。"
+    "message": "新しいバージョン ({ version }) の GAWOO が利用可能です。バックグラウンドでダウンロードが開始します。"
   },
   "updateNotAvailableDialog": {
     "title": "更新は利用できません",
-    "message": "最新の IPFS Desktop ({ version }) を使用しています。"
+    "message": "最新の GAWOO ({ version }) を使用しています。"
   },
   "updateErrorDialog": {
     "title": "更新をダウンロードできませんでした",
     "message": "更新に失敗しました。インターネット接続を確認して、もう一度お試しください。"
   },
   "updateDownloadedDialog": {
-    "title": "IPFS Desktop Update",
-    "message": "An update to IPFS Desktop { version } is available. Would you like to install it now?",
+    "title": "GAWOO Update",
+    "message": "An update to GAWOO { version } is available. Would you like to install it now?",
     "later": "Later",
     "now": "Install now"
   },
   "updateDownloadedNotification": {
-    "title": "IPFS Desktop Update",
-    "message": "An update to IPFS Desktop { version } is available."
+    "title": "GAWOO Update",
+    "message": "An update to GAWOO { version } is available."
   },
   "runGarbageCollectorWarning": {
     "title": "ゴミコレクター",
@@ -187,11 +187,11 @@
   },
   "enableGlobalTakeScreenshotShortcut": {
     "title": "スクリーンショットショートカットを有効にする",
-    "message": "有効にすると、IPFSデスクトップは実行される限り\"{ accelerator }\"ショートカットはスクリーンショットを撮ることができます。"
+    "message": "有効にすると、GAWOOは実行される限り\"{ accelerator }\"ショートカットはスクリーンショットを撮ることができます。"
   },
   "enableGlobalDownloadShortcut": {
     "title": "ダウンロードのショートカットを有効",
-    "message": "有効にすると、IPFSデスクトップは実行される限り\"{ accelerator }\"ショートカットはファイルをダウンロードできます。"
+    "message": "有効にすると、GAWOOは実行される限り\"{ accelerator }\"ショートカットはファイルをダウンロードできます。"
   },
   "settings": {
     "settings": "設定",
@@ -210,7 +210,7 @@
   },
   "setCustomIpfsBinaryConfirmation": {
     "title": "カスタム IPFS バイナリ",
-    "message": "カスタムIPFSを設定すると、IPFSデスクトップは同梱IPFSバージョンを使わず選択されるバイナリを使用します。よろしいですか？"
+    "message": "カスタムIPFSを設定すると、GAWOOは同梱IPFSバージョンを使わず選択されるバイナリを使用します。よろしいですか？"
   },
   "setCustomIpfsBinarySuccess": {
     "title": "カスタム IPFS バイナリ",
@@ -221,18 +221,18 @@
     "message": "カスタムIPFSバイナリは除去されました。同梱IPFSバージョンを使用し始めるのに、IPFSを再起動する必要があります。"
   },
   "unresponsiveWindowDialog": {
-    "title": "IPFS Desktop became unresponsive",
+    "title": "GAWOO became unresponsive",
     "message": "Ongoing operation is taking more resources than expected. Do you wish to abort, and forcefully reload the interface?",
     "forceReload": "Yes, reload",
     "doNothing": "Do nothing"
   },
   "migrationDialog": {
-    "title": "IPFS Desktop Migration",
-    "message": "One moment! IPFS Desktop needs to run the latest data store migrations:",
+    "title": "GAWOO Migration",
+    "message": "One moment! GAWOO needs to run the latest data store migrations:",
     "closeAndContinue": "Continue in the background"
   },
   "migrationFailedDialog": {
-    "title": "IPFS Desktop Migration Has Failed",
+    "title": "GAWOO Migration Has Failed",
     "message": "IPFS has encountered an error and migration could not be completed:"
   }
 }

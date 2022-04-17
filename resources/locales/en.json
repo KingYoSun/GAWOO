@@ -37,7 +37,7 @@
   "cancel": "Cancel",
   "enable": "Enable",
   "reportTheError": "Report the error",
-  "restartIpfsDesktop": "Restart IPFS Desktop",
+  "restartgawoo": "Restart GAWOO",
   "openLogs": "Open logs",
   "takeScreenshot": "Take Screenshot",
   "downloadCid": "Download…",
@@ -62,19 +62,19 @@
   },
   "recoverableErrorDialog": {
     "title": "An error has occurred",
-    "message": "An error occurred but it does not prevent the execution of IPFS Desktop. You can either inspect the logs for yourself or report the error to the developers."
+    "message": "An error occurred but it does not prevent the execution of GAWOO. You can either inspect the logs for yourself or report the error to the developers."
   },
   "cannotConnectToApiDialog": {
     "title": "Cannot connect to API",
-    "message": "IPFS Desktop cannot connect to the API address provided: { addr }."
+    "message": "GAWOO cannot connect to the API address provided: { addr }."
   },
-  "ipfsDesktopHasShutdownDialog": {
-    "title": "IPFS Desktop has shutdown",
-    "message": "IPFS Desktop has shutdown because of an error. You can restart the app or report the error to the developers, which requires a GitHub account."
+  "gawooHasShutdownDialog": {
+    "title": "GAWOO has shutdown",
+    "message": "GAWOO has shutdown because of an error. You can restart the app or report the error to the developers, which requires a GitHub account."
   },
   "moveRepositoryWarnDialog": {
     "title": "Move repository",
-    "message": "If your repository is taking too much space on your main drive, you can move it to some other location. Bear in mind that the new location must always be available in order for IPFS Desktop to work correctly.",
+    "message": "If your repository is taking too much space on your main drive, you can move it to some other location. Bear in mind that the new location must always be available in order for GAWOO to work correctly.",
     "action": "Move and restart node"
   },
   "moveRepositorySuccessDialog": {
@@ -118,25 +118,25 @@
   },
   "updateAvailableDialog": {
     "title": "Update available",
-    "message": "A new version ({ version }) of IPFS Desktop is available. The download will begin shortly in the background."
+    "message": "A new version ({ version }) of GAWOO is available. The download will begin shortly in the background."
   },
   "updateNotAvailableDialog": {
     "title": "Update not available",
-    "message": "You are on the latest version of IPFS Desktop ({ version })."
+    "message": "You are on the latest version of GAWOO ({ version })."
   },
   "updateErrorDialog": {
     "title": "Could not download update",
     "message": "It was not possible to download the update. Please check your Internet connection and try again."
   },
   "updateDownloadedDialog": {
-    "title": "IPFS Desktop Update",
-    "message": "An update to IPFS Desktop { version } is available. Would you like to install it now?",
+    "title": "GAWOO Update",
+    "message": "An update to GAWOO { version } is available. Would you like to install it now?",
     "later": "Later",
     "now": "Install now"
   },
   "updateDownloadedNotification": {
-    "title": "IPFS Desktop Update",
-    "message": "An update to IPFS Desktop { version } is available."
+    "title": "GAWOO Update",
+    "message": "An update to GAWOO { version } is available."
   },
   "runGarbageCollectorWarning": {
     "title": "Garbage collector",
@@ -187,11 +187,11 @@
   },
   "enableGlobalTakeScreenshotShortcut": {
     "title": "Enable screenshot shortcut",
-    "message": "By enabling this, the shortcut \"{ accelerator }\" will be available to take screenshots as long as IPFS Desktop is running."
+    "message": "By enabling this, the shortcut \"{ accelerator }\" will be available to take screenshots as long as GAWOO is running."
   },
   "enableGlobalDownloadShortcut": {
     "title": "Enable download shortcut",
-    "message": "By enabling this, the shortcut \"{ accelerator }\" will be available to download files as long as IPFS Desktop is running."
+    "message": "By enabling this, the shortcut \"{ accelerator }\" will be available to download files as long as GAWOO is running."
   },
   "settings": {
     "settings": "Settings",
@@ -210,29 +210,29 @@
   },
   "setCustomIpfsBinaryConfirmation": {
     "title": "Custom IPFS binary",
-    "message": "By setting a custom IPFS, IPFS Desktop will no longer use the bundled IPFS version and will use the binary you specify. Do you wish to proceed?"
+    "message": "By setting a custom IPFS, GAWOO will no longer use the bundled IPFS version and will use the binary you specify. Do you wish to proceed?"
   },
   "setCustomIpfsBinarySuccess": {
     "title": "Custom IPFS binary",
-    "message": "IPFS Desktop will start using the binary located at { path }. To start using it, IPFS needs to be restarted first."
+    "message": "GAWOO will start using the binary located at { path }. To start using it, IPFS needs to be restarted first."
   },
   "clearCustomIpfsBinarySuccess": {
     "title": "Clear custom IPFS binary",
     "message": "The custom IPFS binary was cleared. To start using the bundled IPFS version, IPFS needs to be restarted first."
   },
   "unresponsiveWindowDialog": {
-    "title": "IPFS Desktop became unresponsive",
+    "title": "GAWOO became unresponsive",
     "message": "Ongoing operation is taking more resources than expected. Do you wish to abort, and forcefully reload the interface?",
     "forceReload": "Yes, reload",
     "doNothing": "Do nothing"
   },
   "migrationDialog": {
-    "title": "IPFS Desktop Migration",
-    "message": "One moment! IPFS Desktop needs to run the latest data store migrations:",
+    "title": "GAWOO Migration",
+    "message": "One moment! GAWOO needs to run the latest data store migrations:",
     "closeAndContinue": "Continue in the background"
   },
   "migrationFailedDialog": {
-    "title": "IPFS Desktop Migration Has Failed",
+    "title": "GAWOO Migration Has Failed",
     "message": "IPFS has encountered an error and migration could not be completed:"
   }
 }

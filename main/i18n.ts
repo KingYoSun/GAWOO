@@ -18,7 +18,7 @@ const i18n = async () => {
         default: ["en"],
       },
       backend: {
-        loadPath: join(__dirname, "../assets/locales/{{lng}}.json"),
+        loadPath: join(__dirname, "../resources/locales/{{lng}}.json"),
       },
     });
 

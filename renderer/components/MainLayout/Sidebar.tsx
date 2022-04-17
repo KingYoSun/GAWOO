@@ -11,6 +11,7 @@ import {
   Tooltip,
   Menu,
   MenuItem,
+  Badge,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -30,6 +31,8 @@ import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import { LoadingContext } from "../../context/LoadingContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { NoticeCountContext } from "../../context/NoticeCountContext";
 
 interface SideBarProps {
   open: boolean;
@@ -44,6 +47,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
   const [accounts, setAccounts] = useState([]);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState(null);
   const avatarOpen = Boolean(avatarMenuAnchor);
+  const { noticeCount, dispatchNoticeCount } = useContext(NoticeCountContext);
 
   const handleAvatarIconButton = (event) => {
     setAvatarMenuAnchor(event.currentTarget);
@@ -75,14 +79,6 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
       duration: theme.transitions.duration.leavingScreen,
     }),
   });
-
-  const avatarIconStyle = {
-    width: 45,
-    height: 45,
-    marginRight: "15px",
-    marginTop: "3px",
-    marginBottom: "3px",
-  };
 
   useEffect(() => {
     let arrAccount = JSON.parse(localStorage.getItem("accounts"));
@@ -289,6 +285,43 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
       </Box>
       <Divider />
       <List sx={{ padding: 0 }}>
+        <Link href="/">
+          <ListItem
+            button
+            selected={selectedIndex === -1}
+            onClick={() => setSelectedIndex(-1)}
+            sx={{
+              backgroundColor: (theme) => theme.palette.primary.main,
+              "&.Mui-selected": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                color: (theme) =>
+                  selectedIndex === -1
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+              }}
+            >
+              <Badge badgeContent={noticeCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </ListItemIcon>
+            <ListItemText
+              primary="NOTICE"
+              primaryTypographyProps={{ variant: "subtitle1" }}
+              sx={{
+                color: (theme) =>
+                  selectedIndex === -1
+                    ? theme.palette.primary.contrastText
+                    : theme.palette.primary.light,
+                primary: (theme) => ({ ...theme.typography.h6 }),
+              }}
+            />
+          </ListItem>
+        </Link>
         {MENU_LIST_ITEMS.map(({ route, Icon, name }, id) => (
           // eslint-disable-next-line @next/next/link-passhref
           <Link href={route} key={id}>
@@ -368,7 +401,7 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
         <Box
           sx={{
             position: "absolute",
-            bottom: (theme) => theme.spacing(7),
+            bottom: (theme) => theme.spacing(13),
             left: "3px",
           }}
         >

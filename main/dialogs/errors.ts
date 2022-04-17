@@ -14,7 +14,7 @@ const issueTemplate = (
 ) => `👉️ Please describe what you were doing when this error happened.
 **Specifications**
 - **OS**: ${process.platform}
-- **IPFS Desktop Version**: ${app.getVersion()}
+- **GAWOO Version**: ${app.getVersion()}
 - **Electron Version**: ${process.versions.electron}
 - **Chrome Version**: ${process.versions.chrome}
 **Error**
@@ -35,14 +35,10 @@ function criticalErrorDialog(e) {
   hasErrored = true;
 
   const option = dialog({
-    title: i18n.t("ipfsDesktopHasShutdownDialog.title"),
-    message: i18n.t("ipfsDesktopHasShutdownDialog.message"),
+    title: i18n.t("gawooHasShutdownDialog.title"),
+    message: i18n.t("gawooHasShutdownDialog.message"),
     type: "error",
-    buttons: [
-      i18n.t("restartIpfsDesktop"),
-      i18n.t("close"),
-      i18n.t("reportTheError"),
-    ],
+    buttons: [i18n.t("restartGAWOO"), i18n.t("close")],
   });
 
   if (option === 0) {

@@ -43,8 +43,8 @@ $ yarn build (or `npm run build` or `pnpm run build`)
 
 ```
 # update ./prisma/schema.prisma
-$ npx prisma db push
 $ npx prisma migrate dev --name ***
+$ npx prisma db push
 ```
 
 - applly change of db schema

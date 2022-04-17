@@ -26,13 +26,17 @@ const IndexPage = () => {
     window.waku.sendMessage({ selfId: account.selfId.id, purpose: "follow" });
   };
 
-  const alertTest = () => {
-    console.log("alert test!");
-    dispatchErrorDialog({
-      type: "open",
-      payload: "test!",
+  const noticeTest = async () => {
+    console.log("add notice test!");
+    await window.electron.addNotice({
+      id: null,
+      read: false,
+      did: account?.selfId?.id,
+      type: "test",
+      content: "test notice",
+      url: null,
     });
-    console.log("error dialog!: ", errorDialog);
+    console.log("added notice!");
   };
 
   const sendShare = async () => {
@@ -60,7 +64,7 @@ const IndexPage = () => {
         <h1>Hello GAWOO! 👋</h1>
       </FlexRow>
       <FlexRow>
-        <Button onClick={alertTest}>Alertテスト</Button>
+        <Button onClick={noticeTest}>通知テスト</Button>
         <Button onClick={sendFollow}>Followテスト</Button>
         <Button onClick={sendShare}>Shareテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>

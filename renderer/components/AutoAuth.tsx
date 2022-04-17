@@ -5,6 +5,7 @@ import { ProfileContext } from "../context/ProfileContext";
 import { LoadingContext } from "../context/LoadingContext";
 import { SetupContext } from "../context/SetupContext";
 import { ErrorDialogContext } from "../context/ErrorDialogContext";
+import { NoticeCountContext } from "../context/NoticeCountContext";
 
 type Props = {
   children: ReactNode;
@@ -16,6 +17,7 @@ const AutoAuth = ({ children }: Props) => {
   const { loading, dispatchLoading } = useContext(LoadingContext);
   const { setup, dispatchSetup } = useContext(SetupContext);
   const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
+  const { noticeCount, dispatchNoticeCount } = useContext(NoticeCountContext);
 
   const getProfile = async () => {
     try {
@@ -37,6 +39,19 @@ const AutoAuth = ({ children }: Props) => {
     console.log(`fetched ${key}!`);
     return res;
   };
+
+  const countUnreadNotice = async (did) => {
+    const unreadNoticeCount = await window.electron.countUnreadNotice(did);
+    dispatchNoticeCount({ type: "set", payload: unreadNoticeCount });
+  };
+
+  useEffect(() => {
+    window.electron.addedNotice(() => {
+      if (Boolean(account?.selfId?.id)) {
+        countUnreadNotice(account.selfId.id);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!setup.ipfs) return;
@@ -92,6 +107,9 @@ const AutoAuth = ({ children }: Props) => {
   }, [profile?.background?.original.src]);
 
   useEffect(() => {
+    if (Boolean(account?.selfId?.id)) {
+      countUnreadNotice(account.selfId.id);
+    }
     if (
       Boolean(account?.selfId?.id) &&
       (Boolean(profile?.name) || Boolean(profile?.image?.original.src))
