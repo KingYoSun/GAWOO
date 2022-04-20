@@ -43,7 +43,7 @@
     "ipfsd-ctl": "^10.0.6",
     "it-to-buffer": "^2.0.2",
     "js-waku": "^0.20.0",
-    "key-did-resolver": "^1.4.4",
+    "key-did-resolver": "^2.0.0",
     "mime-types": "^2.1.35",
     "moment": "^2.29.3",
     "portfinder": "^1.0.28",
