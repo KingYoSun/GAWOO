@@ -39,7 +39,7 @@
     "i18next-icu": "^2.0.3",
     "ipfs-core": "^0.14.2",
     "ipfs-http-client": "^56.0.3",
-    "ipfs-unixfs-exporter": "^7.0.6",
+    "ipfs-unixfs-exporter": "^7.0.7",
     "ipfsd-ctl": "^10.0.6",
     "it-to-buffer": "^2.0.2",
     "js-waku": "^0.20.0",
