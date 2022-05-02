@@ -50,3 +50,9 @@ model Notice {
   url       String?
   createdAt Int?
 }
+
+model Subscribe {
+  id      Int @id @default(autoincrement())
+  channel String
+  type    String?
+}
