@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CardPost from "../../components/card/Post";
 import { FlexRow } from "../../components/Flex";
 import { Post } from "@prisma/client";
-import ReplyDialog from "../../components/modal/reply";
+import ReplyDialog from "../../components/modal/Reply";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 type extPost = Post & {

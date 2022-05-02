@@ -1,6 +1,6 @@
 import Web3Client from "./web3-client";
 import { EthereumAuthProvider, SelfID, WebClient } from "@self.id/web";
-import CeramicClient from "./ceramic-client";
+import Ceramic from "./ceramic-client";
 import { BasicProfile } from "../../types/general";
 import { DIDProvider } from "dids";
 import { Core } from "@self.id/core";
@@ -12,7 +12,7 @@ export default class AccountUtils {
   selfIdClient: WebClient;
   selfIdCore: Core;
   address: string;
-  ceramicClient: CeramicClient;
+  ceramicClient: Ceramic;
   basicProfile: BasicProfile;
   didProvider: DIDProvider;
   authenticated: boolean;
@@ -22,7 +22,7 @@ export default class AccountUtils {
     this.selfIdClient = null;
     this.selfIdCore = null;
 
-    this.ceramicClient = new CeramicClient();
+    this.ceramicClient = new Ceramic();
     this.web3 = new Web3Client();
     this.web3.setWalletConnectClient();
   }

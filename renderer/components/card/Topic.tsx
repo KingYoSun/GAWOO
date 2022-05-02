@@ -5,7 +5,7 @@ import { FlexRow } from "../Flex";
 import CardPost from "./Post";
 import { SetupContext } from "../../context/SetupContext";
 import { extname } from "path";
-import ReplyDialog from "../modal/reply";
+import ReplyDialog from "../modal/Reply";
 import { useRouter } from "next/router";
 
 interface CardTopicProps {

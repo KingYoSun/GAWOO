@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import Head from "next/head";
 
-import AppBarWithSidebar from "../../../gawoo/renderer/components/MainLayout";
+import AppBarWithSidebar from "../../renderer/components/MainLayout";
 import { ThemeContextProvider } from "../context/ThemeContext";
 
 type Props = {
