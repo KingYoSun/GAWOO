@@ -62,7 +62,7 @@
     "@types/node": "^17.0.31",
     "@types/react": "^18.0.8",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^28.0.2",
+    "babel-jest": "^28.1.0",
     "electron": "^18.2.0",
     "electron-builder": "^23.0.3",
     "eslint": "^8.14.0",
