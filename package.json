@@ -40,7 +40,7 @@
     "ipfs-core": "^0.14.3",
     "ipfs-http-client": "^56.0.3",
     "ipfs-unixfs-exporter": "^7.0.7",
-    "ipfsd-ctl": "^10.0.6",
+    "ipfsd-ctl": "^11.0.0",
     "it-to-buffer": "^2.0.2",
     "js-waku": "^0.20.0",
     "key-did-resolver": "^2.0.0",
