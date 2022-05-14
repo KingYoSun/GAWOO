@@ -14,7 +14,7 @@
   "dependencies": {
     "@ceramicnetwork/3id-did-resolver": "^2.0.0",
     "@ceramicnetwork/http-client": "^2.0.0",
-    "@date-io/moment": "^2.13.2",
+    "@date-io/moment": "^2.14.0",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@kingyosun/legacy-modal": "latest",
