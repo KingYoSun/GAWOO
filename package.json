@@ -12,7 +12,7 @@
     "lint": "next lint ./renderer || exit 0"
   },
   "dependencies": {
-    "@ceramicnetwork/3id-did-resolver": "^2.0.0",
+    "@ceramicnetwork/3id-did-resolver": "^2.0.4",
     "@ceramicnetwork/http-client": "^2.0.0",
     "@date-io/moment": "^2.14.0",
     "@emotion/react": "^11.9.0",
