@@ -23,7 +23,7 @@
     "@mui/material": "^5.8.1",
     "@mui/styles": "^5.8.0",
     "@prisma/client": "^3.14.0",
-    "@self.id/core": "^0.4.0",
+    "@self.id/core": "^0.4.1",
     "@self.id/web": "^0.4.0",
     "@walletconnect/client": "^1.7.7",
     "@walletconnect/web3-provider": "^1.7.8",
