@@ -11,8 +11,8 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "ipfs-http-client"
-      versions: ["57.x"]
+        versions: ["57.x"]
       - dependency-name: "ipfsd-ctl"
-      versions: ["11.x"]
+        versions: ["11.x"]
       - dependency-name: "protons"
-      versions: ["3.x"]
+        versions: ["3.x"]
