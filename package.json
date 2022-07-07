@@ -47,7 +47,7 @@
     "key-did-provider-ed25519": "^2.0.0",
     "key-did-resolver": "^2.0.5",
     "mime-types": "^2.1.35",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "portfinder": "^1.0.28",
     "protons": "^3.0.4",
     "react-dropzone": "^14.2.2",
