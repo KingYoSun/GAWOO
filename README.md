@@ -47,7 +47,7 @@ $ npx prisma migrate dev --name ***
 $ npx prisma db push
 ```
 
-- applly change of db schema
+- applly change of db schema in production
 
 ```
 $npx prisma migrate deploy --**name**

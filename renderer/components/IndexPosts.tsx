@@ -55,6 +55,10 @@ const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
       take: takePosts,
       direction: direction,
     });
+    if (!posts) {
+      setDirection("old");
+      return;
+    }
     if ((posts?.length ?? 0) < takePosts && direction === "old")
       setHasMore(false);
     if (direction === "new") {

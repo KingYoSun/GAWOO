@@ -163,7 +163,7 @@ const CardPost = ({
               ・
               {Boolean(post.publishedAt) &&
                 format(
-                  utcToZonedTime(post.publishedAt, "Asia/Tokyo"),
+                  utcToZonedTime(Number(post.publishedAt), "Asia/Tokyo"),
                   "yyyy-MM-dd HH:mm:ss"
                 )}
             </Typography>

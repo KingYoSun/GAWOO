@@ -33,7 +33,7 @@ const IndexPage = () => {
       type: "test",
       content: "test notice",
       url: null,
-      createdAt: new Date().getTime(),
+      createdAt: String(new Date().getTime()),
     });
     console.log("added notice!");
   };
@@ -45,7 +45,7 @@ const IndexPage = () => {
       post: {
         id: null,
         cid: "test_cid",
-        publishedAt: 1111111,
+        publishedAt: "1111111",
         authorDid: "test did",
         authorName: null,
         authorAvatar: null,

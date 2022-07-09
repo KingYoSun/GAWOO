@@ -11,7 +11,7 @@ model Post {
   id                Int @id @default(autoincrement())
   cid               String?
   content           String?
-  publishedAt       Int?
+  publishedAt       String?
   author            User?   @relation(fields: [authorDid], references: [did])
   authorName        String?
   authorAvatar      String?
@@ -48,7 +48,7 @@ model Notice {
   type      String?
   content   String?
   url       String?
-  createdAt Int?
+  createdAt String?
 }
 
 model Subscribe {

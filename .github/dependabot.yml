@@ -9,3 +9,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    ignote:
+      - dependency-name: "ipfsd-ctl"
+      - dependency-name: "ipfs-http-client"
+      - dependency-name: "protons"

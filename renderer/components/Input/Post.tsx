@@ -167,7 +167,7 @@ const InputPost = (props: InputPostProps) => {
   const onSubmit: SubmitHandler<Post> = async (data) => {
     setUpload(true);
     try {
-      data.publishedAt = new Date().getTime();
+      data.publishedAt = String(new Date().getTime());
       data.topicCid = props.topic?.cid ?? null;
       data.replyToCid = props.replyTo?.cid ?? null;
       console.log("post data!: ", data);

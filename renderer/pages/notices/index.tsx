@@ -58,6 +58,10 @@ const IndexNotices = () => {
       take: takeNotices,
       direction: direction,
     });
+    if (!notices) {
+      setDirection("old");
+      return;
+    }
     if ((notices?.length ?? 0) < takeNotices && direction === "old")
       setHasMore(false);
     if (direction === "new") {
@@ -98,7 +102,7 @@ const IndexNotices = () => {
       type: "test",
       content: "test notice by notice page",
       url: null,
-      createdAt: new Date().getTime(),
+      createdAt: String(new Date().getTime()),
     });
     console.log("added notice!");
   };
@@ -169,7 +173,10 @@ const IndexNotices = () => {
                       >
                         {Boolean(notice.createdAt) &&
                           format(
-                            utcToZonedTime(notice.createdAt, "Asia/Tokyo"),
+                            utcToZonedTime(
+                              Number(notice.createdAt),
+                              "Asia/Tokyo"
+                            ),
                             "yyyy-MM-dd HH:mm:ss"
                           )}
                       </Typography>
