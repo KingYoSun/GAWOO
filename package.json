@@ -34,7 +34,7 @@
     "electron-store": "^8.0.2",
     "fix-path": "^4.0.0",
     "go-ipfs": "^0.13.1",
-    "i18next": "^21.8.13",
+    "i18next": "^21.8.14",
     "i18next-fs-backend": "^1.1.4",
     "i18next-icu": "^2.0.3",
     "intl-messageformat": "^10.1.1",
