@@ -46,6 +46,7 @@ interface IElectron {
     nextId: number;
   };
   getLatestNoticeId: (did: string) => number;
+  openUserPage: (callback: (did: string) => void) => void;
 }
 
 interface IIpfs {

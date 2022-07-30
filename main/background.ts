@@ -25,7 +25,7 @@ import {
 import fs from "fs-extra";
 import { join, extname } from "path";
 import mime from "mime-types";
-import setProtocol from "./protocol";
+import setProtocol, { GAWOOUSERSCHEME } from "./protocol";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -61,6 +61,25 @@ const prisma = new PrismaClient();
 
 app.on("will-finish-launching", () => {
   setupProtocolHandlers(ctx);
+});
+
+app.on("second-instance", async (_event, commandLineArgs, workingDirectory) => {
+  console.log("second instance!");
+  if (ctx.mainWindow) {
+    if (ctx.mainWindow.isMinimized()) ctx.mainWindow.restore();
+    ctx.mainWindow.focus();
+    const url = commandLineArgs.find((arg) =>
+      arg.startsWith(`${GAWOOUSERSCHEME}://`)
+    );
+    if (Boolean(url)) {
+      const did = url.substring(13, url.length - 1);
+      ctx.mainWindow.webContents.send("openUserPage", did);
+    }
+  }
+});
+
+app.on("window-all-closed", () => {
+  app.quit();
 });
 
 function handleError(err) {
@@ -113,10 +132,6 @@ process.on("unhandledRejection", handleError);
     handleError(e);
   }
 })();
-
-app.on("window-all-closed", () => {
-  app.quit();
-});
 
 ipcMain.handle("sayMsg", (event: IpcMainEvent, message: string) => {
   console.log(message);

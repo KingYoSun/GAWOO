@@ -11,6 +11,7 @@ import { CERAMIC_NETWORK } from "../../constants/identity";
 import { AvatarIcon } from "../../components/AvatarIcon";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 
 const UserPage = () => {
   const router = useRouter();
@@ -24,6 +25,7 @@ const UserPage = () => {
   const refProfileBody = useRef(null);
   const [profileHeight, setProfileHeight] = useState(null);
   const [isMyProfile, setIsMyProfile] = useState(false);
+  const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
 
   const fetchImage = async (key) => {
     const res = await window.ipfs.catImage(
@@ -44,14 +46,22 @@ const UserPage = () => {
       (async () => {
         console.log("get user profile!");
         const selfIdCore = new Core({ ceramic: CERAMIC_NETWORK });
-        const res = (await selfIdCore
-          .get("basicProfile", did as string)
-          .catch((e) => {
-            throw e;
-          })) as BasicProfile;
+        try {
+          const res = (await selfIdCore
+            .get("basicProfile", did as string)
+            .catch((e) => {
+              throw e;
+            })) as BasicProfile;
 
-        console.log(`got user profile!\n${JSON.stringify(res)}`);
-        setUserProfile(res);
+          console.log(`got user profile!\n${JSON.stringify(res)}`);
+          setUserProfile(res);
+        } catch (e) {
+          dispatchErrorDialog({
+            type: "open",
+            payload: "ユーザー情報が取得できませんでした",
+          });
+          router.push("/");
+        }
       })();
     }
   }, [account?.isConnected()]);

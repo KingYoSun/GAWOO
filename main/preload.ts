@@ -62,6 +62,8 @@ contextBridge.exposeInMainWorld("electron", {
   getLatestNoticeId: async (did: string) => {
     return await ipcRenderer.invoke("getLatestNoticeId", did);
   },
+  openUserPage: (callback) =>
+    ipcRenderer.on("openUserPage", (event, did) => callback(did)),
 });
 
 contextBridge.exposeInMainWorld("ipfs", {

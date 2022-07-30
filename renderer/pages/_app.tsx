@@ -13,16 +13,22 @@ import SetupContextProvider from "../context/SetupContext";
 import ErrorDialogContextProvider from "../context/ErrorDialogContext";
 import IndexIdContextProvider from "../context/IndexIdContext";
 import NoticeCountContextProvider from "../context/NoticeCountContext";
+import { useRouter } from "next/router";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const SafeHydrate = dynamic(() => import("../components/SafeHydrate"), {
     ssr: false,
   });
+  const router = useRouter();
 
   useEffect(() => {
     document.ondragover = document.ondrop = (e) => {
       e.preventDefault();
     };
+
+    window.electron.openUserPage((did: string) => {
+      router.push(`/users/${did}`);
+    });
   }, []);
 
   return (

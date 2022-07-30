@@ -28,6 +28,9 @@ async function parseUrl(url, ctx) {
     return openLink("ipfs", url.slice(11), base);
   } else if (url.startsWith("dweb:/ipns/")) {
     return openLink("ipns", url.slice(11), base);
+  } else if (url.startsWith("gawoo-user://")) {
+    const did = url.substring(13, url.length - 1);
+    ctx.mainWindow.webContents.send("openUserPage", did);
   }
 
   return false;
