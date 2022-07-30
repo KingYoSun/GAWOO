@@ -18,11 +18,11 @@ const Subscribe = ({ children }: Props) => {
   const wakuSetupMsg = "Wakuの接続中...";
 
   useEffect(() => {
-    window.waku.followMessage((msg: string) => {
-      console.log("followed!: ", msg);
+    window.waku.followMessage((payload) => {
+      console.log("followed!: ", payload);
     });
-    window.waku.sharePost((msg: string) => {
-      console.log("shared post!: ", msg);
+    window.waku.sharePost((payload) => {
+      console.log("shared post!: ", payload);
     });
 
     const flag = window.waku.isConnected();
@@ -56,6 +56,8 @@ const Subscribe = ({ children }: Props) => {
   useEffect(() => {
     if (!Boolean(account?.selfId?.id) || !setup.waku) return;
 
+    const subdid =
+      "did:3:kjzl6cwe1jw149pr60svdfawesbz7cib0k12vxwxtz724fyyvde8rx95w2c4mah";
     const wakuIsConnected = window.waku.isConnected();
     if (!wakuIsConnected) {
       alert("Wakuが起動していません");
@@ -71,8 +73,21 @@ const Subscribe = ({ children }: Props) => {
       selfId: account?.selfId?.id,
       purpose: "share",
     };
+    const subPropsFollow: WakuClientProps = {
+      selfId: subdid,
+      purpose: "follow",
+    };
+    const subPropsShare: WakuClientProps = {
+      selfId: subdid,
+      purpose: "share",
+    };
 
-    window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
+    window.waku.addObservers([
+      wakuPropsFollow,
+      wakuPropsShare,
+      subPropsFollow,
+      subPropsShare,
+    ]);
   }, [account.authenticated, setup.waku]);
 
   return <>{children}</>;

@@ -10,6 +10,8 @@ const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const [reloadCount, setReloadCount] = useState(0);
+  const subdid =
+    "did:3:kjzl6cwe1jw149pr60svdfawesbz7cib0k12vxwxtz724fyyvde8rx95w2c4mah";
 
   const onAccountConnect = async () => {
     const newAccount = await account.authenticate();
@@ -21,7 +23,7 @@ const IndexPage = () => {
   };
 
   const sendFollow = async () => {
-    window.waku.sendMessage({ selfId: account.selfId.id, purpose: "follow" });
+    window.waku.sendMessage({ selfId: subdid, purpose: "follow" });
   };
 
   const noticeTest = async () => {
@@ -40,7 +42,7 @@ const IndexPage = () => {
 
   const sendShare = async () => {
     window.waku.sendMessage({
-      selfId: account.selfId.id,
+      selfId: subdid,
       purpose: "share",
       post: {
         id: null,

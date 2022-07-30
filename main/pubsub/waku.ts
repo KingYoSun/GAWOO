@@ -1,5 +1,4 @@
 import protons from "protons";
-import { Post } from "@prisma/client";
 import fs from "fs-extra";
 import { mainContext } from "../background";
 import { Waku, WakuMessage } from "js-waku";
@@ -26,49 +25,53 @@ export class WakuClient {
 
   addObservers({ mainWindow }: mainContext, props: Array<WakuClientProps>) {
     let topics = [];
-    const propFollow = props.find((prop) => prop.purpose === "follow");
-    const propShare = props.find((prop) => prop.purpose === "share");
+    const propFollows = props.filter((prop) => prop.purpose === "follow");
+    const propShares = props.filter((prop) => prop.purpose === "share");
 
     const existObservers = Object.keys(this.client.relay.observers);
 
-    if (Boolean(propFollow)) {
-      let topicFollow = this.setTopic(propFollow);
+    if (propFollows.length > 0) {
+      propFollows.map((propFollow) => {
+        let topicFollow = this.setTopic(propFollow);
 
-      if (!existObservers.includes(topicFollow)) {
-        topics.push(topicFollow);
+        if (!existObservers.includes(topicFollow)) {
+          topics.push(topicFollow);
 
-        const processIncomingMessageFollow = (wakuMessage) => {
-          if (!wakuMessage.payload) return;
+          const processIncomingMessageFollow = (wakuMessage) => {
+            if (!wakuMessage.payload) return;
 
-          const payload = this.proto.FollowMessage.decode(wakuMessage.payload);
-          console.log("follow received!: ", payload);
-          mainWindow.webContents.send("followMessage", JSON.stringify(payload));
-        };
-        this.client.relay.addObserver(
-          (msg) => processIncomingMessageFollow,
-          [topicFollow]
-        );
-      }
+            const payload = this.proto.FollowMessage.decode(
+              wakuMessage.payload
+            );
+            console.log("follow received!: ", JSON.stringify(payload));
+            mainWindow.webContents.send("followMessage", payload);
+          };
+          this.client.relay.addObserver(processIncomingMessageFollow, [
+            topicFollow,
+          ]);
+        }
+      });
     }
 
-    if (Boolean(propShare)) {
-      let topicShare = this.setTopic(propShare);
+    if (propShares.length > 0) {
+      propShares.map((propShare) => {
+        let topicShare = this.setTopic(propShare);
 
-      if (!existObservers.includes(topicShare)) {
-        topics.push(topicShare);
+        if (!existObservers.includes(topicShare)) {
+          topics.push(topicShare);
 
-        const processIncomingMessageShare = (wakuMessage) => {
-          if (!wakuMessage.payload) return;
+          const processIncomingMessageShare = (wakuMessage) => {
+            if (!wakuMessage.payload) return;
 
-          const payload = this.proto.SharePost.decode(wakuMessage.payload);
-          console.log("share received!: ", payload);
-          mainWindow.webContents.send("sharePost", JSON.stringify(payload));
-        };
-        this.client.relay.addObserver(
-          (msg) => processIncomingMessageShare,
-          [topicShare]
-        );
-      }
+            const payload = this.proto.SharePost.decode(wakuMessage.payload);
+            console.log("share received!: ", JSON.stringify(payload));
+            mainWindow.webContents.send("sharePost", payload);
+          };
+          this.client.relay.addObserver(processIncomingMessageShare, [
+            topicShare,
+          ]);
+        }
+      });
     }
 
     console.log(

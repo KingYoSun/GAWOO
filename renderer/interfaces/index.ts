@@ -39,7 +39,7 @@ interface IElectron {
     nextId: number;
   };
   countUnreadNotice: (did: string) => number;
-  addedNotice: (callback: () => void) => void;
+  addedNotice: (callback: (payload) => void) => void;
   addNotice: (props: Notice) => void;
   indexNotice: (props: IIndexNotices) => {
     notices: Array<Notice>;
@@ -65,8 +65,8 @@ interface IWaku {
   addObservers: (props: Array<WakuClientProps>) => string;
   deleteObservers: (props: Array<WakuClientProps>) => string;
   sendMessage: (prop: WakuClientProps) => string;
-  followMessage: (callback: (msg: string) => void) => void;
-  sharePost: (callback: (msg: string) => void) => void;
+  followMessage: (callback: (payload) => void) => void;
+  sharePost: (callback: (payload) => void) => void;
 }
 
 export {};

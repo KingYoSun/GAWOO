@@ -52,7 +52,7 @@ contextBridge.exposeInMainWorld("electron", {
     return await ipcRenderer.invoke("countUnreadNotice", did);
   },
   addedNotice: (callback) =>
-    ipcRenderer.on("addedNotice", (event, argv) => callback(event, argv)),
+    ipcRenderer.on("addedNotice", (event, payload) => callback(payload)),
   addNotice: (props: Notice) => {
     ipcRenderer.send("addNotice", props);
   },
@@ -96,7 +96,7 @@ contextBridge.exposeInMainWorld("waku", {
     return await ipcRenderer.invoke("sendWakuMessage", prop);
   },
   followMessage: (callback) =>
-    ipcRenderer.on("followMessage", (event, argv) => callback(event, argv)),
+    ipcRenderer.on("followMessage", (event, payload) => callback(payload)),
   sharePost: (callback) =>
-    ipcRenderer.on("sharePost", (event, argv) => callback(event, argv)),
+    ipcRenderer.on("sharePost", (event, payload) => callback(payload)),
 });
