@@ -59,7 +59,7 @@
     "portfinder": "^1.0.28",
     "protons": "^2.0.3",
     "react-dropzone": "^14.2.2",
-    "react-hook-form": "^7.33.1",
+    "react-hook-form": "^7.34.0",
     "react-image-crop": "^10.0.4",
     "react-infinite-scroll-component": "^6.1.0",
     "react-loading-skeleton": "^3.1.0",
