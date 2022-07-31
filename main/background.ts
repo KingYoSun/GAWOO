@@ -260,8 +260,9 @@ ipcMain.handle(
         data: { userDid: baseDid, followingDid: did },
       });
       await ctx.wakuClient.sendMessage({
+        followerDid: baseDid,
         followerName: followerName,
-        selfId: baseDid,
+        selfId: did,
         purpose: "follow",
       });
 

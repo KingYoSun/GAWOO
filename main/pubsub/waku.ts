@@ -119,7 +119,7 @@ export class WakuClient {
     if (props.purpose === "follow") {
       payload = this.proto.FollowMessage.encode({
         timestamp: Date.now(),
-        followerDid: props.selfId,
+        followerDid: props.followerDid,
         followerName: props.followerName,
       });
     }
