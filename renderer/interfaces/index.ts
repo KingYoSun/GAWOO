@@ -7,6 +7,7 @@ import {
   IPostPage,
   TFile,
   WakuClientProps,
+  WakuFollowSend,
 } from "../types/general";
 
 declare global {
@@ -55,15 +56,8 @@ interface IElectron {
     isFollower: boolean;
     error: string;
   };
-  createFollow: (
-    baseDid: string,
-    did: string,
-    followerName: string
-  ) => { follow: Follow; error: string };
-  deleteFollow: (
-    baseDid: string,
-    did: string
-  ) => { follow: Follow; error: string };
+  createFollow: (props: WakuFollowSend) => { follow: Follow; error: string };
+  deleteFollow: (props: WakuFollowSend) => { follow: Follow; error: string };
 }
 
 interface IIpfs {

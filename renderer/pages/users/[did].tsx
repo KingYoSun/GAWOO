@@ -124,10 +124,12 @@ const UserPage = () => {
     if (Boolean(isFollowing)) {
       console.log("unfollow!");
       try {
-        const res = await window.electron.deleteFollow(
-          account?.selfId?.id,
-          did as string
-        );
+        const res = await window.electron.deleteFollow({
+          did: did as string,
+          followerDid: account?.selfId?.id,
+          followerName: profile.name,
+          unfollow: true,
+        });
         if (Boolean(res.error)) throw res.error;
 
         setIsFollowing(false);
@@ -141,11 +143,12 @@ const UserPage = () => {
     } else {
       console.log("follow!");
       try {
-        const res = await window.electron.createFollow(
-          account?.selfId?.id,
-          did as string,
-          profile.name
-        );
+        const res = await window.electron.createFollow({
+          did: did as string,
+          followerDid: account?.selfId?.id,
+          followerName: profile.name,
+          unfollow: false,
+        });
         if (Boolean(res.error)) throw res.error;
 
         setIsFollowing(true);

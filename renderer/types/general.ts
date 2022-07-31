@@ -44,6 +44,14 @@ export type WakuClientProps = {
   post?: Post;
   followerDid?: string;
   followerName?: string;
+  unfollow?: boolean;
+};
+
+export type WakuFollowSend = {
+  did: string;
+  followerDid: string;
+  followerName: string;
+  unfollow: boolean;
 };
 
 export type TFile = {

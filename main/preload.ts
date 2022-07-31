@@ -7,6 +7,7 @@ import {
   IPostPage,
   TFile,
   WakuClientProps,
+  WakuFollowSend,
 } from "../renderer/types/general";
 
 contextBridge.exposeInMainWorld("electron", {
@@ -67,11 +68,11 @@ contextBridge.exposeInMainWorld("electron", {
   getFollowStatus: async (baseDid: string, did: string) => {
     return await ipcRenderer.invoke("getFollowStatus", baseDid, did);
   },
-  createFollow: async (baseDid: string, did: string, followerName: string) => {
-    return await ipcRenderer.invoke("createFollow", baseDid, did, followerName);
+  createFollow: async (props: WakuFollowSend) => {
+    return await ipcRenderer.invoke("createFollow", props);
   },
-  deleteFollow: async (baseDid: string, did: string) => {
-    return await ipcRenderer.invoke("deleteFollow", baseDid, did);
+  deleteFollow: async (props: WakuFollowSend) => {
+    return await ipcRenderer.invoke("deleteFollow", props);
   },
 });
 

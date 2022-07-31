@@ -21,6 +21,7 @@ import {
   IIndexPosts,
   IPostPage,
   IIndexNotices,
+  WakuFollowSend,
 } from "../renderer/types/general";
 import fs from "fs-extra";
 import { join, extname } from "path";
@@ -247,22 +248,18 @@ ipcMain.handle(
 
 ipcMain.handle(
   "createFollow",
-  async (
-    event: IpcMainEvent,
-    baseDid: string,
-    did: string,
-    followerName: string
-  ) => {
+  async (event: IpcMainEvent, props: WakuFollowSend) => {
     try {
       if (!ctx.wakuClient.connected) throw "waku is not connected";
 
       const res = await prisma.follow.create({
-        data: { userDid: baseDid, followingDid: did },
+        data: { userDid: props.followerDid, followingDid: props.did },
       });
       await ctx.wakuClient.sendMessage({
-        followerDid: baseDid,
-        followerName: followerName,
-        selfId: did,
+        followerDid: props.followerDid,
+        followerName: props.followerName,
+        selfId: props.did,
+        unfollow: false,
         purpose: "follow",
       });
 
@@ -281,13 +278,24 @@ ipcMain.handle(
 
 ipcMain.handle(
   "deleteFollow",
-  async (event: IpcMainEvent, baseDid: string, did: string) => {
+  async (event: IpcMainEvent, props: WakuFollowSend) => {
     try {
       const res = await prisma.follow.delete({
         where: {
-          userDid_followingDid: { userDid: baseDid, followingDid: did },
+          userDid_followingDid: {
+            userDid: props.followerDid,
+            followingDid: props.did,
+          },
         },
       });
+      await ctx.wakuClient.sendMessage({
+        followerDid: props.followerDid,
+        followerName: props.followerName,
+        selfId: props.did,
+        unfollow: true,
+        purpose: "follow",
+      });
+
       return {
         follow: res,
         error: null,
