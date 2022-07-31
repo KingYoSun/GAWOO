@@ -11,9 +11,10 @@ export class WakuClient {
   proto: any;
   prisma: PrismaClient;
 
-  async initClient() {
+  async initClient(prismaClient: PrismaClient) {
     this.proto = protons(fs.readFileSync("./main/pubsub/waku.proto"));
 
+    this.prisma = prismaClient;
     this.client = await Waku.create({ bootstrap: { default: true } });
     await this.client.waitForRemotePeer();
     console.log("Connected waku peer!");
@@ -141,6 +142,5 @@ export class WakuClient {
 
 export default async function setupWaku(ctx, prismaClient: PrismaClient) {
   ctx.wakuClient = new WakuClient();
-  this.prisma = prismaClient;
-  await ctx.wakuClient.initClient();
+  await ctx.wakuClient.initClient(prismaClient);
 }

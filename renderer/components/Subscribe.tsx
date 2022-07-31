@@ -56,8 +56,6 @@ const Subscribe = ({ children }: Props) => {
   useEffect(() => {
     if (!Boolean(account?.selfId?.id) || !setup.waku) return;
 
-    const subdid =
-      "did:3:kjzl6cwe1jw149pr60svdfawesbz7cib0k12vxwxtz724fyyvde8rx95w2c4mah";
     const wakuIsConnected = window.waku.isConnected();
     if (!wakuIsConnected) {
       alert("Wakuが起動していません");
@@ -73,21 +71,8 @@ const Subscribe = ({ children }: Props) => {
       selfId: account?.selfId?.id,
       purpose: "share",
     };
-    const subPropsFollow: WakuClientProps = {
-      selfId: subdid,
-      purpose: "follow",
-    };
-    const subPropsShare: WakuClientProps = {
-      selfId: subdid,
-      purpose: "share",
-    };
 
-    window.waku.addObservers([
-      wakuPropsFollow,
-      wakuPropsShare,
-      subPropsFollow,
-      subPropsShare,
-    ]);
+    window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
   }, [account.authenticated, setup.waku]);
 
   return <>{children}</>;

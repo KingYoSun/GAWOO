@@ -10,8 +10,6 @@ const IndexPage = () => {
   const { account, dispatchAccount } = useContext(AuthContext);
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const [reloadCount, setReloadCount] = useState(0);
-  const subdid =
-    "did:3:kjzl6cwe1jw149pr60svdfawesbz7cib0k12vxwxtz724fyyvde8rx95w2c4mah";
 
   const onAccountConnect = async () => {
     const newAccount = await account.authenticate();
@@ -20,14 +18,6 @@ const IndexPage = () => {
 
   const showAccount = () => {
     console.log("index account: ", account);
-  };
-
-  const sendFollow = async () => {
-    window.waku.sendMessage({
-      followerName: profile.name,
-      selfId: subdid,
-      purpose: "follow",
-    });
   };
 
   const noticeTest = async () => {
@@ -44,25 +34,6 @@ const IndexPage = () => {
     console.log("added notice!");
   };
 
-  const sendShare = async () => {
-    window.waku.sendMessage({
-      selfId: subdid,
-      purpose: "share",
-      post: {
-        id: null,
-        cid: "test_cid",
-        publishedAt: "1111111",
-        authorDid: "test did",
-        authorName: null,
-        authorAvatar: null,
-        authorAvatarMime: null,
-        content: "test",
-        topicCid: null,
-        replyToCid: null,
-      },
-    });
-  };
-
   return (
     <>
       <FlexRow>
@@ -70,8 +41,6 @@ const IndexPage = () => {
       </FlexRow>
       <FlexRow>
         <Button onClick={noticeTest}>通知テスト</Button>
-        <Button onClick={sendFollow}>Followテスト</Button>
-        <Button onClick={sendShare}>Shareテスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
         <Button onClick={onAccountConnect}>認証</Button>
       </FlexRow>
