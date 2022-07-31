@@ -46,6 +46,12 @@ export class WakuClient {
               wakuMessage.payload
             );
             console.log("follow received!: ", JSON.stringify(payload));
+            const followerRecord = await this.prisma.follow.findFirst({
+              where: {
+                userDid: payload.followerDid,
+                followingDid: propFollow.selfId,
+              },
+            });
             if (!payload.unfollow) {
               const userRecord = await this.prisma.user.findUnique({
                 where: { did: payload.followerDid },
@@ -55,19 +61,14 @@ export class WakuClient {
                   data: { did: payload.followerDid, name: payload.followerDid },
                 });
               }
-              await this.prisma.follow.create({
-                data: {
-                  userDid: payload.followerDid,
-                  followingDid: propFollow.selfId,
-                },
-              });
+              if (!Boolean(followerRecord))
+                await this.prisma.follow.create({
+                  data: {
+                    userDid: payload.followerDid,
+                    followingDid: propFollow.selfId,
+                  },
+                });
             } else {
-              const followerRecord = await this.prisma.follow.findFirst({
-                where: {
-                  userDid: payload.followerDid,
-                  followingDid: propFollow.selfId,
-                },
-              });
               if (Boolean(followerRecord))
                 this.prisma.follow.delete({
                   where: {
@@ -86,7 +87,7 @@ export class WakuClient {
                 type: "followed",
                 content: `${payload.followerName}からフォローされました！`,
                 url: `/users/${payload.followerDid}`,
-                createdAt: payload.timestamp,
+                createdAt: String(payload.timestamp),
               },
             });
 
