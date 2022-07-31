@@ -61,13 +61,24 @@ export class WakuClient {
                   data: { did: payload.followerDid, name: payload.followerDid },
                 });
               }
-              if (!Boolean(followerRecord))
+              if (!Boolean(followerRecord)) {
                 await this.prisma.follow.create({
                   data: {
                     userDid: payload.followerDid,
                     followingDid: propFollow.selfId,
                   },
                 });
+                await this.prisma.notice.create({
+                  data: {
+                    read: false,
+                    did: propFollow.selfId,
+                    type: "followed",
+                    content: `${payload.followerName}からフォローされました！`,
+                    url: `/users/${payload.followerDid}`,
+                    createdAt: String(payload.timestamp),
+                  },
+                });
+              }
             } else {
               if (Boolean(followerRecord))
                 this.prisma.follow.delete({
@@ -79,17 +90,6 @@ export class WakuClient {
                   },
                 });
             }
-
-            await this.prisma.notice.create({
-              data: {
-                read: false,
-                did: propFollow.selfId,
-                type: "followed",
-                content: `${payload.followerName}からフォローされました！`,
-                url: `/users/${payload.followerDid}`,
-                createdAt: String(payload.timestamp),
-              },
-            });
 
             mainWindow.webContents.send("addedNotice", {
               message: "notice added",
