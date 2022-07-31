@@ -6,12 +6,11 @@ import { BasicProfile, ImageSources } from "../../types/general";
 import IndexPosts from "../../components/IndexPosts";
 import { FlexRow } from "../../components/Flex";
 import { Box, Button, Typography } from "@mui/material";
-import { Core } from "@self.id/core";
-import { CERAMIC_NETWORK } from "../../constants/identity";
 import { AvatarIcon } from "../../components/AvatarIcon";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { ErrorDialogContext } from "../../context/ErrorDialogContext";
+import gotOtherUser from "../../utils/gotOtherUser";
 
 const UserPage = () => {
   const router = useRouter();
@@ -47,14 +46,8 @@ const UserPage = () => {
     if (did !== account?.selfId?.id) {
       (async () => {
         console.log("get user profile!");
-        const selfIdCore = new Core({ ceramic: CERAMIC_NETWORK });
         try {
-          const res = (await selfIdCore
-            .get("basicProfile", did as string)
-            .catch((e) => {
-              throw e;
-            })) as BasicProfile;
-
+          const res = await gotOtherUser(did as string);
           console.log(`got user profile!\n${JSON.stringify(res)}`);
           setUserProfile(res);
         } catch (e) {

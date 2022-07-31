@@ -47,6 +47,14 @@ export class WakuClient {
             );
             console.log("follow received!: ", JSON.stringify(payload));
             if (!payload.unfollow) {
+              const userRecord = await this.prisma.user.findUnique({
+                where: { did: payload.followerDid },
+              });
+              if (!Boolean(userRecord)) {
+                await this.prisma.user.create({
+                  data: { did: payload.followerDid, name: payload.followerDid },
+                });
+              }
               await this.prisma.follow.create({
                 data: {
                   userDid: payload.followerDid,
