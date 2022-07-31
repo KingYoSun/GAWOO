@@ -23,7 +23,11 @@ const IndexPage = () => {
   };
 
   const sendFollow = async () => {
-    window.waku.sendMessage({ selfId: subdid, purpose: "follow" });
+    window.waku.sendMessage({
+      followerName: profile.name,
+      selfId: subdid,
+      purpose: "follow",
+    });
   };
 
   const noticeTest = async () => {

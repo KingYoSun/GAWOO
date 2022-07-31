@@ -25,6 +25,8 @@ const UserPage = () => {
   const refProfileBody = useRef(null);
   const [profileHeight, setProfileHeight] = useState(null);
   const [isMyProfile, setIsMyProfile] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollower, setIsFollower] = useState(false);
   const { errorDialog, dispatchErrorDialog } = useContext(ErrorDialogContext);
 
   const fetchImage = async (key) => {
@@ -61,6 +63,24 @@ const UserPage = () => {
             payload: "ユーザー情報が取得できませんでした",
           });
           router.push("/");
+        }
+
+        try {
+          console.log("get follow status!");
+          const res = await window.electron.getFollowStatus(
+            account?.selfId?.id,
+            did as string
+          );
+          if (Boolean(res.error)) throw res.error;
+
+          setIsFollowing(res.isFollow);
+          setIsFollower(res.isFollower);
+        } catch (e) {
+          console.log("failed getting follow status!: ", e);
+          dispatchErrorDialog({
+            type: "open",
+            payload: "フォロー情報が取得できませんでした",
+          });
         }
       })();
     }
@@ -99,6 +119,45 @@ const UserPage = () => {
       : "180px";
     setProfileHeight(height);
   }, [refProfileBody?.current]);
+
+  const handleFollowBtn = async () => {
+    if (Boolean(isFollowing)) {
+      console.log("unfollow!");
+      try {
+        const res = await window.electron.deleteFollow(
+          account?.selfId?.id,
+          did as string
+        );
+        if (Boolean(res.error)) throw res.error;
+
+        setIsFollowing(false);
+      } catch (e) {
+        console.log("failed deleting follow status!: ", e);
+        dispatchErrorDialog({
+          type: "open",
+          payload: "フォロー解除ができませんでした",
+        });
+      }
+    } else {
+      console.log("follow!");
+      try {
+        const res = await window.electron.createFollow(
+          account?.selfId?.id,
+          did as string,
+          profile.name
+        );
+        if (Boolean(res.error)) throw res.error;
+
+        setIsFollowing(true);
+      } catch (e) {
+        console.log("failed creating follow status!: ", e);
+        dispatchErrorDialog({
+          type: "open",
+          payload: "フォローできませんでした",
+        });
+      }
+    }
+  };
 
   return (
     <Box
@@ -160,7 +219,7 @@ const UserPage = () => {
               top: "0px",
               height: "100%",
               left: "0px",
-              width: "75%",
+              width: "80%",
               backgroundColor: "#fff",
               opacity: 0.43,
             }}
@@ -191,6 +250,23 @@ const UserPage = () => {
                     @{did}
                   </Typography>
                 </FlexRow>
+                {!Boolean(isMyProfile) && Boolean(isFollower) && (
+                  <FlexRow justifyContent="start">
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        zIndex: 2,
+                        color: "white",
+                        backgroundColor: "#2C3333",
+                        opacity: 0.75,
+                        padding: "1px 2px",
+                        borderRadius: "3px",
+                      }}
+                    >
+                      フォローされています
+                    </Typography>
+                  </FlexRow>
+                )}
               </Box>
             </FlexRow>
             <FlexRow justifyContent="start">
@@ -205,6 +281,19 @@ const UserPage = () => {
                   onClick={() => router.push("/profile")}
                 >
                   <Typography>プロフィール編集</Typography>
+                </Button>
+              </FlexRow>
+            )}
+            {!Boolean(isMyProfile) && (
+              <FlexRow justifyContent="start">
+                <Button
+                  variant="contained"
+                  color={Boolean(isFollowing) ? "success" : "primary"}
+                  onClick={handleFollowBtn}
+                >
+                  <Typography>
+                    {Boolean(isFollowing) ? "フォロー解除" : "フォローする"}
+                  </Typography>
                 </Button>
               </FlexRow>
             )}

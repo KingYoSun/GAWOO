@@ -3,18 +3,19 @@ import fs from "fs-extra";
 import { mainContext } from "../background";
 import { Waku, WakuMessage } from "js-waku";
 import { WakuClientProps } from "../../renderer/types/general";
+import { PrismaClient } from "@prisma/client";
 
 export class WakuClient {
   client: Waku;
   connected: boolean;
   proto: any;
+  prisma: PrismaClient;
 
   async initClient() {
     this.proto = protons(fs.readFileSync("./main/pubsub/waku.proto"));
 
     this.client = await Waku.create({ bootstrap: { default: true } });
     await this.client.waitForRemotePeer();
-
     console.log("Connected waku peer!");
     this.connected = true;
   }
@@ -37,14 +38,33 @@ export class WakuClient {
         if (!existObservers.includes(topicFollow)) {
           topics.push(topicFollow);
 
-          const processIncomingMessageFollow = (wakuMessage) => {
+          const processIncomingMessageFollow = async (wakuMessage) => {
             if (!wakuMessage.payload) return;
 
             const payload = this.proto.FollowMessage.decode(
               wakuMessage.payload
             );
             console.log("follow received!: ", JSON.stringify(payload));
-            mainWindow.webContents.send("followMessage", payload);
+            await this.prisma.follow.create({
+              data: {
+                userDid: payload.followerDid,
+                followingDid: propFollow.selfId,
+              },
+            });
+            await this.prisma.notice.create({
+              data: {
+                read: false,
+                did: propFollow.selfId,
+                type: "followed",
+                content: `${payload.followerName}からフォローされました！`,
+                url: `/users/${payload.followerDid}`,
+                createdAt: payload.timestamp,
+              },
+            });
+
+            mainWindow.webContents.send("addedNotice", {
+              message: "notice added",
+            });
           };
           this.client.relay.addObserver(processIncomingMessageFollow, [
             topicFollow,
@@ -99,6 +119,7 @@ export class WakuClient {
       payload = this.proto.FollowMessage.encode({
         timestamp: Date.now(),
         followerDid: props.selfId,
+        followerName: props.followerName,
       });
     }
 
@@ -118,7 +139,8 @@ export class WakuClient {
   }
 }
 
-export default async function setupWaku(ctx) {
+export default async function setupWaku(ctx, prismaClient: PrismaClient) {
   ctx.wakuClient = new WakuClient();
+  this.prisma = prismaClient;
   await ctx.wakuClient.initClient();
 }

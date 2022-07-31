@@ -28,17 +28,17 @@ model User {
   avatar      String?
 
   posts       Post[]
-  followedBy  Follow[]  @relation("follower")
-  folloing    Follow[]  @relation("following")
+  follows     Follow[]
+  followers   Follow[] @relation("following")
 }
 
 model Follow {
-  follower    User   @relation(name: "follower", fields: [followerDid], references: [did])
-  followerDid  String
-  following   User   @relation(name: "following", fields: [followingDid], references: [did])
-  followingDid String
+  user          User   @relation(fields: [userDid], references: [did])
+  userDid       String
+  following     User   @relation(name: "following", fields: [followingDid], references: [did])
+  followingDid  String
 
-  @@id([followerDid, followingDid])
+  @@id([userDid, followingDid])
 }
 
 model Notice {

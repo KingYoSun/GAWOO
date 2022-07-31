@@ -1,6 +1,7 @@
 message FollowMessage {
   required uint64 timestamp = 1;
   required string followerDid = 2; 
+  required string followerName = 3;
 }
 
 message SharePost {

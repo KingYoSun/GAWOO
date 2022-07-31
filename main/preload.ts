@@ -64,6 +64,15 @@ contextBridge.exposeInMainWorld("electron", {
   },
   openUserPage: (callback) =>
     ipcRenderer.on("openUserPage", (event, did) => callback(did)),
+  getFollowStatus: async (baseDid: string, did: string) => {
+    return await ipcRenderer.invoke("getFollowStatus", baseDid, did);
+  },
+  createFollow: async (baseDid: string, did: string, followerName: string) => {
+    return await ipcRenderer.invoke("createFollow", baseDid, did, followerName);
+  },
+  deleteFollow: async (baseDid: string, did: string) => {
+    return await ipcRenderer.invoke("deleteFollow", baseDid, did);
+  },
 });
 
 contextBridge.exposeInMainWorld("ipfs", {

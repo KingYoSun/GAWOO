@@ -1,4 +1,4 @@
-import { Notice, Post, User } from "@prisma/client";
+import { Follow, Notice, Post, User } from "@prisma/client";
 import {
   IIndexNotices,
   IIndexPosts,
@@ -47,6 +47,23 @@ interface IElectron {
   };
   getLatestNoticeId: (did: string) => number;
   openUserPage: (callback: (did: string) => void) => void;
+  getFollowStatus: (
+    baseDid: string,
+    did: string
+  ) => {
+    isFollow: boolean;
+    isFollower: boolean;
+    error: string;
+  };
+  createFollow: (
+    baseDid: string,
+    did: string,
+    followerName: string
+  ) => { follow: Follow; error: string };
+  deleteFollow: (
+    baseDid: string,
+    did: string
+  ) => { follow: Follow; error: string };
 }
 
 interface IIpfs {

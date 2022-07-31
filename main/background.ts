@@ -220,6 +220,87 @@ ipcMain.handle("showUser", async (event: IpcMainEvent, did: string) => {
 });
 
 ipcMain.handle(
+  "getFollowStatus",
+  async (event: IpcMainEvent, baseDid: string, did: string) => {
+    try {
+      const follow = await prisma.follow.findFirst({
+        where: { userDid: baseDid, followingDid: did },
+      });
+      const follower = await prisma.follow.findFirst({
+        where: { userDid: did, followingDid: baseDid },
+      });
+
+      return {
+        isFollow: Boolean(follow),
+        isFollower: Boolean(follower),
+        error: null,
+      };
+    } catch (e) {
+      return {
+        isFollow: null,
+        isFollower: null,
+        error: e.toString(),
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "createFollow",
+  async (
+    event: IpcMainEvent,
+    baseDid: string,
+    did: string,
+    followerName: string
+  ) => {
+    try {
+      if (!ctx.wakuClient.connected) throw "waku is not connected";
+
+      const res = await prisma.follow.create({
+        data: { userDid: baseDid, followingDid: did },
+      });
+      await ctx.wakuClient.sendMessage({
+        followerName: followerName,
+        selfId: baseDid,
+        purpose: "follow",
+      });
+
+      return {
+        follow: res,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        follow: null,
+        error: e.toString(),
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "deleteFollow",
+  async (event: IpcMainEvent, baseDid: string, did: string) => {
+    try {
+      const res = await prisma.follow.delete({
+        where: {
+          userDid_followingDid: { userDid: baseDid, followingDid: did },
+        },
+      });
+      return {
+        follow: res,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        follow: null,
+        error: e.toString(),
+      };
+    }
+  }
+);
+
+ipcMain.handle(
   "getFileByBase64",
   async (event: IpcMainEvent, ipfsFile: IpfsFile) => {
     const path = join(
@@ -433,6 +514,7 @@ ipcMain.handle(
         where: { id: { in: res.map((item) => item.id) } },
         data: { read: true },
       });
+      // 通知カウントの再計算用
       ctx.mainWindow.webContents.send("addedNotice", {
         message: "notice added",
       });
@@ -514,7 +596,7 @@ ipcMain.handle("getPost", async (event: IpcMainEvent, cid: string) => {
 });
 
 ipcMain.handle("initWaku", async (event: IpcMainEvent) => {
-  await setupWaku(ctx);
+  await setupWaku(ctx, prisma);
   return true;
 });
 

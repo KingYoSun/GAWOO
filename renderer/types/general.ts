@@ -42,6 +42,7 @@ export type WakuClientProps = {
   selfId: string;
   purpose: "follow" | "share";
   post?: Post;
+  followerName?: string;
 };
 
 export type TFile = {
