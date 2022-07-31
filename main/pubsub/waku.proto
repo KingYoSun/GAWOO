@@ -2,7 +2,7 @@ message FollowMessage {
   required uint64 timestamp = 1;
   required string followerDid = 2; 
   required string followerName = 3;
-  required boolean unfollow = 4;
+  required bool unfollow = 4;
 }
 
 message SharePost {
