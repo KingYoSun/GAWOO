@@ -39,17 +39,15 @@ const App = ({ Component, pageProps }: AppProps) => {
             <ErrorDialogContextProvider>
               <NoticeCountContextProvider>
                 <IndexIdContextProvider>
-                  <SafeHydrate>
-                    <AutoAuth>
-                      <Subscribe>
-                        <LoadingOverlay>
-                          <Layout>
-                            <Component {...pageProps} />
-                          </Layout>
-                        </LoadingOverlay>
-                      </Subscribe>
-                    </AutoAuth>
-                  </SafeHydrate>
+                  <AutoAuth>
+                    <Subscribe>
+                      <LoadingOverlay>
+                        <Layout>
+                          <Component {...pageProps} />
+                        </Layout>
+                      </LoadingOverlay>
+                    </Subscribe>
+                  </AutoAuth>
                 </IndexIdContextProvider>
               </NoticeCountContextProvider>
             </ErrorDialogContextProvider>

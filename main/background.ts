@@ -652,3 +652,24 @@ ipcMain.handle(
     }
   }
 );
+
+ipcMain.handle(
+  "retriveInstanceMessages",
+  async (event: IpcMainEvent, props: WakuClientProps) => {
+    try {
+      if (!ctx.wakuClient.connected) throw "waku is not connected";
+
+      const articles = await ctx.wakuClient.reveiveInstanceMessages(props);
+
+      return {
+        articles,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        articles: [],
+        error: e.toString(),
+      };
+    }
+  }
+);

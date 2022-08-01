@@ -4,6 +4,7 @@ import { mainContext } from "../background";
 import { Waku, WakuMessage } from "js-waku";
 import { WakuClientProps } from "../../renderer/types/general";
 import { PrismaClient } from "@prisma/client";
+import moment from "moment";
 
 export class WakuClient {
   client: Waku;
@@ -25,6 +26,17 @@ export class WakuClient {
     return `/gawoo/1/${props.selfId}-${props.purpose}/proto`;
   }
 
+  decodeProtoMessage(wakuMessage, purpose: "follow" | "share") {
+    if (!wakuMessage.payload) return;
+
+    if (purpose === "follow") {
+      return this.proto.FollowMessage.decode(wakuMessage.payload);
+    }
+    if (purpose === "share") {
+      return this.proto.SharePost.decode(wakuMessage.payload);
+    }
+  }
+
   addObservers({ mainWindow }: mainContext, props: Array<WakuClientProps>) {
     let topics = [];
     const propFollows = props.filter((prop) => prop.purpose === "follow");
@@ -42,9 +54,7 @@ export class WakuClient {
           const processIncomingMessageFollow = async (wakuMessage) => {
             if (!wakuMessage.payload) return;
 
-            const payload = this.proto.FollowMessage.decode(
-              wakuMessage.payload
-            );
+            const payload = this.decodeProtoMessage(wakuMessage, "follow");
             console.log("follow received!: ", JSON.stringify(payload));
             const followerRecord = await this.prisma.follow.findFirst({
               where: {
@@ -112,7 +122,7 @@ export class WakuClient {
           const processIncomingMessageShare = (wakuMessage) => {
             if (!wakuMessage.payload) return;
 
-            const payload = this.proto.SharePost.decode(wakuMessage.payload);
+            const payload = this.decodeProtoMessage(wakuMessage, "share");
             console.log("share received!: ", JSON.stringify(payload));
             mainWindow.webContents.send("sharePost", payload);
           };
@@ -166,6 +176,35 @@ export class WakuClient {
     await this.client.relay.send(wakuMessage);
 
     console.log("Send message on waku to: ", topic);
+  }
+
+  async reveiveInstanceMessages(props: WakuClientProps) {
+    const topic = this.setTopic(props);
+    let articles = [];
+
+    const callback = (retrivedMessages) => {
+      articles = retrivedMessages
+        .map((wakuMessage) =>
+          this.decodeProtoMessage(wakuMessage, props.purpose)
+        )
+        .filter(Boolean);
+      console.log(`${articles.length} articles have been retrieved`);
+    };
+
+    // defaultで1日前
+    const startTime = Boolean(props.startTime)
+      ? new Date(props.startTime)
+      : moment().subtract(1, "days").toDate();
+    this.client.store
+      .queryHistory([topic], {
+        callback,
+        timeFilter: { startTime, endTime: new Date() },
+      })
+      .catch((e) => {
+        console.log("Failed to retrieve messages from topic: ", e);
+      });
+
+    return articles;
   }
 }
 

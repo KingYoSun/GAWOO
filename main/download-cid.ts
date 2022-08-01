@@ -61,12 +61,12 @@ const downloadCid = async (ipfsd: Controller, cid: string) => {
 
   let files;
   try {
-    logger.info(`[cid download] downloading ${cid}: started`);
+    // logger.info(`[cid download] downloading ${cid}: started`);
     const filelist = await getLs(ipfsd.api, cid);
     // logger.info(`[cid download] filelist ${cid}: ${JSON.stringify(filelist)}`);
     const existFiles = fs.existsSync(dir) ? fs.readdirSync(dir) : [];
     files = await get(ipfsd.api, filelist, existFiles);
-    logger.info(`[cid download] downloading ${cid}: completed`);
+    // logger.info(`[cid download] downloading ${cid}: completed`);
   } catch (err) {
     logger.error(`[cid download] ${err.stack}`);
 

@@ -104,11 +104,14 @@ contextBridge.exposeInMainWorld("waku", {
   deleteObservers: async (props: Array<WakuClientProps>) => {
     return await ipcRenderer.invoke("deleteWakuObservers", props);
   },
-  sendMessage: async (prop: WakuClientProps) => {
-    return await ipcRenderer.invoke("sendWakuMessage", prop);
+  sendMessage: async (props: WakuClientProps) => {
+    return await ipcRenderer.invoke("sendWakuMessage", props);
   },
   followMessage: (callback) =>
     ipcRenderer.on("followMessage", (event, payload) => callback(payload)),
   sharePost: (callback) =>
     ipcRenderer.on("sharePost", (event, payload) => callback(payload)),
+  retriveInstanceMessages: async (props: WakuClientProps) => {
+    return await ipcRenderer.invoke("retriveInstanceMessages", props);
+  },
 });

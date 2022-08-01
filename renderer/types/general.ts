@@ -41,6 +41,7 @@ export type BasicProfile = {
 export type WakuClientProps = {
   selfId: string;
   purpose: "follow" | "share";
+  startTime?: string;
   post?: Post;
   followerDid?: string;
   followerName?: string;

@@ -11,11 +11,6 @@ const IndexPage = () => {
   const { profile, dispatchProfile } = useContext(ProfileContext);
   const [reloadCount, setReloadCount] = useState(0);
 
-  const onAccountConnect = async () => {
-    const newAccount = await account.authenticate();
-    dispatchAccount({ type: "set", payload: newAccount });
-  };
-
   const showAccount = () => {
     console.log("index account: ", account);
   };
@@ -42,7 +37,6 @@ const IndexPage = () => {
       <FlexRow>
         <Button onClick={noticeTest}>通知テスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
-        <Button onClick={onAccountConnect}>認証</Button>
       </FlexRow>
       <FlexRow>
         {Boolean(profile?.name) && (

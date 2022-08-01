@@ -63,6 +63,7 @@ const Subscribe = ({ children }: Props) => {
       return;
     }
 
+    console.log("add waku Observers!");
     const wakuPropsFollow: WakuClientProps = {
       selfId: account?.selfId?.id,
       purpose: "follow",
@@ -73,6 +74,8 @@ const Subscribe = ({ children }: Props) => {
     };
 
     window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
+    window.waku.retriveInstanceMessages(wakuPropsFollow);
+    window.waku.retriveInstanceMessages(wakuPropsShare);
   }, [account.authenticated, setup.waku]);
 
   return <>{children}</>;

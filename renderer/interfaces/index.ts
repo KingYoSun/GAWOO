@@ -79,6 +79,10 @@ interface IWaku {
   sendMessage: (prop: WakuClientProps) => string;
   followMessage: (callback: (payload) => void) => void;
   sharePost: (callback: (payload) => void) => void;
+  retriveInstanceMessages: (props: WakuClientProps) => {
+    articles: Array<object>;
+    error: string;
+  };
 }
 
 export {};
