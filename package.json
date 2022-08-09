@@ -43,7 +43,7 @@
     "fix-path": "^4.0.0",
     "go-ipfs": "^0.14.0",
     "i18next": "^21.8.16",
-    "i18next-fs-backend": "^1.1.4",
+    "i18next-fs-backend": "^1.1.5",
     "i18next-icu": "^2.0.3",
     "intl-messageformat": "^10.1.1",
     "ipfs-core": "^0.15.4",
