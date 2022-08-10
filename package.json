@@ -30,7 +30,7 @@
     "@mui/lab": "^5.0.0-alpha.94",
     "@mui/material": "^5.10.0",
     "@mui/styles": "^5.9.3",
-    "@prisma/client": "^4.2.0",
+    "@prisma/client": "^4.2.1",
     "@self.id/core": "^0.4.1",
     "@self.id/web": "^0.4.2",
     "@walletconnect/client": "^1.8.0",
