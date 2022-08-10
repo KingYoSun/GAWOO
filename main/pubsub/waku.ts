@@ -5,6 +5,7 @@ import { Waku, WakuMessage } from "js-waku";
 import { WakuClientProps } from "../../renderer/types/general";
 import { PrismaClient } from "@prisma/client";
 import moment from "moment";
+import { refType } from "@mui/utils";
 
 export class WakuClient {
   client: Waku;
@@ -37,6 +38,65 @@ export class WakuClient {
     }
   }
 
+  async followUser(payload, propFollow) {
+    const followerRecord = await this.prisma.follow.findFirst({
+      where: {
+        userDid: payload.followerDid,
+        followingDid: propFollow.selfId,
+      },
+    });
+
+    const userRecord = await this.prisma.user.findUnique({
+      where: { did: payload.followerDid },
+    });
+    if (!Boolean(userRecord)) {
+      await this.prisma.user.create({
+        data: { did: payload.followerDid, name: payload.followerDid },
+      });
+    }
+    if (!Boolean(followerRecord)) {
+      await this.prisma.follow.create({
+        data: {
+          userDid: payload.followerDid,
+          followingDid: propFollow.selfId,
+        },
+      });
+      await this.prisma.notice.create({
+        data: {
+          read: false,
+          did: propFollow.selfId,
+          type: "followed",
+          content: `${payload.followerName}からフォローされました！`,
+          url: `/users/${payload.followerDid}`,
+          createdAt: String(payload.timestamp),
+        },
+      });
+    }
+  }
+
+  async unfollowUser(payload, propFollow) {
+    const followerRecord = await this.prisma.follow.findFirst({
+      where: {
+        userDid: payload.followerDid,
+        followingDid: propFollow.selfId,
+      },
+    });
+
+    if (Boolean(followerRecord))
+      this.prisma.follow.delete({
+        where: {
+          userDid_followingDid: {
+            userDid: followerRecord.userDid,
+            followingDid: followerRecord.followingDid,
+          },
+        },
+      });
+  }
+
+  async addPost(payload, propShare) {
+    // TODO
+  }
+
   addObservers({ mainWindow }: mainContext, props: Array<WakuClientProps>) {
     let topics = [];
     const propFollows = props.filter((prop) => prop.purpose === "follow");
@@ -56,53 +116,14 @@ export class WakuClient {
 
             const payload = this.decodeProtoMessage(wakuMessage, "follow");
             console.log("follow received!: ", JSON.stringify(payload));
-            const followerRecord = await this.prisma.follow.findFirst({
-              where: {
-                userDid: payload.followerDid,
-                followingDid: propFollow.selfId,
-              },
-            });
             if (!payload.unfollow) {
-              const userRecord = await this.prisma.user.findUnique({
-                where: { did: payload.followerDid },
-              });
-              if (!Boolean(userRecord)) {
-                await this.prisma.user.create({
-                  data: { did: payload.followerDid, name: payload.followerDid },
-                });
-              }
-              if (!Boolean(followerRecord)) {
-                await this.prisma.follow.create({
-                  data: {
-                    userDid: payload.followerDid,
-                    followingDid: propFollow.selfId,
-                  },
-                });
-                await this.prisma.notice.create({
-                  data: {
-                    read: false,
-                    did: propFollow.selfId,
-                    type: "followed",
-                    content: `${payload.followerName}からフォローされました！`,
-                    url: `/users/${payload.followerDid}`,
-                    createdAt: String(payload.timestamp),
-                  },
-                });
-              }
+              this.followUser(payload, propFollow);
             } else {
-              if (Boolean(followerRecord))
-                this.prisma.follow.delete({
-                  where: {
-                    userDid_followingDid: {
-                      userDid: followerRecord.userDid,
-                      followingDid: followerRecord.followingDid,
-                    },
-                  },
-                });
+              this.unfollowUser(payload, propFollow);
             }
 
             mainWindow.webContents.send("addedNotice", {
-              message: "notice added",
+              message: "Follow received",
             });
           };
           this.client.relay.addObserver(processIncomingMessageFollow, [
@@ -178,33 +199,59 @@ export class WakuClient {
     console.log("Send message on waku to: ", topic);
   }
 
-  async reveiveInstanceMessages(props: WakuClientProps) {
-    const topic = this.setTopic(props);
-    let articles = [];
+  async reveiveInstanceMessages(props: Array<WakuClientProps>) {
+    const resArticles = await Promise.all(
+      props.map(async (prop) => {
+        let articles = [];
+        let topic = this.setTopic(prop);
 
-    const callback = (retrivedMessages) => {
-      articles = retrivedMessages
-        .map((wakuMessage) =>
-          this.decodeProtoMessage(wakuMessage, props.purpose)
-        )
-        .filter(Boolean);
-      console.log(`${articles.length} articles have been retrieved`);
-    };
+        const callback = (retrivedMessages) => {
+          articles = retrivedMessages
+            .map((wakuMessage) =>
+              this.decodeProtoMessage(wakuMessage, prop.purpose)
+            )
+            .filter(Boolean);
+          console.log(`${articles.length} articles have been retrieved`);
+        };
 
-    // defaultで1日前
-    const startTime = Boolean(props.startTime)
-      ? new Date(props.startTime)
-      : moment().subtract(1, "days").toDate();
-    this.client.store
-      .queryHistory([topic], {
-        callback,
-        timeFilter: { startTime, endTime: new Date() },
+        // defaultで1日前
+        console.log(prop.startTime);
+        const startTime = Boolean(prop.startTime)
+          ? new Date(parseInt(prop.startTime))
+          : moment().subtract(30, "days").toDate();
+
+        console.log(startTime);
+        await this.client.store
+          .queryHistory([topic], {
+            callback,
+            timeFilter: { startTime, endTime: new Date() },
+          })
+          .catch((e) => {
+            console.log("Failed to retrieve messages from topic: ", e);
+            throw e;
+          });
+
+        if (prop.purpose === "follow" && articles.length > 0) {
+          articles.map(async (article) => {
+            if (!article.unfollow) {
+              await this.followUser(article, prop);
+            } else {
+              await this.unfollowUser(article, prop);
+            }
+          });
+        }
+
+        if (prop.purpose === "share" && articles.length > 0) {
+          articles.map(async (article) => {
+            this.addPost(article, prop);
+          });
+        }
+
+        return articles;
       })
-      .catch((e) => {
-        console.log("Failed to retrieve messages from topic: ", e);
-      });
+    );
 
-    return articles;
+    return resArticles;
   }
 }
 

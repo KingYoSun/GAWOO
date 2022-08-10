@@ -655,7 +655,7 @@ ipcMain.handle(
 
 ipcMain.handle(
   "retriveInstanceMessages",
-  async (event: IpcMainEvent, props: WakuClientProps) => {
+  async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
     try {
       if (!ctx.wakuClient.connected) throw "waku is not connected";
 

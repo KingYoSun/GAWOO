@@ -46,9 +46,15 @@ const AutoAuth = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    window.electron.addedNotice(() => {
+    window.electron.addedNotice((payload) => {
       if (Boolean(account?.selfId?.id)) {
         countUnreadNotice(account.selfId.id);
+      }
+      if (Boolean(payload.message) && payload.message === "Follow received") {
+        localStorage.setItem(
+          `lastFollowGet-${account?.selfId?.id}`,
+          String(new Date().getTime())
+        );
       }
     });
   }, []);

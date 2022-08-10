@@ -64,9 +64,14 @@ const Subscribe = ({ children }: Props) => {
     }
 
     console.log("add waku Observers!");
+    const followStartTime = localStorage.getItem(
+      `lastFollowGet-${account?.selfId?.id}`
+    );
+
     const wakuPropsFollow: WakuClientProps = {
       selfId: account?.selfId?.id,
       purpose: "follow",
+      startTime: followStartTime,
     };
     const wakuPropsShare: WakuClientProps = {
       selfId: account?.selfId?.id,
@@ -74,8 +79,13 @@ const Subscribe = ({ children }: Props) => {
     };
 
     window.waku.addObservers([wakuPropsFollow, wakuPropsShare]);
-    window.waku.retriveInstanceMessages(wakuPropsFollow);
-    window.waku.retriveInstanceMessages(wakuPropsShare);
+    const retriveRes = window.waku.retriveInstanceMessages([wakuPropsFollow]);
+    if (!Boolean(retriveRes.error)) {
+      localStorage.setItem(
+        `lastFollowGet-${account?.selfId?.id}`,
+        String(new Date().getTime())
+      );
+    }
   }, [account.authenticated, setup.waku]);
 
   return <>{children}</>;
