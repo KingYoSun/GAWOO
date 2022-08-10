@@ -619,7 +619,7 @@ ipcMain.handle(
   async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
     if (!ctx.wakuClient.connected) return "waku is not connected";
     try {
-      await ctx.wakuClient.addObservers(ctx, props);
+      await ctx.wakuClient.addObservers(props);
       return "succeeded";
     } catch (e) {
       return e.toString();

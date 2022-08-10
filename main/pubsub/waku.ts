@@ -6,16 +6,19 @@ import { WakuClientProps } from "../../renderer/types/general";
 import { PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { refType } from "@mui/utils";
+import { BrowserWindow } from "electron";
 
 export class WakuClient {
   client: Waku;
   connected: boolean;
   proto: any;
   prisma: PrismaClient;
+  mainWindow: BrowserWindow;
 
-  async initClient(prismaClient: PrismaClient) {
+  async initClient({ mainWindow }: mainContext, prismaClient: PrismaClient) {
     this.proto = protons(fs.readFileSync("./main/pubsub/waku.proto"));
 
+    this.mainWindow = mainWindow;
     this.prisma = prismaClient;
     this.client = await Waku.create({ bootstrap: { default: true } });
     await this.client.waitForRemotePeer();
@@ -71,6 +74,9 @@ export class WakuClient {
           createdAt: String(payload.timestamp),
         },
       });
+      this.mainWindow.webContents.send("addedNotice", {
+        message: "Follow received",
+      });
     }
   }
 
@@ -97,7 +103,7 @@ export class WakuClient {
     // TODO
   }
 
-  addObservers({ mainWindow }: mainContext, props: Array<WakuClientProps>) {
+  addObservers(props: Array<WakuClientProps>) {
     let topics = [];
     const propFollows = props.filter((prop) => prop.purpose === "follow");
     const propShares = props.filter((prop) => prop.purpose === "share");
@@ -121,10 +127,6 @@ export class WakuClient {
             } else {
               this.unfollowUser(payload, propFollow);
             }
-
-            mainWindow.webContents.send("addedNotice", {
-              message: "Follow received",
-            });
           };
           this.client.relay.addObserver(processIncomingMessageFollow, [
             topicFollow,
@@ -145,7 +147,7 @@ export class WakuClient {
 
             const payload = this.decodeProtoMessage(wakuMessage, "share");
             console.log("share received!: ", JSON.stringify(payload));
-            mainWindow.webContents.send("sharePost", payload);
+            this.mainWindow.webContents.send("sharePost", payload);
           };
           this.client.relay.addObserver(processIncomingMessageShare, [
             topicShare,
@@ -257,5 +259,5 @@ export class WakuClient {
 
 export default async function setupWaku(ctx, prismaClient: PrismaClient) {
   ctx.wakuClient = new WakuClient();
-  await ctx.wakuClient.initClient(prismaClient);
+  await ctx.wakuClient.initClient(ctx, prismaClient);
 }
