@@ -29,6 +29,20 @@ const IndexPage = () => {
     console.log("added notice!");
   };
 
+  const testSignMsg = async () => {
+    if (!Boolean(account?.selfId?.id)) {
+      console.log("not authenticated!");
+      return;
+    }
+
+    const msgJWS = await account.selfId.did.createJWS({
+      hello: "world",
+    });
+    console.log("signed!: ", msgJWS);
+    const msgJWSVerified = await account.selfId.did.verifyJWS(msgJWS);
+    console.log("verify!: ", msgJWSVerified);
+  };
+
   return (
     <>
       <FlexRow>
@@ -37,6 +51,7 @@ const IndexPage = () => {
       <FlexRow>
         <Button onClick={noticeTest}>通知テスト</Button>
         <Button onClick={showAccount}>アカウント確認</Button>
+        <Button onClick={testSignMsg}>createJWS</Button>
       </FlexRow>
       <FlexRow>
         {Boolean(profile?.name) && (
