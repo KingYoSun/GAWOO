@@ -47,7 +47,7 @@
     "i18next-icu": "^2.0.3",
     "intl-messageformat": "^10.1.1",
     "ipfs-core": "^0.15.4",
-    "ipfs-unixfs-exporter": "^7.0.11",
+    "ipfs-unixfs-exporter": "^8.0.0",
     "ipfs-http-client": "56.0.2",
     "ipfsd-ctl": "10.0.6",
     "it-to-buffer": "^2.0.2",
