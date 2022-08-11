@@ -5,6 +5,7 @@ import {
   IpfsFile,
   IpfsPost,
   IPostPage,
+  SignedJWS,
   TFile,
   WakuClientProps,
   WakuFollowSend,
@@ -77,11 +78,14 @@ interface IWaku {
   addObservers: (props: Array<WakuClientProps>) => string;
   deleteObservers: (props: Array<WakuClientProps>) => string;
   sendMessage: (prop: WakuClientProps) => string;
-  followMessage: (callback: (payload) => void) => void;
+  followMessage: (callback: (payload: SignedJWS) => void) => void;
   sharePost: (callback: (payload) => void) => void;
   retriveInstanceMessages: (props: Array<WakuClientProps>) => {
-    articles: Array<object>;
-    error: string;
+    articles: Array<SignedJWS>;
+    error: string | null;
+  };
+  editFollowsFromWaku: (props: Array<WakuClientProps>) => {
+    error: string | null;
   };
 }
 

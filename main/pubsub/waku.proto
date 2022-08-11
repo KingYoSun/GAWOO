@@ -15,3 +15,12 @@ message SharePost {
   optional string topicCid = 7;
   optional string replyToCid = 8;
 }
+
+message SignedJWS {
+  required string payload = 1;
+  message Signature {
+    required string protected = 1;
+    required string signature = 2;
+  }
+  repeated Signature signatures = 2;
+}

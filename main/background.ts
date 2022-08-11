@@ -261,6 +261,7 @@ ipcMain.handle(
         selfId: props.did,
         unfollow: false,
         purpose: "follow",
+        jws: props.jws,
       });
 
       return {
@@ -294,6 +295,7 @@ ipcMain.handle(
         selfId: props.did,
         unfollow: true,
         purpose: "follow",
+        jws: props.jws,
       });
 
       return {
@@ -668,6 +670,31 @@ ipcMain.handle(
     } catch (e) {
       return {
         articles: [],
+        error: e.toString(),
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "editFollowsFromWaku",
+  async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
+    try {
+      if (props.length === 0) throw "No articles!";
+
+      props.map(async (article) => {
+        if (!article.unfollow) {
+          await ctx.wakuClient.followUser(article);
+        } else {
+          await ctx.wakuClient.unfollowUser(article);
+        }
+      });
+
+      return {
+        error: null,
+      };
+    } catch (e) {
+      return {
         error: e.toString(),
       };
     }

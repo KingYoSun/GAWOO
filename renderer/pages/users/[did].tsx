@@ -114,14 +114,25 @@ const UserPage = () => {
   }, [refProfileBody?.current]);
 
   const handleFollowBtn = async () => {
+    let req = {
+      did: did as string,
+      followerDid: account?.selfId?.id,
+      followerName: profile.name,
+      unfollow: true,
+    };
+
     if (Boolean(isFollowing)) {
       console.log("unfollow!");
       try {
+        req.unfollow = true;
+        const jwsObj = await account.selfId.did.createJWS(req);
+        console.log(jwsObj);
         const res = await window.electron.deleteFollow({
-          did: did as string,
-          followerDid: account?.selfId?.id,
-          followerName: profile.name,
-          unfollow: true,
+          ...req,
+          jws: {
+            payload: jwsObj.payload,
+            signatures: jwsObj.signatures,
+          },
         });
         if (Boolean(res.error)) throw res.error;
 
@@ -136,11 +147,15 @@ const UserPage = () => {
     } else {
       console.log("follow!");
       try {
+        req.unfollow = false;
+        const jwsObj = await account.selfId.did.createJWS(req);
+        console.log(jwsObj);
         const res = await window.electron.createFollow({
-          did: did as string,
-          followerDid: account?.selfId?.id,
-          followerName: profile.name,
-          unfollow: false,
+          ...req,
+          jws: {
+            payload: jwsObj.payload,
+            signatures: jwsObj.signatures,
+          },
         });
         if (Boolean(res.error)) throw res.error;
 

@@ -24,28 +24,24 @@ export class WakuClient {
     await this.client.waitForRemotePeer();
     console.log("Connected waku peer!");
     this.connected = true;
+    this.deleteAllObservers();
   }
 
   setTopic(props: WakuClientProps) {
     return `/gawoo/1/${props.selfId}-${props.purpose}/proto`;
   }
 
-  decodeProtoMessage(wakuMessage, purpose: "follow" | "share") {
-    if (!wakuMessage.payload) return;
+  decodeProtoMessage(wakuMessage) {
+    if (!Boolean(wakuMessage.payload)) return;
 
-    if (purpose === "follow") {
-      return this.proto.FollowMessage.decode(wakuMessage.payload);
-    }
-    if (purpose === "share") {
-      return this.proto.SharePost.decode(wakuMessage.payload);
-    }
+    return this.proto.SignedJWS.decode(wakuMessage.payload);
   }
 
-  async followUser(payload, propFollow) {
+  async followUser(payload) {
     const followerRecord = await this.prisma.follow.findFirst({
       where: {
         userDid: payload.followerDid,
-        followingDid: propFollow.selfId,
+        followingDid: payload.selfId,
       },
     });
 
@@ -61,13 +57,13 @@ export class WakuClient {
       await this.prisma.follow.create({
         data: {
           userDid: payload.followerDid,
-          followingDid: propFollow.selfId,
+          followingDid: payload.selfId,
         },
       });
       await this.prisma.notice.create({
         data: {
           read: false,
-          did: propFollow.selfId,
+          did: payload.selfId,
           type: "followed",
           content: `${payload.followerName}からフォローされました！`,
           url: `/users/${payload.followerDid}`,
@@ -80,11 +76,11 @@ export class WakuClient {
     }
   }
 
-  async unfollowUser(payload, propFollow) {
+  async unfollowUser(payload) {
     const followerRecord = await this.prisma.follow.findFirst({
       where: {
         userDid: payload.followerDid,
-        followingDid: propFollow.selfId,
+        followingDid: payload.selfId,
       },
     });
 
@@ -118,15 +114,11 @@ export class WakuClient {
           topics.push(topicFollow);
 
           const processIncomingMessageFollow = async (wakuMessage) => {
-            if (!wakuMessage.payload) return;
+            if (!Boolean(wakuMessage.payload)) return;
 
-            const payload = this.decodeProtoMessage(wakuMessage, "follow");
-            console.log("follow received!: ", JSON.stringify(payload));
-            if (!payload.unfollow) {
-              this.followUser(payload, propFollow);
-            } else {
-              this.unfollowUser(payload, propFollow);
-            }
+            const payload = this.decodeProtoMessage(wakuMessage);
+            console.log("follow received!");
+            this.mainWindow.webContents.send("followMessage", payload);
           };
           this.client.relay.addObserver(processIncomingMessageFollow, [
             topicFollow,
@@ -143,11 +135,11 @@ export class WakuClient {
           topics.push(topicShare);
 
           const processIncomingMessageShare = (wakuMessage) => {
-            if (!wakuMessage.payload) return;
+            if (!Boolean(wakuMessage.payload)) return;
 
-            const payload = this.decodeProtoMessage(wakuMessage, "share");
-            console.log("share received!: ", JSON.stringify(payload));
-            this.mainWindow.webContents.send("sharePost", payload);
+            const payload = this.decodeProtoMessage(wakuMessage);
+            console.log("share received!");
+            // this.mainWindow.webContents.send("sharePost", payload);
           };
           this.client.relay.addObserver(processIncomingMessageShare, [
             topicShare,
@@ -170,29 +162,17 @@ export class WakuClient {
     this.client.relay.deleteObserver((msg) => {}, topics);
   }
 
+  deleteAllObservers() {
+    let topics = Object.keys(this.client.relay.observers);
+    if (topics.length > 0)
+      this.client.relay.deleteObserver((msg) => {}, topics);
+  }
+
   async sendMessage(props: WakuClientProps) {
     if (props.purpose === "follow" && Boolean(props.post)) return;
 
     const topic = this.setTopic(props);
-
-    let payload = new Uint8Array();
-
-    if (props.purpose === "follow") {
-      payload = this.proto.FollowMessage.encode({
-        timestamp: Date.now(),
-        followerDid: props.followerDid,
-        followerName: props.followerName,
-        unfollow: Boolean(props.unfollow),
-      });
-    }
-
-    if (props.purpose === "share") {
-      delete props.post.id;
-      payload = this.proto.SharePost.encode({
-        ...props.post,
-        authorDid: props.selfId,
-      });
-    }
+    let payload = this.proto.SignedJWS.encode(props.jws);
 
     const wakuMessage = await WakuMessage.fromBytes(payload, topic);
 
@@ -202,27 +182,28 @@ export class WakuClient {
   }
 
   async reveiveInstanceMessages(props: Array<WakuClientProps>) {
-    const resArticles = await Promise.all(
+    let articles = [];
+    const callback = (retrivedMessages) => {
+      articles = articles.concat(
+        retrivedMessages
+          .map((wakuMessage) => {
+            if (!Boolean(wakuMessage.payload)) return;
+
+            return this.decodeProtoMessage(wakuMessage);
+          })
+          .filter(Boolean)
+      );
+    };
+
+    await Promise.all(
       props.map(async (prop) => {
-        let articles = [];
         let topic = this.setTopic(prop);
 
-        const callback = (retrivedMessages) => {
-          articles = retrivedMessages
-            .map((wakuMessage) =>
-              this.decodeProtoMessage(wakuMessage, prop.purpose)
-            )
-            .filter(Boolean);
-          console.log(`${articles.length} articles have been retrieved`);
-        };
-
         // defaultで1日前
-        console.log(prop.startTime);
         const startTime = Boolean(prop.startTime)
           ? new Date(parseInt(prop.startTime))
           : moment().subtract(30, "days").toDate();
 
-        console.log(startTime);
         await this.client.store
           .queryHistory([topic], {
             callback,
@@ -232,28 +213,12 @@ export class WakuClient {
             console.log("Failed to retrieve messages from topic: ", e);
             throw e;
           });
-
-        if (prop.purpose === "follow" && articles.length > 0) {
-          articles.map(async (article) => {
-            if (!article.unfollow) {
-              await this.followUser(article, prop);
-            } else {
-              await this.unfollowUser(article, prop);
-            }
-          });
-        }
-
-        if (prop.purpose === "share" && articles.length > 0) {
-          articles.map(async (article) => {
-            this.addPost(article, prop);
-          });
-        }
-
-        return articles;
       })
     );
 
-    return resArticles;
+    console.log(`${articles.length} articles have been retrieved`);
+    console.log("retriveArticles!: ", articles);
+    return articles;
   }
 }
 

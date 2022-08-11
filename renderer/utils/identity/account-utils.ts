@@ -107,4 +107,13 @@ export default class AccountUtils {
 
     console.log("updated profile!");
   }
+
+  async sign(obj) {
+    if (!Boolean(this.selfId?.id)) {
+      console.log("not authenticated!");
+      return;
+    }
+
+    return await this.selfId.did.createJWS(obj);
+  }
 }

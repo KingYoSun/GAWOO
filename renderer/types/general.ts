@@ -46,6 +46,7 @@ export type WakuClientProps = {
   followerDid?: string;
   followerName?: string;
   unfollow?: boolean;
+  jws?: SignedJWS;
 };
 
 export type WakuFollowSend = {
@@ -53,6 +54,17 @@ export type WakuFollowSend = {
   followerDid: string;
   followerName: string;
   unfollow: boolean;
+  jws: SignedJWS;
+};
+
+export type SignedJWS = {
+  payload: string;
+  signatures: Array<Signature>;
+};
+
+export type Signature = {
+  protected: string;
+  signature: string;
 };
 
 export type TFile = {

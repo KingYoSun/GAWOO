@@ -114,4 +114,7 @@ contextBridge.exposeInMainWorld("waku", {
   retriveInstanceMessages: async (props: Array<WakuClientProps>) => {
     return await ipcRenderer.invoke("retriveInstanceMessages", props);
   },
+  editFollowsFromWaku: async (props: Array<WakuClientProps>) => {
+    return await ipcRenderer.invoke("editFollowsFromWaku", props);
+  },
 });
