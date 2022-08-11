@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import { FlexRow } from "../components/Flex";
@@ -43,6 +43,11 @@ const IndexPage = () => {
     console.log("verify!: ", msgJWSVerified);
   };
 
+  useEffect(() => {
+    console.log("relaod!");
+    setReloadCount(reloadCount + 1);
+  }, [account?.selfId?.id]);
+
   return (
     <>
       <FlexRow>
@@ -73,7 +78,7 @@ const IndexPage = () => {
           </Typography>
         )}
       </FlexRow>
-      <IndexPosts reloadCount={reloadCount} />
+      <IndexPosts reloadCount={reloadCount} selfId={account?.selfId?.id} />
     </>
   );
 };

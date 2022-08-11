@@ -10,11 +10,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 type IndexPostsProps = {
   did?: string;
   reloadCount?: number;
+  selfId?: string;
 };
 
 type IndexPostsDirection = "new" | "old";
 
-const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
+const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
   const { indexId, dispatchIndexId } = useContext(IndexIdContext);
   const [hasMore, setHasMore] = useState(true);
   const [canLoadNew, setCanLoadNew] = useState(false);
@@ -47,9 +48,11 @@ const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
   const [posts, dispatchPosts] = useReducer(reducer, []);
 
   const getIndexPosts = async () => {
+    if (!Boolean(did) && !Boolean(selfId)) return;
     const takePosts = 10;
     let cursorId = direction === "new" ? upperNextId : lowerNextId;
     const { posts, nextId } = await window.electron.indexPosts({
+      selfId: Boolean(did) ? null : selfId,
       did: did,
       cursorId: firstLoad ? indexId : cursorId,
       take: takePosts,
@@ -59,6 +62,7 @@ const IndexPosts = ({ did, reloadCount }: IndexPostsProps) => {
       setDirection("old");
       return;
     }
+    console.log("posts!: ", posts);
     if ((posts?.length ?? 0) < takePosts && direction === "old")
       setHasMore(false);
     if (direction === "new") {

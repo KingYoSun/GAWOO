@@ -85,6 +85,7 @@ export type IpfsPost = {
 };
 
 export interface IIndexPosts {
+  selfId?: string;
   did?: string;
   take?: number;
   cursorId?: number;

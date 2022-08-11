@@ -58,7 +58,31 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const ctx: mainContext = {};
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "info",
+    },
+    {
+      emit: "stdout",
+      level: "warn",
+    },
+  ],
+});
+
+prisma.$on("query", (e) => {
+  console.log("Query: ", e.query);
+  console.log("Params: ", e.params);
+});
 
 app.on("will-finish-launching", () => {
   setupProtocolHandlers(ctx);
@@ -171,10 +195,33 @@ ipcMain.handle(
   "indexPosts",
   async (event: IpcMainEvent, props: IIndexPosts) => {
     try {
+      console.log("Get Index Post!");
       const query = {};
       if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
+      if (Boolean(props.did)) query["where"] = { authorDid: props.did };
+      if (Boolean(props.selfId)) {
+        query["where"] = {
+          OR: [
+            {
+              authorDid: {
+                equals: props.selfId,
+              },
+            },
+            {
+              author: {
+                followers: {
+                  every: {
+                    userDid: {
+                      equals: props.selfId,
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        };
+      }
       const res = await prisma.post.findMany({
-        where: { authorDid: props.did },
         orderBy: { id: props.direction === "new" ? "asc" : "desc" },
         take: props.take ?? 20,
         ...query,
