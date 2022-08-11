@@ -77,7 +77,8 @@ const UserPage = () => {
         }
       })();
     }
-  }, [account?.isConnected()]);
+    setReloadCount(reloadCount + 1);
+  }, [account?.isConnected(), did]);
 
   useEffect(() => {
     const image: ImageSources = userProfile?.image as ImageSources;

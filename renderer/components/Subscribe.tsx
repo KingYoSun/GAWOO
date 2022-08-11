@@ -26,7 +26,6 @@ const Subscribe = ({ children }: Props) => {
           const decodedJWS = await account.selfId.did.verifyJWS(article);
           const authorDid = decodedJWS.kid.replace(/\?version(.*)/, "");
 
-          console.log("decodedJWS!: ", decodedJWS.payload);
           if (
             !Boolean(decodedJWS.payload.followerDid) ||
             authorDid !== decodedJWS.payload.followerDid
@@ -40,7 +39,6 @@ const Subscribe = ({ children }: Props) => {
         })
       );
 
-      console.log("followArticles!: ", followArticles);
       followArticles = followArticles.filter(Boolean);
       console.log("followArticles!: ", followArticles);
       if (followArticles.length > 0)
