@@ -22,6 +22,8 @@ import {
   IPostPage,
   IIndexNotices,
   WakuFollowSend,
+  IPostHistory,
+  IPostCreate,
 } from "../renderer/types/general";
 import fs from "fs-extra";
 import { join, extname } from "path";
@@ -79,10 +81,12 @@ const prisma = new PrismaClient({
   ],
 });
 
+/*
 prisma.$on("query", (e) => {
   console.log("Query: ", e.query);
   console.log("Params: ", e.params);
 });
+*/
 
 app.on("will-finish-launching", () => {
   setupProtocolHandlers(ctx);
@@ -169,12 +173,7 @@ ipcMain.handle("confirmSetup", (event: IpcMainEvent) => {
 
 ipcMain.handle(
   "createPost",
-  async (
-    event: IpcMainEvent,
-    post: Post,
-    files: Array<TFile>,
-    pin: boolean
-  ) => {
+  async (event: IpcMainEvent, props: IPostCreate) => {
     if (!ctx.getIpfsd) {
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {
@@ -183,44 +182,49 @@ ipcMain.handle(
       };
     }
 
-    const res = await addToIpfs(ctx, post, files, pin);
-    post.cid = res.cid.toString();
-    if (Boolean(post.cid)) await prisma.post.create({ data: post });
+    const res = await addToIpfs(ctx, props.post, props.files, props.pin);
+    props.post.cid = res.cid.toString();
+    if (Boolean(props.post.cid)) await prisma.post.create({ data: props.post });
 
-    return { post: post, failures: res.failures };
+    return { post: props.post, errors: res.failures };
   }
 );
+
+const indexPostQueries = (props: IIndexPosts) => {
+  const query = {};
+  if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
+  if (Boolean(props.did)) query["where"] = { authorDid: props.did };
+  if (Boolean(props.selfId)) {
+    query["where"] = {
+      OR: [
+        {
+          authorDid: {
+            equals: props.selfId,
+          },
+        },
+        {
+          author: {
+            followers: {
+              every: {
+                userDid: {
+                  equals: props.selfId,
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+  }
+  return query;
+};
 
 ipcMain.handle(
   "indexPosts",
   async (event: IpcMainEvent, props: IIndexPosts) => {
     try {
       console.log("Get Index Post!");
-      const query = {};
-      if (Boolean(props.cursorId)) query["cursor"] = { id: props.cursorId };
-      if (Boolean(props.did)) query["where"] = { authorDid: props.did };
-      if (Boolean(props.selfId)) {
-        query["where"] = {
-          OR: [
-            {
-              authorDid: {
-                equals: props.selfId,
-              },
-            },
-            {
-              author: {
-                followers: {
-                  every: {
-                    userDid: {
-                      equals: props.selfId,
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        };
-      }
+      const query = indexPostQueries(props);
       const res = await prisma.post.findMany({
         orderBy: { id: props.direction === "new" ? "asc" : "desc" },
         take: props.take ?? 20,
@@ -232,6 +236,25 @@ ipcMain.handle(
       };
     } catch (e) {
       return e.toString();
+    }
+  }
+);
+
+ipcMain.handle(
+  "countUnreadPosts",
+  async (event: IpcMainEvent, props: IIndexPosts) => {
+    try {
+      const query = indexPostQueries(props);
+      const count = await prisma.post.count(query);
+      return {
+        count,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        count: null,
+        error: e.toString(),
+      };
     }
   }
 );
@@ -691,10 +714,10 @@ ipcMain.handle(
 
 ipcMain.handle(
   "sendWakuMessage",
-  async (event: IpcMainEvent, prop: WakuClientProps) => {
+  async (event: IpcMainEvent, props: WakuClientProps) => {
     if (!ctx.wakuClient.connected) return "waku is not connected";
     try {
-      await ctx.wakuClient.sendMessage(prop);
+      await ctx.wakuClient.sendMessage(props);
       return "succeeded";
     } catch (e) {
       return e.toString();
@@ -703,12 +726,14 @@ ipcMain.handle(
 );
 
 ipcMain.handle(
-  "retriveInstanceMessages",
+  "retriveFollowInstanceMessages",
   async (event: IpcMainEvent, props: Array<WakuClientProps>) => {
     try {
       if (!ctx.wakuClient.connected) throw "waku is not connected";
 
-      const articles = await ctx.wakuClient.reveiveInstanceMessages(props);
+      const articles = await ctx.wakuClient.reveiveFollowInstanceMessages(
+        props
+      );
 
       return {
         articles,
@@ -742,6 +767,85 @@ ipcMain.handle(
       };
     } catch (e) {
       return {
+        error: e.toString(),
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "addFollowingShareWakuObservers",
+  async (event: IpcMainEvent, selfId: string) => {
+    try {
+      if (!ctx.wakuClient.connected) throw "waku is not connected";
+      await ctx.wakuClient.addFollowingShareObservers(selfId);
+
+      return {
+        error: null,
+      };
+    } catch (e) {
+      return {
+        error: e.toString,
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "addPostsFromWaku",
+  async (event: IpcMainEvent, posts: Array<Post>) => {
+    try {
+      let uniquePosts = await Promise.all(
+        posts.map(async (post) => {
+          const existPost = await prisma.post.findFirst({
+            where: { cid: post.cid },
+          });
+          if (!Boolean(existPost)) return post;
+        })
+      );
+      const resPosts = await prisma.$transaction(
+        uniquePosts.filter(Boolean).map((post) => {
+          delete post.id;
+          return prisma.post.create({ data: post });
+        })
+      );
+      console.log("createMany Posts!: ", resPosts);
+
+      const recentPostId = resPosts
+        .map((post) => post.id)
+        .reduce((prev, current) => {
+          return Math.max(prev, current);
+        });
+      ctx.mainWindow.webContents.send("callPostCheck", {
+        recentPostId,
+      });
+
+      return {
+        error: null,
+      };
+    } catch (e) {
+      return {
+        error: e.toString,
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "retriveShareInstanceMessages",
+  async (event: IpcMainEvent, props: IPostHistory) => {
+    try {
+      if (!ctx.wakuClient.connected) throw "waku is not connected";
+
+      const articles = await ctx.wakuClient.retriveShareInstanceMessages(props);
+
+      return {
+        articles,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        articles: [],
         error: e.toString(),
       };
     }

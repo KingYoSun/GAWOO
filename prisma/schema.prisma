@@ -19,6 +19,7 @@ model Post {
   authorDid         String?
   topicCid          String?
   replyToCid        String?
+  reposterDid       String?
 }
 
 model User {

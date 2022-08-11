@@ -4,6 +4,8 @@ import {
   IIndexNotices,
   IIndexPosts,
   IpfsFile,
+  IPostCreate,
+  IPostHistory,
   IPostPage,
   TFile,
   WakuClientProps,
@@ -30,6 +32,12 @@ contextBridge.exposeInMainWorld("electron", {
   },
   indexPosts: async (props: IIndexPosts) => {
     return await ipcRenderer.invoke("indexPosts", props);
+  },
+  callPostCheck: (callback) => {
+    ipcRenderer.on("callPostCheck", (event, payload) => callback(payload));
+  },
+  countUnreadPosts: async (props: IIndexPosts) => {
+    return await ipcRenderer.invoke("countUnreadPosts", props);
   },
   getPostPage: async (props: IPostPage) => {
     return await ipcRenderer.invoke("getPostPage", props);
@@ -77,8 +85,8 @@ contextBridge.exposeInMainWorld("electron", {
 });
 
 contextBridge.exposeInMainWorld("ipfs", {
-  createPost: async (post: Post, files: Array<TFile>, pin: boolean) => {
-    return await ipcRenderer.invoke("createPost", post, files, pin);
+  createPost: async (props: IPostCreate) => {
+    return await ipcRenderer.invoke("createPost", props);
   },
   imageToIpfs: async (image: string, pin: boolean) => {
     return await ipcRenderer.invoke("imageToIpfs", image, pin);
@@ -109,12 +117,21 @@ contextBridge.exposeInMainWorld("waku", {
   },
   followMessage: (callback) =>
     ipcRenderer.on("followMessage", (event, payload) => callback(payload)),
-  sharePost: (callback) =>
-    ipcRenderer.on("sharePost", (event, payload) => callback(payload)),
-  retriveInstanceMessages: async (props: Array<WakuClientProps>) => {
-    return await ipcRenderer.invoke("retriveInstanceMessages", props);
+  shareMessage: (callback) =>
+    ipcRenderer.on("shareMessage", (event, payload) => callback(payload)),
+  retriveFollowInstanceMessages: async (props: Array<WakuClientProps>) => {
+    return await ipcRenderer.invoke("retriveFollowInstanceMessages", props);
   },
   editFollowsFromWaku: async (props: Array<WakuClientProps>) => {
     return await ipcRenderer.invoke("editFollowsFromWaku", props);
+  },
+  addFollowingShareObservers: async (selfId: string) => {
+    return await ipcRenderer.invoke("addFollowingShareWakuObservers", selfId);
+  },
+  addPostsFromWaku: async (posts: Array<Post>) => {
+    return ipcRenderer.invoke("addPostsFromWaku", posts);
+  },
+  retriveShareInstanceMessages: async (props: IPostHistory) => {
+    return await ipcRenderer.invoke("retriveShareInstanceMessages", props);
   },
 });

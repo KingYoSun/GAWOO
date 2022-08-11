@@ -19,6 +19,7 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
   const { indexId, dispatchIndexId } = useContext(IndexIdContext);
   const [hasMore, setHasMore] = useState(true);
   const [canLoadNew, setCanLoadNew] = useState(false);
+  const [loadablePostsCount, setloadablePostsCount] = useState(0);
   const [upperNextId, setUpperNextId] = useState(null);
   const [lowerNextId, setLowerNextId] = useState(null);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -46,6 +47,18 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
     }
   };
   const [posts, dispatchPosts] = useReducer(reducer, []);
+
+  useEffect(() => {
+    window.electron.callPostCheck(async (payload) => {
+      const resCount = window.electron.countUnreadPosts({
+        selfId: Boolean(did) ? null : selfId,
+        did: did,
+        cursorId: payload.recentPostId,
+        direction: "new",
+      });
+      setloadablePostsCount(resCount.count);
+    });
+  }, []);
 
   const getIndexPosts = async () => {
     if (!Boolean(did) && !Boolean(selfId)) return;
@@ -105,14 +118,27 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
 
   return (
     <>
-      {canLoadNew && (
-        <FlexRow marginBottom="0px" marginTop="0px">
-          <Button variant="text" onClick={() => setDirection("new")}>
-            <MoreVertIcon />
-            <Typography variant="subtitle2">新しい投稿を読み込む</Typography>
-          </Button>
-        </FlexRow>
-      )}
+      {canLoadNew ||
+        (loadablePostsCount > 0 && (
+          <FlexRow marginBottom="0px" marginTop="0px">
+            {canLoadNew && (
+              <Button variant="outlined" onClick={() => setDirection("new")}>
+                <MoreVertIcon />
+                <Typography variant="subtitle2">
+                  新しい投稿を読み込む
+                </Typography>
+              </Button>
+            )}
+            {loadablePostsCount > 0 && (
+              <Button variant="outlined" onClick={() => handleReload()}>
+                <MoreVertIcon />
+                <Typography variant="subtitle2">
+                  最新の投稿{loadablePostsCount}件を読み込む
+                </Typography>
+              </Button>
+            )}
+          </FlexRow>
+        ))}
       <FlexRow marginTop="20px">
         <div style={{ width: "90%" }}>
           <Divider />

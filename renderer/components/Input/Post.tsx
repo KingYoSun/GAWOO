@@ -19,6 +19,7 @@ import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import { basename, extname } from "path";
 import mime from "mime-types";
 import VideoPreview from "./VideoPreview";
+import { el } from "date-fns/locale";
 
 type InputPostProps = {
   topic?: Post;
@@ -200,17 +201,28 @@ const InputPost = (props: InputPostProps) => {
         })
       );
 
-      const res = await window.ipfs.createPost(
-        data,
-        files.filter((file) => Boolean(file)),
-        true
-      );
+      const res = await window.ipfs.createPost({
+        post: data,
+        files: files.filter((file) => Boolean(file)),
+        pin: true,
+      });
       console.log("posted!: ", res);
-      if (res.failures.length > 0) {
+      if (res.errors.length > 0) {
         dispatchErrorDialog({
           type: "open",
-          payload: res.failures.join(", "),
+          payload: res.errors.join(", "),
         });
+      } else {
+        const jwsObj = await account?.selfId?.did.createJWS(res.post);
+        const resWakuSend = await window.waku.sendMessage({
+          selfId: account?.selfId?.id,
+          purpose: "share",
+          jws: {
+            payload: jwsObj.payload,
+            signatures: jwsObj.signatures,
+          },
+        });
+        console.log("share Post!: ", resWakuSend);
       }
     } catch (e) {
       dispatchErrorDialog({

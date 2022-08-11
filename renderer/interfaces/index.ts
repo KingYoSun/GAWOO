@@ -4,6 +4,8 @@ import {
   IIndexPosts,
   IpfsFile,
   IpfsPost,
+  IPostCreate,
+  IPostHistory,
   IPostPage,
   SignedJWS,
   TFile,
@@ -27,6 +29,11 @@ interface IElectron {
   updateUser: (user: User) => User | string;
   showUser: (did: string) => User | string | null;
   indexPosts: (props: IIndexPosts) => { posts: Array<Post>; nextId: number };
+  callPostCheck: (callback: (payload) => void) => void;
+  countUnreadPosts: (props: IIndexPosts) => {
+    count: number | null;
+    error: string | null;
+  };
   getFileByBase64: (ipfsFile: IpfsFile) => string;
   getFullPath: (type: string) => Array<string>;
   readLocalJson: (cid: string, name: string) => Post;
@@ -62,11 +69,7 @@ interface IElectron {
 }
 
 interface IIpfs {
-  createPost: (
-    post: Post,
-    files: Array<TFile>,
-    pin: boolean
-  ) => { post: Post; failures: Array<string> };
+  createPost: (props: IPostCreate) => { post: Post; errors: Array<string> };
   imageToIpfs: (image: string, pin: boolean) => string | Error;
   catImage: (ipfsPath: string, mimeType: string) => string;
   getPost: (cat: string) => IpfsPost;
@@ -79,12 +82,22 @@ interface IWaku {
   deleteObservers: (props: Array<WakuClientProps>) => string;
   sendMessage: (prop: WakuClientProps) => string;
   followMessage: (callback: (payload: SignedJWS) => void) => void;
-  sharePost: (callback: (payload) => void) => void;
-  retriveInstanceMessages: (props: Array<WakuClientProps>) => {
+  shareMessage: (callback: (payload: SignedJWS) => void) => void;
+  retriveFollowInstanceMessages: (props: Array<WakuClientProps>) => {
     articles: Array<SignedJWS>;
     error: string | null;
   };
   editFollowsFromWaku: (props: Array<WakuClientProps>) => {
+    error: string | null;
+  };
+  addFollowingShareObservers: (selfId: string) => {
+    error: string | null;
+  };
+  addPostsFromWaku: (posts: Array<Post>) => {
+    error: string | null;
+  };
+  retriveShareInstanceMessages: (props: IPostHistory) => {
+    articles: Array<SignedJWS>;
     error: string | null;
   };
 }

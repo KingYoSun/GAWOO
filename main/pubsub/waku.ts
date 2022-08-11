@@ -2,7 +2,7 @@ import protons from "protons";
 import fs from "fs-extra";
 import { mainContext } from "../background";
 import { Waku, WakuMessage } from "js-waku";
-import { WakuClientProps } from "../../renderer/types/general";
+import { IPostHistory, WakuClientProps } from "../../renderer/types/general";
 import { PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { refType } from "@mui/utils";
@@ -127,27 +127,6 @@ export class WakuClient {
       });
     }
 
-    if (propShares.length > 0) {
-      propShares.map((propShare) => {
-        let topicShare = this.setTopic(propShare);
-
-        if (!existObservers.includes(topicShare)) {
-          topics.push(topicShare);
-
-          const processIncomingMessageShare = (wakuMessage) => {
-            if (!Boolean(wakuMessage.payload)) return;
-
-            const payload = this.decodeProtoMessage(wakuMessage);
-            console.log("share received!");
-            // this.mainWindow.webContents.send("sharePost", payload);
-          };
-          this.client.relay.addObserver(processIncomingMessageShare, [
-            topicShare,
-          ]);
-        }
-      });
-    }
-
     console.log(
       "Listen waku topic!: ",
       Object.keys(this.client.relay.observers)
@@ -181,7 +160,7 @@ export class WakuClient {
     console.log("Send message on waku to: ", topic);
   }
 
-  async reveiveInstanceMessages(props: Array<WakuClientProps>) {
+  async reveiveFollowInstanceMessages(props: Array<WakuClientProps>) {
     let articles = [];
     const callback = (retrivedMessages) => {
       articles = articles.concat(
@@ -217,7 +196,72 @@ export class WakuClient {
     );
 
     console.log(`${articles.length} articles have been retrieved`);
-    console.log("retriveArticles!: ", articles);
+    console.log("retriveFollowArticles!: ", articles);
+    return articles;
+  }
+
+  async setTopicsFromFollowings(selfId: string) {
+    const followings = await this.prisma.follow.findMany({
+      where: { userDid: selfId },
+    });
+    if (followings.length === 0) return;
+
+    const followingDids = followings.map((following) => following.followingDid);
+    const topics = followingDids.map((followingDid) =>
+      this.setTopic({
+        selfId: followingDid,
+        purpose: "share",
+      })
+    );
+    return topics;
+  }
+
+  async addFollowingShareObservers(selfId: string) {
+    const topics = await this.setTopicsFromFollowings(selfId);
+
+    const processIncomingMessageShare = async (wakuMessage) => {
+      if (!Boolean(wakuMessage.payload)) return;
+
+      const payload = this.decodeProtoMessage(wakuMessage);
+      console.log("share received!");
+      this.mainWindow.webContents.send("shareMessage", payload);
+    };
+
+    this.client.relay.addObserver(processIncomingMessageShare, topics);
+  }
+
+  async retriveShareInstanceMessages(props: IPostHistory) {
+    const topics = await this.setTopicsFromFollowings(props.selfId);
+
+    let articles = [];
+    const callback = (retrivedMessages) => {
+      articles = articles.concat(
+        retrivedMessages
+          .map((wakuMessage) => {
+            if (!Boolean(wakuMessage.payload)) return;
+
+            return this.decodeProtoMessage(wakuMessage);
+          })
+          .filter(Boolean)
+      );
+    };
+    // defaultで1日前
+    const startTime = Boolean(props.startTime)
+      ? new Date(parseInt(props.startTime))
+      : moment().subtract(30, "days").toDate();
+
+    await this.client.store
+      .queryHistory(topics, {
+        callback,
+        timeFilter: { startTime, endTime: new Date() },
+      })
+      .catch((e) => {
+        console.log("Failed to retrieve messages from topic: ", e);
+        throw e;
+      });
+
+    console.log(`${articles.length} articles have been retrieved`);
+    console.log("retriveShareArticles!: ", articles);
     return articles;
   }
 }

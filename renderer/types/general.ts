@@ -104,3 +104,14 @@ export interface IIndexNotices {
   cursorId?: number;
   direction: "new" | "old";
 }
+
+export interface IPostHistory {
+  selfId: string;
+  startTime?: string;
+}
+
+export interface IPostCreate {
+  post: Post;
+  files: Array<TFile>;
+  pin: boolean;
+}
