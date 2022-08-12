@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
+import { NoticeCountContext } from "../../context/NoticeCountContext";
 
 type IndexNoticessDirection = "new" | "old";
 
@@ -22,6 +23,7 @@ const IndexNotices = () => {
   const [direction, setDirection] = useState<IndexNoticessDirection>("old");
   const [latestId, setLatestId] = useState(null);
   const router = useRouter();
+  const { noticeCount, dispatchNoticeCount } = useContext(NoticeCountContext);
 
   const reducer = (state: Array<Notice>, action) => {
     const stateIds = state.map((item) => item.id);
@@ -77,16 +79,6 @@ const IndexNotices = () => {
 
   useEffect(() => {
     getIndexNotices();
-    window.electron.addedNotice(() => {
-      if (Boolean(account?.selfId?.id)) {
-        (async () => {
-          const resLatestId = await window.electron.getLatestNoticeId(
-            account.selfId.id
-          );
-          setLatestId(resLatestId);
-        })();
-      }
-    });
   }, [profile?.name]);
 
   useEffect(() => {
@@ -115,12 +107,12 @@ const IndexNotices = () => {
           テスト通知
         </Button>
       </FlexRow>
-      {latestId - (indexNotices[0]?.id ?? 0) > 0 && (
+      {noticeCount > 0 && (
         <FlexRow marginBottom="0px" marginTop="0px">
           <Button variant="text" onClick={() => setDirection("new")}>
             <MoreVertIcon />
             <Typography variant="subtitle2">
-              新しい通知を読み込む（{latestId - indexNotices[0].id}件）
+              新しい通知を読み込む（{noticeCount}件）
             </Typography>
           </Button>
         </FlexRow>
