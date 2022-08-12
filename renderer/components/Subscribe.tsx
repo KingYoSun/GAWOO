@@ -58,7 +58,7 @@ const Subscribe = ({ children }: Props) => {
     console.log("share articles!: ", articles.length);
 
     if (articles.length > 0) {
-      let shareArticles = await Promise.all(
+      const shareArticles = await Promise.all(
         articles.map(async (article) => {
           const decodedJWS = await account.selfId.did.verifyJWS(article);
           const authorDid = decodedJWS.kid.replace(/\?version(.*)/, "");
@@ -81,10 +81,10 @@ const Subscribe = ({ children }: Props) => {
         })
       );
 
-      shareArticles = shareArticles.filter(Boolean);
-      console.log("shareArticles!: ", shareArticles);
-      if (shareArticles.length > 0)
-        await window.waku.addPostsFromWaku(shareArticles);
+      const filteredShareArticles = shareArticles.filter(Boolean);
+      console.log("shareArticles!: ", filteredShareArticles);
+      if (filteredShareArticles.length > 0)
+        window.waku.addPostsFromWaku(filteredShareArticles);
     }
   };
 
@@ -125,14 +125,7 @@ const Subscribe = ({ children }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (!Boolean(account?.selfId?.id) || !setup.waku) return;
-
-    const wakuIsConnected = window.waku.isConnected();
-    if (!wakuIsConnected) {
-      alert("Wakuが起動していません");
-      console.log("waku is not running");
-      return;
-    }
+    if (!Boolean(account?.selfId?.id) || setup.waku !== true) return;
 
     console.log("add waku Observers!");
     const followStartTime = localStorage.getItem(
@@ -146,7 +139,9 @@ const Subscribe = ({ children }: Props) => {
     };
 
     window.waku.addObservers([wakuPropsFollow]);
-    window.waku.addFollowingShareObservers(account?.selfId?.id as string);
+    if (Boolean(account?.selfId?.id)) {
+      window.waku.addFollowingShareObservers(account?.selfId?.id as string);
+    }
 
     (async () => {
       const retriveResFollows = await window.waku.retriveFollowInstanceMessages(

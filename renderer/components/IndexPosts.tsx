@@ -50,7 +50,7 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
 
   useEffect(() => {
     window.electron.callPostCheck(async (payload) => {
-      const resCount = window.electron.countUnreadPosts({
+      const resCount = await window.electron.countUnreadPosts({
         selfId: Boolean(did) ? null : selfId,
         did: did,
         cursorId: payload.recentPostId,

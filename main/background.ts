@@ -803,22 +803,25 @@ ipcMain.handle(
           if (!Boolean(existPost)) return post;
         })
       );
-      const resPosts = await prisma.$transaction(
-        uniquePosts.filter(Boolean).map((post) => {
-          delete post.id;
-          return prisma.post.create({ data: post });
-        })
-      );
-      console.log("createMany Posts!: ", resPosts);
 
-      const recentPostId = resPosts
-        .map((post) => post.id)
-        .reduce((prev, current) => {
-          return Math.max(prev, current);
+      if (uniquePosts.filter(Boolean).length > 0) {
+        const resPosts = await prisma.$transaction(
+          uniquePosts.filter(Boolean).map((post) => {
+            delete post.id;
+            return prisma.post.create({ data: post });
+          })
+        );
+        console.log("createMany Posts!: ", resPosts);
+
+        const recentPostId = resPosts
+          .map((post) => post.id)
+          .reduce((prev, current) => {
+            return Math.max(prev, current);
+          });
+        ctx.mainWindow.webContents.send("callPostCheck", {
+          recentPostId,
         });
-      ctx.mainWindow.webContents.send("callPostCheck", {
-        recentPostId,
-      });
+      }
 
       return {
         error: null,
