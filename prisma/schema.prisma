@@ -20,6 +20,7 @@ model Post {
   topicCid          String?
   replyToCid        String?
   reposterDid       String?
+  jws               String?
 }
 
 model User {

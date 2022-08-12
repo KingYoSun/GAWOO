@@ -171,6 +171,11 @@ const InputPost = (props: InputPostProps) => {
       data.publishedAt = String(new Date().getTime());
       data.topicCid = props.topic?.cid ?? null;
       data.replyToCid = props.replyTo?.cid ?? null;
+      const dataJWS = await account?.selfId?.did.createJWS(data);
+      data.jws = JSON.stringify({
+        payload: dataJWS.payload,
+        signatures: dataJWS.signatures,
+      });
       console.log("post data!: ", data);
       const files = await Promise.all(
         [...images, video].map(async (item) => {

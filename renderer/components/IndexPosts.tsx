@@ -6,6 +6,8 @@ import { Button, Typography, Divider } from "@mui/material";
 import CardTopic from "../components/card/Topic";
 import InfiniteScroll from "react-infinite-scroll-component";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { AuthContext } from "../context/AuthContext";
+import verifyPost from "../utils/verify-post";
 
 type IndexPostsProps = {
   did?: string;
@@ -16,6 +18,7 @@ type IndexPostsProps = {
 type IndexPostsDirection = "new" | "old";
 
 const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
+  const { account, dispatchAccount } = useContext(AuthContext);
   const { indexId, dispatchIndexId } = useContext(IndexIdContext);
   const [hasMore, setHasMore] = useState(true);
   const [canLoadNew, setCanLoadNew] = useState(false);
@@ -64,7 +67,7 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
     if (!Boolean(did) && !Boolean(selfId)) return;
     const takePosts = 10;
     let cursorId = direction === "new" ? upperNextId : lowerNextId;
-    const { posts, nextId } = await window.electron.indexPosts({
+    let { posts, nextId } = await window.electron.indexPosts({
       selfId: Boolean(did) ? null : selfId,
       did: did,
       cursorId: firstLoad ? indexId : cursorId,
@@ -75,6 +78,9 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
       setDirection("old");
       return;
     }
+    posts = await Promise.all(
+      posts.map(async (post) => await verifyPost(post, account))
+    );
     console.log("posts!: ", posts);
     if ((posts?.length ?? 0) < takePosts && direction === "old")
       setHasMore(false);

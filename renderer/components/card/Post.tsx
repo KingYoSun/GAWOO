@@ -167,6 +167,15 @@ const CardPost = ({
                   "yyyy-MM-dd HH:mm:ss"
                 )}
             </Typography>
+            <Typography
+              variant="body2"
+              color={post.jws === "verified" ? "green" : "error"}
+              sx={{
+                marginLeft: "5px",
+              }}
+            >
+              {post.jws === "verified" ? "認証済み" : "認証無し"}
+            </Typography>
           </FlexRow>
           <FlexRow justifyContent="start" marginTop="10px">
             <Typography>{post.content}</Typography>

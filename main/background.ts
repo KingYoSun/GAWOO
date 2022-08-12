@@ -178,7 +178,7 @@ ipcMain.handle(
       console.log(i18n.t("ipfsNotRunningDialog.title"));
       return {
         cid: "",
-        failuers: [new Error(i18n.t("ipfsNotRunningDialog.title"))],
+        errors: [new Error(i18n.t("ipfsNotRunningDialog.title"))],
       };
     }
 

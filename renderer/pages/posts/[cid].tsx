@@ -1,11 +1,13 @@
 import { Box, Divider, Typography, Button, Collapse } from "@mui/material";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import CardPost from "../../components/card/Post";
 import { FlexRow } from "../../components/Flex";
 import { Post } from "@prisma/client";
-import ReplyDialog from "../../components/modal/Reply";
+import ReplyDialog from "../../components/modal/reply";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { AuthContext } from "../../context/AuthContext";
+import verifyPost from "../../utils/verify-post";
 
 type extPost = Post & {
   depth?: number;
@@ -32,6 +34,7 @@ const PostPage = () => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [targetPost, setTargetPost] = useState(null);
   const [showThread, setShowThread] = useState(true);
+  const { account, dispatchAccount } = useContext(AuthContext);
 
   const initPage = async () => {
     let { postsArr, countHasTopic, nextId }: IGetPostPage =
@@ -39,6 +42,9 @@ const PostPage = () => {
         cid: cid as string,
         take: 5,
       });
+    postsArr = await Promise.all(
+      postsArr.map(async (post) => await verifyPost(post, account))
+    );
     const topic = postsArr.find((item) => !item.topicCid && !item.replyToCid);
     topic.replyCount = countHasTopic;
     postsArr = await Promise.all(
