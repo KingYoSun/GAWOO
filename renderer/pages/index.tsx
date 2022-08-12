@@ -43,11 +43,6 @@ const IndexPage = () => {
     console.log("verify!: ", msgJWSVerified);
   };
 
-  useEffect(() => {
-    console.log("relaod!");
-    setReloadCount(reloadCount + 1);
-  }, [account?.selfId?.id]);
-
   return (
     <>
       <FlexRow>

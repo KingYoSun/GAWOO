@@ -97,14 +97,14 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
   };
 
   useEffect(() => {
-    if (posts.length > 0) return;
+    if (posts.length > 0 || (!Boolean(did) && !Boolean(selfId))) return;
     if (Boolean(indexId)) {
       setUpperNextId(indexId);
       setCanLoadNew(true);
     }
     getIndexPosts();
     setFirstLoad(false);
-  }, [posts]);
+  }, [posts, did, selfId]);
 
   useEffect(() => {
     if (direction === "new") getIndexPosts();
@@ -124,27 +124,30 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
 
   return (
     <>
-      {canLoadNew ||
-        (loadablePostsCount > 0 && (
-          <FlexRow marginBottom="0px" marginTop="0px">
-            {canLoadNew && (
-              <Button variant="outlined" onClick={() => setDirection("new")}>
-                <MoreVertIcon />
-                <Typography variant="subtitle2">
-                  新しい投稿を読み込む
-                </Typography>
-              </Button>
-            )}
-            {loadablePostsCount > 0 && (
-              <Button variant="outlined" onClick={() => handleReload()}>
-                <MoreVertIcon />
-                <Typography variant="subtitle2">
-                  最新の投稿{loadablePostsCount}件を読み込む
-                </Typography>
-              </Button>
-            )}
-          </FlexRow>
-        ))}
+      <FlexRow marginBottom="0px" marginTop="0px">
+        {canLoadNew && (
+          <Button
+            variant="outlined"
+            onClick={() => setDirection("new")}
+            sx={{ marginX: "5px" }}
+          >
+            <MoreVertIcon />
+            <Typography variant="subtitle2">新しい投稿を読み込む</Typography>
+          </Button>
+        )}
+        {loadablePostsCount > 0 && (
+          <Button
+            variant="outlined"
+            onClick={() => handleReload()}
+            sx={{ marginX: "5px" }}
+          >
+            <MoreVertIcon />
+            <Typography variant="subtitle2">
+              最新の投稿{loadablePostsCount}件を読み込む
+            </Typography>
+          </Button>
+        )}
+      </FlexRow>
       <FlexRow marginTop="20px">
         <div style={{ width: "90%" }}>
           <Divider />
