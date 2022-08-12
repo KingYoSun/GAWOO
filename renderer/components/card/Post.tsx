@@ -144,6 +144,7 @@ const CardPost = ({
         <Box
           sx={{
             width: width,
+            zIndex: 3,
           }}
         >
           <FlexRow justifyContent="start">
@@ -199,6 +200,7 @@ const CardPost = ({
                 borderRadius: "10px",
                 maxWidth: "500px",
                 maxHeight: "500px",
+                zIndex: 3,
               }}
             />
           )}

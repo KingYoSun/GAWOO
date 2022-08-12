@@ -122,8 +122,8 @@ const AutoAuth = ({ children }: Props) => {
     ) {
       (async () => {
         const myUser = await window.electron.showUser(account.selfId.id);
-        if (typeof myUser === "string") {
-          console.log(myUser);
+        if (Boolean(myUser.error)) {
+          console.log(myUser.error);
           return;
         }
 
@@ -134,21 +134,21 @@ const AutoAuth = ({ children }: Props) => {
             name: profile.name,
             avatar: profile?.image?.original.src,
           });
-          console.log("add user!: ", res);
+          console.log("add user!: ", res.user);
         }
 
         if (
           Boolean(myUser) &&
-          (myUser.name !== profile.name ||
-            myUser.avatar !== profile?.image?.original.src)
+          (myUser.user.name !== profile.name ||
+            myUser.user.avatar !== profile?.image?.original.src)
         ) {
           const res = await window.electron.updateUser({
-            id: myUser.id,
+            id: myUser.user.id,
             did: account?.selfId?.id,
             name: profile.name,
             avatar: profile?.image?.original.src,
           });
-          console.log("update user!: ", res);
+          console.log("update user!: ", res.user);
         }
       })();
     }

@@ -14,7 +14,7 @@ const ImgPreview = (props: InputImgPreviewProps) => {
           sx={{
             maxWidth: "120px",
             maxHeight: "250px",
-            zIndex: 2,
+            zIndex: 3,
           }}
         >
           <CardActionArea onClick={() => props.onClick()}>

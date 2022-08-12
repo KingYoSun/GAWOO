@@ -186,7 +186,7 @@ ipcMain.handle(
     props.post.cid = res.cid.toString();
     if (Boolean(props.post.cid)) await prisma.post.create({ data: props.post });
 
-    return { post: props.post, errors: res.failures };
+    return { post: props.post, errors: res.errors };
   }
 );
 
@@ -263,9 +263,9 @@ ipcMain.handle("createUser", async (event: IpcMainEvent, user: User) => {
   try {
     delete user.id;
     const res = await prisma.user.create({ data: user });
-    return res;
+    return { user: res, error: null };
   } catch (e) {
-    return e.toString();
+    return { user: null, error: e.toString() };
   }
 });
 
@@ -275,18 +275,18 @@ ipcMain.handle("updateUser", async (event: IpcMainEvent, user: User) => {
       where: { id: user.id },
       data: user,
     });
-    return res;
+    return { user: res, error: null };
   } catch (e) {
-    return e.toString();
+    return { user: null, error: e.toString() };
   }
 });
 
 ipcMain.handle("showUser", async (event: IpcMainEvent, did: string) => {
   try {
     const res = await prisma.user.findUnique({ where: { did: did } });
-    return res;
+    return { user: res, error: null };
   } catch (e) {
-    return e.toString();
+    return { user: null, error: e.toString() };
   }
 });
 
@@ -624,13 +624,24 @@ ipcMain.handle(
 ipcMain.handle(
   "imageToIpfs",
   async (event: IpcMainEvent, image: string, pin: boolean) => {
-    if (!ctx.getIpfsd) {
-      console.log(i18n.t("ipfsNotRunningDialog.title"));
-      return new Error(i18n.t("ipfsNotRunningDialog.title"));
-    }
+    try {
+      if (!ctx.getIpfsd) {
+        console.log(i18n.t("ipfsNotRunningDialog.title"));
+        throw new Error(i18n.t("ipfsNotRunningDialog.title"));
+      }
 
-    const res = await addImage(ctx, image, pin);
-    return res;
+      const res = await addImage(ctx, image, pin);
+
+      return {
+        image: res,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        image: null,
+        error: e.toString,
+      };
+    }
   }
 );
 

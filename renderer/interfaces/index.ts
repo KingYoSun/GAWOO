@@ -25,9 +25,9 @@ interface IElectron {
   sayMsg: (message: string) => void;
   setup: (callback: () => void) => void;
   confirmSetup: () => boolean;
-  createUser: (user: User) => User | string;
-  updateUser: (user: User) => User | string;
-  showUser: (did: string) => User | string | null;
+  createUser: (user: User) => { user: User | null; error: string | null };
+  updateUser: (user: User) => { user: User | null; error: string | null };
+  showUser: (did: string) => { user: User | null; error: string | null };
   indexPosts: (props: IIndexPosts) => { posts: Array<Post>; nextId: number };
   callPostCheck: (callback: (payload) => void) => void;
   countUnreadPosts: (props: IIndexPosts) => {
@@ -70,7 +70,10 @@ interface IElectron {
 
 interface IIpfs {
   createPost: (props: IPostCreate) => { post: Post; errors: Array<string> };
-  imageToIpfs: (image: string, pin: boolean) => string | Error;
+  imageToIpfs: (
+    image: string,
+    pin: boolean
+  ) => { image: string | null; error: string | null };
   catImage: (ipfsPath: string, mimeType: string) => string;
   getPost: (cat: string) => IpfsPost;
 }

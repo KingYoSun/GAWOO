@@ -102,7 +102,7 @@ const addToIpfs = async (
   if (!ipfsd) return;
 
   const successes = [];
-  const failures = [];
+  const errors = [];
 
   const log = logger.start("[add to ipfs] started");
 
@@ -112,7 +112,7 @@ const addToIpfs = async (
         const res = await addJson(ipfsd.api, post, pin);
         successes.push(res);
       } catch (e) {
-        failures.push(e.toString());
+        errors.push(e.toString());
       }
     })(),
     ...files.map(async (file) => {
@@ -120,20 +120,20 @@ const addToIpfs = async (
         const res = await addFileOrDirectory(ipfsd.api, file, pin);
         successes.push(res);
       } catch (e) {
-        failures.push(e.toString());
+        errors.push(e.toString());
       }
     }),
   ]);
 
-  if (failures.length > 0) {
-    log.fail(new Error(failures.join("\n")));
+  if (errors.length > 0) {
+    log.fail(new Error(errors.join("\n")));
   } else {
     log.end();
   }
 
   const { cid, filename } = await getShareableCid(ipfsd.api, successes);
 
-  return { cid: cid, failures: failures };
+  return { cid: cid, errors: errors };
 };
 
 export default addToIpfs;
