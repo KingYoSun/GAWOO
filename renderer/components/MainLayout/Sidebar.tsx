@@ -31,6 +31,7 @@ import { ErrorDialogContext } from "../../context/ErrorDialogContext";
 import { LoadingContext } from "../../context/LoadingContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import ReplayIcon from "@mui/icons-material/Replay";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { NoticeCountContext } from "../../context/NoticeCountContext";
 import AppsIcon from "@mui/icons-material/Apps";
@@ -160,6 +161,10 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
     setAccounts(arrAccount ?? []);
 
     await account.authenticate(true);
+    location.reload();
+  };
+
+  const handleReload = () => {
     location.reload();
   };
 
@@ -468,6 +473,23 @@ const Sidebar = ({ open, handleDrawerToggle }: SideBarProps): JSX.Element => {
           </IconButton>
         </Box>
       )}
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: (theme) => theme.spacing(8),
+          left: "3px",
+        }}
+      >
+        <IconButton
+          onClick={() => handleReload()}
+          size="large"
+          sx={{
+            color: (theme) => theme.palette.primary.contrastText,
+          }}
+        >
+          <ReplayIcon />
+        </IconButton>
+      </Box>
       <Box
         sx={{
           position: "absolute",

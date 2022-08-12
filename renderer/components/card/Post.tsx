@@ -144,7 +144,6 @@ const CardPost = ({
         <Box
           sx={{
             width: width,
-            zIndex: 3,
           }}
         >
           <FlexRow justifyContent="start">
@@ -183,12 +182,13 @@ const CardPost = ({
           </FlexRow>
           <FlexRow justifyContent="start" marginLeft="0px">
             {images.map((image, num) => (
-              <ImgPreview
-                key={num}
-                src={image}
-                onClick={() => handleOpenImageDialog(num)}
-                onLoad={() => getElemHeight()}
-              />
+              <Box key={num} sx={{ zIndex: 3 }}>
+                <ImgPreview
+                  src={image}
+                  onClick={() => handleOpenImageDialog(num)}
+                  onLoad={() => getElemHeight()}
+                />
+              </Box>
             ))}
           </FlexRow>
           {Boolean(video) && (
