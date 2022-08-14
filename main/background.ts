@@ -29,6 +29,7 @@ import fs from "fs-extra";
 import { join, extname } from "path";
 import mime from "mime-types";
 import setProtocol, { GAWOOUSERSCHEME } from "./protocol";
+import checkNeedMigration from "./helpers/need-migration";
 
 export interface mainContext {
   getIpfsd?: () => Controller | null;
@@ -136,6 +137,7 @@ process.on("unhandledRejection", handleError);
 
   try {
     setProtocol();
+    checkNeedMigration(prisma);
 
     ctx.mainWindow = createWindow("main", {
       width: 1000,
