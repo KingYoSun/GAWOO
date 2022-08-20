@@ -1,10 +1,10 @@
-module.exports = function () {
+export default function () {
   return {
     start: () => ({
       fail: () => {},
-      end: () => {}
+      end: () => {},
     }),
     info: () => {},
-    error: () => {}
-  }
+    error: () => {},
+  };
 }

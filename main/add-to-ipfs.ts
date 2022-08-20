@@ -92,12 +92,12 @@ const getShareableCid = async (ipfs, files) => {
   return { cid: stat.cid, filename: "" };
 };
 
-const addToIpfs = async (
+export default async function addToIpfs(
   { getIpfsd }: mainContext,
   post: Post,
   files: Array<TFile>,
   pin: Boolean
-) => {
+) {
   const ipfsd = await getIpfsd();
   if (!ipfsd) return;
 
@@ -134,6 +134,4 @@ const addToIpfs = async (
   const { cid, filename } = await getShareableCid(ipfsd.api, successes);
 
   return { cid: cid, errors: errors };
-};
-
-export default addToIpfs;
+}
