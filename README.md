@@ -1,40 +1,24 @@
-<p align="center"><img src="https://i.imgur.com/flcMvDC.png"></p>
+<p align="center"><img src="./resources/logo.png"></p>
+
+# GAWOO
 
 ## Usage
-
-### Create an App
-
-```
-# with npx
-$ npx create-nextron-app my-app --example with-typescript-material-ui
-
-# with yarn
-$ yarn create nextron-app my-app --example with-typescript-material-ui
-
-# with pnpx
-$ pnpx create-nextron-app my-app --example with-typescript-material-ui
-```
 
 ### Install Dependencies
 
 ```
-$ cd my-app
-
-# using yarn or npm
-$ yarn (or `npm install`)
-
-# using pnpm
-$ pnpm install --shamefully-hoist
+# using yarn or npm (admin rights)
+$ npm install --legacy-peer-deps
 ```
 
 ### Use it
 
 ```
 # development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
+$ npm run dev
 
 # production build
-$ yarn build (or `npm run build` or `pnpm run build`)
+$ npm run build
 ```
 
 ### DB Migration
@@ -50,5 +34,5 @@ $ npx prisma db push
 - applly change of db schema in production
 
 ```
-$npx prisma migrate deploy --**name**
+$ npx prisma migrate deploy --**name**
 ```
