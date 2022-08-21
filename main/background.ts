@@ -31,6 +31,11 @@ import mime from "mime-types";
 import setProtocol, { GAWOOUSERSCHEME } from "./protocol";
 import checkNeedMigration from "./helpers/need-migration";
 
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+  override: true,
+});
+
 export interface mainContext {
   getIpfsd?: () => Controller | null;
   startIpfs?: () => Promise<any>;

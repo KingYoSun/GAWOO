@@ -1,6 +1,10 @@
 import path from "path";
 import { test, expect } from "@playwright/test";
 require("ts-node/register");
+require("dotenv").config({
+  path: ".env.test",
+  override: true,
+});
 
 import mockLogger from "./mocks/logger";
 
@@ -35,6 +39,7 @@ test.describe("Add To Ipfs", function () {
     });
   });
 
+  /*
   test("add to ipfs single file", async () => {
     const cid = await addToIpfs(ctx, getFixtures("hello-world.txt"));
     expect(electron.clipboard.writeText.callCount).toEqual(1);
@@ -64,4 +69,5 @@ test.describe("Add To Ipfs", function () {
       "QmdYASNGKMVK4HL1uzi3VCZyjQGg3M6VuLsgX5xTKL1gvH"
     );
   });
+  */
 });

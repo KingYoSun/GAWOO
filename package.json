@@ -6,8 +6,8 @@
   "author": "kingyosun",
   "main": "app/background.js",
   "scripts": {
-    "dev": "nextron",
-    "build": "nextron build",
+    "dev": "cross-env NODE_ENV=development nextron",
+    "build": "cross-env NODE_ENV=production nextron build",
     "postinstall": "electron-builder install-app-deps",
     "lint": "next lint ./renderer || exit 0",
     "test": "cross-env NODE_ENV=test playwright test 'test/unit/.*.spec.ts'",
@@ -75,6 +75,7 @@
     "@types/react": "^18.0.8",
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.0.1",
     "electron": "^20.0.3",
     "electron-builder": "^23.3.3",
     "eslint": "^8.22.0",
