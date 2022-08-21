@@ -14,6 +14,12 @@ $ npm install --legacy-peer-deps
 ### Use it
 
 ```
+# run unit test
+$ npm run test
+
+# run e2e test
+$ npm run test:e2e
+
 # development mode
 $ npm run dev
 
