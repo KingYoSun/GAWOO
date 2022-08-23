@@ -25,6 +25,10 @@ $ npm run dev
 
 # production build
 $ npm run build
+
+# e2e test
+$ npm run build
+$ npm run test:e2e
 ```
 
 ### DB Migration
