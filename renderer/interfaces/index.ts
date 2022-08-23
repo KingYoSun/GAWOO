@@ -23,7 +23,7 @@ declare global {
 
 interface IElectron {
   sayMsg: (message: string) => void;
-  setup: (callback: () => void) => void;
+  setup: (callback: (payload) => void) => void;
   confirmSetup: () => boolean;
   createUser: (user: User) => { user: User | null; error: string | null };
   updateUser: (user: User) => { user: User | null; error: string | null };

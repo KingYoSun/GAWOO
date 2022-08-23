@@ -161,7 +161,7 @@ async function startIpfsWithLogs(ipfsd) {
   };
 }
 
-const daemon = async (opts) => {
+export default async function daemon(opts) {
   const { ipfsd, isRemote } = await spawn(opts);
   if (!isRemote) {
     await checkPorts(ipfsd);
@@ -189,6 +189,4 @@ const daemon = async (opts) => {
   }
 
   return { ipfsd, err: errLogs.err, logs: errLogs.logs, id: errLogs.id };
-};
-
-export default daemon;
+}
