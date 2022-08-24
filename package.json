@@ -31,7 +31,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.96",
     "@mui/material": "^5.10.2",
-    "@mui/styles": "^5.9.3",
+    "@mui/styles": "^5.10.2",
     "@prisma/client": "^4.2.1",
     "@self.id/core": "^0.4.1",
     "@self.id/web": "^0.4.3",
