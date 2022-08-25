@@ -46,7 +46,6 @@ export default class AccountUtils {
     await this.web3.wcClient.setProvider().catch((e) => {
       throw e;
     });
-    this.web3.setWeb3(this.web3.wcClient.provider);
 
     this.address = this.web3.wcClient.accounts[0];
     if (!this.address) {

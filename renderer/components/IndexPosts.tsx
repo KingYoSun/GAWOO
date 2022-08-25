@@ -81,7 +81,6 @@ const IndexPosts = ({ did, reloadCount, selfId }: IndexPostsProps) => {
     posts = await Promise.all(
       posts.map(async (post) => await verifyPost(post, account))
     );
-    console.log("posts!: ", posts);
     if ((posts?.length ?? 0) < takePosts && direction === "old")
       setHasMore(false);
     if (direction === "new") {
