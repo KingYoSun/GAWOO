@@ -29,7 +29,7 @@
     "@emotion/styled": "^11.10.0",
     "@kingyosun/legacy-modal": "latest",
     "@mui/icons-material": "^5.10.2",
-    "@mui/lab": "^5.0.0-alpha.96",
+    "@mui/lab": "^5.0.0-alpha.97",
     "@mui/material": "^5.10.2",
     "@mui/styles": "^5.10.2",
     "@prisma/client": "^4.3.0",
