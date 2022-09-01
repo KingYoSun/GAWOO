@@ -50,7 +50,7 @@
     "intl-messageformat": "^10.1.4",
     "ipfs-core": "^0.15.4",
     "ipfs-http-client": "56.0.2",
-    "ipfs-unixfs-exporter": "^8.0.4",
+    "ipfs-unixfs-exporter": "^8.0.5",
     "ipfsd-ctl": "10.0.6",
     "it-to-buffer": "^2.0.2",
     "js-waku": "^0.24.0",
