@@ -53,7 +53,7 @@
     "ipfs-unixfs-exporter": "^8.0.5",
     "ipfsd-ctl": "10.0.6",
     "it-to-buffer": "^2.0.2",
-    "js-waku": "^0.26.0",
+    "js-waku": "^0.27.0",
     "key-did-provider-ed25519": "^2.0.1",
     "key-did-resolver": "^2.1.1",
     "mime-types": "^2.1.35",
