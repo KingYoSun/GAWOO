@@ -13,3 +13,4 @@ updates:
       - dependency-name: "ipfsd-ctl"
       - dependency-name: "ipfs-http-client"
       - dependency-name: "protons"
+      - dependency-name: "js-waku"
