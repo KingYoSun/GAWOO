@@ -84,7 +84,7 @@
     "eslint-plugin-testing-library": "^5.7.0",
     "next": "^12.3.1",
     "nextron": "^8.2.0",
-    "playwright": "^1.26.0",
+    "playwright": "^1.26.1",
     "prettier": "^2.7.1",
     "prisma": "4.3.1",
     "proxyquire": "^2.1.3",
