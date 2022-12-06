@@ -30,7 +30,7 @@
     "@kingyosun/legacy-modal": "latest",
     "@mui/icons-material": "^5.10.6",
     "@mui/lab": "^5.0.0-alpha.102",
-    "@mui/material": "^5.10.8",
+    "@mui/material": "^5.10.17",
     "@mui/styles": "^5.10.8",
     "@prisma/client": "^4.4.0",
     "@self.id/core": "^0.4.1",
